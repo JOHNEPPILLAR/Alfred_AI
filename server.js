@@ -43,7 +43,7 @@ server.on('uncaughtException', (req, res, route, err) => {
 });
 
 //=========================================================
-// Startup server and listen to messqges
+// Start server and listen to messqges
 //=========================================================
 server.listen(process.env.PORT, function() {
    console.log('%s listening to %s', server.name, server.url);
