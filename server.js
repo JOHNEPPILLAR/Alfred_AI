@@ -30,7 +30,16 @@ server.use(restify.fullResponse())
 // Error logging
 //=========================================================
 server.on('uncaughtException', (req, res, route, err) => {
-    res.send(err)
+    var returnJSON = {
+        code    : 'error',
+        message : err.message,
+        data    : {
+            skill : route,
+            error : err,
+            call  : req
+        }
+    };
+    res.send(returnJSON);
 });
 
 //=========================================================
@@ -41,6 +50,6 @@ server.listen(process.env.PORT, function() {
 });
 
 //=========================================================
-// Configure routes
+// Configure skills
 //=========================================================
-var defaultRouter = require("./routes/routes.js")(server);
+var defaultRouter = require("./skills/skills.js")(server);

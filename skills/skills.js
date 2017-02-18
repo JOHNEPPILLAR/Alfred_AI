@@ -1,29 +1,29 @@
-var appRouter = function(server) {
+var appSkills = function(server) {
  
-    // Generic routes such as hello, help
+    // Generic skills such as hello, help
     var genericRouter = require('./generic/generic.js');
     genericRouter.applyRoutes(server);
     
-    // weather
+    // weather skills
     var weatherRouter = require('./weather/weather.js');
     weatherRouter.applyRoutes(server, '/weather');
 
-    // joke
+    // joke skill
     var jokeRouter = require('./joke/joke.js');
     jokeRouter.applyRoutes(server);
 
-    // time
+    // time skill
     var timeRouter = require('./time/time.js');
     timeRouter.applyRoutes(server);
 
-    // news
+    // news skills
     var newsRouter = require('./news/news.js');
     newsRouter.applyRoutes(server, '/news');
 
-    // search
+    // search skill
     var searchRouter = require('./search/search.js');
     searchRouter.applyRoutes(server);
 
 }
 
-module.exports = appRouter;
+module.exports = appSkills;
