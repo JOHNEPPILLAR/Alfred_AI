@@ -29,6 +29,7 @@ server.use(restify.fullResponse())
 //=========================================================
 // Error logging
 //=========================================================
+/*
 server.on('uncaughtException', (req, res, route, err) => {
     var returnJSON = {
         code : 'error',
@@ -41,6 +42,7 @@ server.on('uncaughtException', (req, res, route, err) => {
     };
     res.send(returnJSON);
 });
+*/
 
 //=========================================================
 // Start server and listen to messqges

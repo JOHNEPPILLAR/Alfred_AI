@@ -4,13 +4,14 @@ const rp = require('request-promise');
 //=========================================================
 // Call a remote API to get data
 //=========================================================
-exports.requestAPIdata = function (apiURL) {
+exports.requestAPIdata = function (apiURL, userAgent) {
     var options = {
+        'User-Agent': userAgent,
         method: 'GET',
         uri: apiURL,
         resolveWithFullResponse: true,
         json: true
-    };
+    }
     return rp(options);
 };
 
