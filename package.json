@@ -1,0 +1,22 @@
+{
+  "name": "alfred",
+  "version": "1.0.0",
+  "description": "Pillar home AI",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JP",
+  "license": "ISC",
+  "dependencies": {
+    "array-sort": "*",
+    "dotenv": "*",
+    "request": "^2.79.0",
+    "request-promise": "*",
+    "restify": "*",
+    "restify-router": "*",
+    "node-microdata-scraper": "*",
+    "fs": "*",
+    "cheerio": "*"
+  }
+}
