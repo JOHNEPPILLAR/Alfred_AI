@@ -31,11 +31,11 @@ server.use(restify.fullResponse())
 //=========================================================
 server.on('uncaughtException', (req, res, route, err) => {
     var returnJSON = {
-        code    : 'error',
-        message : err.message,
-        data    : {
-            skill : route,
+        code : 'error',
+        data : {
+            message : err.message,
             error : err,
+            skill : route,
             call  : req
         }
     };

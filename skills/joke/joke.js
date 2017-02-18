@@ -1,11 +1,11 @@
 //=========================================================
-// Setup joke routes
+// Setup joke skill
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router();
+const Skills = require('restify-router').Router;  
+      skill = new Skills();
 
 //=========================================================
-// Route: base root
+// Skill: joke
 //=========================================================
 function joke (req, res, next) {
 
@@ -18,8 +18,8 @@ function joke (req, res, next) {
 
         // Construct the returning message
         const jsonDataObj = {
-              code    : 'sucess',
-              message : apiData.joke
+              code : 'sucess',
+              data : apiData.joke
         };
 
         // Send response back to caller
@@ -27,8 +27,8 @@ function joke (req, res, next) {
     })
     .catch(function (err) {
         var returnJSON = {
-            code    : 'error',
-            message : err.message
+            code : 'error',
+            data : err.message
         }
         console.log('joke: ' + err);
         res.send(returnJSON);
@@ -39,8 +39,8 @@ function joke (req, res, next) {
 
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/joke', joke)
+skill.get('/joke', joke)
 
-module.exports = router;
+module.exports = skill;

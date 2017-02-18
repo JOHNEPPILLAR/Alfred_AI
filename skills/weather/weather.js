@@ -1,13 +1,13 @@
 //=========================================================
-// Setup weather routes
+// Setup weather skills
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router(),
+const Skills = require('restify-router').Router;  
+      skill = new Skills(),
       alfredHelper = require('../../helper'),
       sortArray = require('array-sort');
 
 //=========================================================
-// Route: base root, get today's weather for a location, default is London
+// Skill: base root, get today's weather for a location, default is London
 // Params: location: String
 //=========================================================
 function todaysWeatherFor (req, res, next) {
@@ -73,8 +73,8 @@ function todaysWeatherFor (req, res, next) {
         };
 
         var returnJSON = {
-            code    : 'error',
-            message : errorMessage
+            code : 'error',
+            data : errorMessage
         }
         console.log('todaysWeatherFor: ' + err);
         res.send(returnJSON);
@@ -84,7 +84,7 @@ function todaysWeatherFor (req, res, next) {
 };
 
 //=========================================================
-// Route: tomorrow, get tomorrow's forecast for a location, default is London
+// Skill: tomorrow, get tomorrow's forecast for a location, default is London
 // Params: location: String
 //=========================================================
 function weatherForcastForTomorrow (req, res, next) {
@@ -195,8 +195,8 @@ function weatherForcastForTomorrow (req, res, next) {
         };
 
         var returnJSON = {
-            code    : 'error',
-            message : errorMessage
+            code : 'error',
+            data : errorMessage
         }
         console.log('weatherForcastForTomorrow: ' + err);
         res.send(returnJSON);
@@ -206,7 +206,7 @@ function weatherForcastForTomorrow (req, res, next) {
 };
 
 //=========================================================
-// Route: willItSnow, will it snow in the next 5 days for a location, default is London
+// Skill: willItSnow, will it snow in the next 5 days for a location, default is London
 // Params: location: String
 //=========================================================
 function willItSnow (req, res, next) {
@@ -259,8 +259,8 @@ function willItSnow (req, res, next) {
         };
 
         var returnJSON = {
-            code     : 'error',
-            message  : errorMessage
+            code : 'error',
+            data : errorMessage
         }
         console.log('weatherForcastForTomorrow: ' + err);
         res.send(returnJSON);
@@ -270,10 +270,10 @@ function willItSnow (req, res, next) {
 };
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/today', todaysWeatherFor);
-router.get('/tomorrow', weatherForcastForTomorrow);
-router.get('/willitsnow', willItSnow);
+skill.get('/today', todaysWeatherFor);
+skill.get('/tomorrow', weatherForcastForTomorrow);
+skill.get('/willitsnow', willItSnow);
 
-module.exports = router;
+module.exports = skill;

@@ -1,11 +1,11 @@
 //=========================================================
-// Setup news routes
+// Setup news skills
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router();
+const Skills = require('restify-router').Router;  
+      skill = new Skills();
 
 //=========================================================
-// Route: latest
+// Skill: latest
 // Params: type: String
 //=========================================================
 function latest (req, res, next) {
@@ -41,8 +41,8 @@ function latest (req, res, next) {
     if (newsTypeError) {
         var errorMessage = 'That type of news is not currently supported', 
             returnJSON = {
-                code    : 'error',
-                message : errorMessage
+                code : 'error',
+                data : errorMessage
             }
         console.log('news-latest: ' + errorMessage);
         res.send(returnJSON);
@@ -64,8 +64,8 @@ function latest (req, res, next) {
         })
         .catch(function (err) {
             var returnJSON = {
-                code    : 'error',
-                message : err.message
+                code : 'error',
+                data : err.message
             }
             console.log('news-latest: ' + err);
             res.send(returnJSON);
@@ -75,8 +75,8 @@ function latest (req, res, next) {
 };
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/latest', latest)
+skill.get('/latest', latest)
 
-module.exports = router;
+module.exports = skill;

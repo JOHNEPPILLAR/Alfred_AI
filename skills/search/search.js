@@ -1,11 +1,11 @@
 //=========================================================
-// Setup search routes
+// Setup search skills
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router();
+const Skills = require('restify-router').Router;  
+      skill = new Skills();
 
 //=========================================================
-// Route: googlesearch
+// Skill: googlesearch
 // Params: searchterm: String
 //=========================================================
 function googlesearch (req, res, next) {
@@ -28,8 +28,8 @@ function googlesearch (req, res, next) {
     } else {
         // send error response back to caller
         var returnJSON = {
-            code    : 'error',
-            message : 'Search term not provided'
+            code : 'error',
+            data : 'Search term not provided'
         };
         console.log('googlesearch: ' + err);
         res.send(returnJSON);
@@ -38,8 +38,8 @@ function googlesearch (req, res, next) {
 };
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/search', googlesearch)
+skill.get('/search', googlesearch)
 
-module.exports = router;
+module.exports = skill;

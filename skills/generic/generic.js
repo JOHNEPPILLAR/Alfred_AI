@@ -1,11 +1,11 @@
 //=========================================================
-// Setup generic routes
+// Setup generic skill
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router();
+const Skills = require('restify-router').Router;  
+      skill = new Skills();
 
 //=========================================================
-// Route: base root
+// Skill: base root
 //=========================================================
 function root (req, res, next) {
     var responseText = '',
@@ -24,15 +24,15 @@ function root (req, res, next) {
 
     // Send response back to caller
     var returnJSON = {
-        code    : 'sucess',
-        message : responseText
+        code : 'sucess',
+        data : responseText
     };
     res.send(returnJSON);
     next();
 };
 
 //=========================================================
-// Route: Helo
+// Skill: Hello
 // Params: name: String
 //=========================================================
 function hello (req, res, next) {
@@ -57,33 +57,33 @@ function hello (req, res, next) {
 
     // Send response back to caller
     var returnJSON = {
-        code    : 'sucess',
-        message : responseText
+        code : 'sucess',
+        data : responseText
     };
     res.send(returnJSON);
     next();
 };
 
 //=========================================================
-// Route: Help
+// Skill: Help
 //=========================================================
 function help (req, res, next) {
     var responseText = 'I can help you with...';
 
     // send response back to caller
     var returnJSON = {
-        code    : 'sucess',
-        message : responseText
+        code : 'sucess',
+        data : responseText
     };
     res.send(returnJSON);
     next();
 };
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/', root)
-router.get('/hello', hello)
-router.get('/help', help)
+skill.get('/', root)
+skill.get('/hello', hello)
+skill.get('/help', help)
 
-module.exports = router;
+module.exports = skill;

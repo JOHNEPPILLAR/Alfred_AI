@@ -1,11 +1,11 @@
 //=========================================================
-// Setup time routes
+// Setup time skills
 //=========================================================
-const Router = require('restify-router').Router;  
-      router = new Router();
+const Skills = require('restify-router').Router;  
+      skill = new Skills();
 
 //=========================================================
-// Route: whatisthetime
+// Skill: whatisthetime
 //=========================================================
 function whatisthetime (req, res, next) {
     const time = new Date().toLocaleTimeString('en-GB', {
@@ -16,16 +16,16 @@ function whatisthetime (req, res, next) {
 
     // send response back to caller
     var returnJSON = {
-        code    : 'sucess',
-        message : responseText
+        code : 'sucess',
+        data : responseText
     };
     res.send(returnJSON);
     next();
 };
 
 //=========================================================
-// Add routes to server
+// Add skills to server
 //=========================================================
-router.get('/whatisthetime', whatisthetime)
+skill.get('/whatisthetime', whatisthetime)
 
-module.exports = router;
+module.exports = skill;
