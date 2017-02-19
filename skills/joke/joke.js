@@ -26,14 +26,17 @@ function joke (req, res, next) {
         res.send(jsonDataObj);
     })
     .catch(function (err) {
+
+        // Construct the returning message
         var returnJSON = {
             code : 'error',
             data : err.message
         }
+
+        // Send response back to caller
         console.log('joke: ' + err);
         res.send(returnJSON);
     });
-
     next();
 };
 

@@ -22,11 +22,13 @@ function root (req, res, next) {
     }
     responseText = responseText + ' ' + aiNameText;
 
-    // Send response back to caller
+    // Construct the returning message
     var returnJSON = {
         code : 'sucess',
         data : responseText
     };
+
+    // Send response back to caller
     res.send(returnJSON);
     next();
 };
@@ -55,11 +57,13 @@ function hello (req, res, next) {
     }
     responseText = responseText + name + '. ' + aiNameText;
 
-    // Send response back to caller
+    // Construct the returning message
     var returnJSON = {
         code : 'sucess',
         data : responseText
     };
+
+    // Send response back to caller
     res.send(returnJSON);
     next();
 };
@@ -70,11 +74,13 @@ function hello (req, res, next) {
 function help (req, res, next) {
     var responseText = 'I can help you with...';
 
-    // send response back to caller
+    // Construct the returning message
     var returnJSON = {
         code : 'sucess',
         data : responseText
     };
+    
+    // Send response back to caller
     res.send(returnJSON);
     next();
 };

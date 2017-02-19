@@ -24,6 +24,10 @@ var appSkills = function(server) {
     var searchRouter = require('./search/search.js');
     searchRouter.applyRoutes(server);
 
+    // travel skill
+    var searchRouter = require('./travel/travel.js');
+    searchRouter.applyRoutes(server, '/travel');
+
 }
 
 module.exports = appSkills;

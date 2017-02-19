@@ -6,15 +6,15 @@ const Skills = require('restify-router').Router;
 
 //=========================================================
 // Skill: latest
-// Params: type: String
+// Params: news_type: String
 //=========================================================
 function latest (req, res, next) {
 
     // Get the source
     var newsType      = 'sky-news',
         newsTypeError = false,
-        newsParam     = req.query.type; 
-    if (typeof req.query.type !== 'undefined' && req.query.type !== null){
+        newsParam     = req.query.news_type; 
+    if (typeof newsParam !== 'undefined' && newsParam !== null) {
         switch (newsParam.toLowerCase()) {
         case 'news':
             newsType = 'sky-news';
@@ -39,11 +39,15 @@ function latest (req, res, next) {
 
     // If news source if not lised return error message
     if (newsTypeError) {
+        
+        // Construct the returning message
         var errorMessage = 'That type of news is not currently supported', 
             returnJSON = {
                 code : 'error',
                 data : errorMessage
-            }
+            };
+        
+        // Send response back to caller
         console.log('news-latest: ' + errorMessage);
         res.send(returnJSON);
     } else {
@@ -63,10 +67,14 @@ function latest (req, res, next) {
             res.send(returnJSON);
         })
         .catch(function (err) {
+
+            // Construct the returning message
             var returnJSON = {
                 code : 'error',
                 data : err.message
             }
+
+            // Send response back to caller
             console.log('news-latest: ' + err);
             res.send(returnJSON);
         });

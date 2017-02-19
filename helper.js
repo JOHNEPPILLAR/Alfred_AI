@@ -27,6 +27,17 @@ exports.isEmptyObject = function (obj) {
     return true;
 };
 
+exports.GetSortOrder = function (prop) {
+    return function (a, b) {
+        if (a[prop] > b[prop]) {
+            return 1;
+        } else if (a[prop] < b[prop]) {
+            return -1;
+        }
+        return 0;
+    }
+}; 
+
 exports.addDays = function (date, amount) {
     var tzOff = date.getTimezoneOffset() * 60 * 1000,
         t = date.getTime(),
@@ -45,4 +56,14 @@ exports.addDays = function (date, amount) {
     return d;
 };
 
-
+exports.minutesToStop = function (timeofnextbus) {
+    var timetostopinMinutes = Math.floor(timeofnextbus / 60);
+    switch (timetostopinMinutes) {
+        case 0:
+            return 'in less than a minute';
+        case 1:
+            return 'in ' + timetostopinMinutes + ' minute';
+        default:
+            return 'in ' + timetostopinMinutes + ' minutes';
+    };
+};

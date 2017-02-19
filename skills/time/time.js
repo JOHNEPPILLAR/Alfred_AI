@@ -14,12 +14,15 @@ function whatisthetime (req, res, next) {
     });
     var responseText = 'The time is ' + time;
 
-    // send response back to caller
+    // Construct the returning message
     var returnJSON = {
         code : 'sucess',
         data : responseText
     };
+
+    // Send response back to caller
     res.send(returnJSON);
+    
     next();
 };
 

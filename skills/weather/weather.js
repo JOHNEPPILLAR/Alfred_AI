@@ -72,10 +72,13 @@ function todaysWeatherFor (req, res, next) {
             var errorMessage = err.message;
         };
 
+        // Construct the returning message
         var returnJSON = {
             code : 'error',
             data : errorMessage
         }
+
+        // Send response back to caller
         console.log('todaysWeatherFor: ' + err);
         res.send(returnJSON);
     });
@@ -194,10 +197,13 @@ function weatherForcastForTomorrow (req, res, next) {
             var errorMessage = err.message;
         };
 
+        // Construct the returning message
         var returnJSON = {
             code : 'error',
             data : errorMessage
         }
+
+        // Send response back to caller
         console.log('weatherForcastForTomorrow: ' + err);
         res.send(returnJSON);
     });
@@ -258,14 +264,15 @@ function willItSnow (req, res, next) {
             var errorMessage = err.message;
         };
 
+        // Construct the returning message
         var returnJSON = {
             code : 'error',
             data : errorMessage
         }
+        // Send response back to caller
         console.log('weatherForcastForTomorrow: ' + err);
         res.send(returnJSON);
     });
-
     next();
 };
 

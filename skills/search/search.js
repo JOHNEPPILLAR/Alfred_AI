@@ -13,14 +13,14 @@ const Skills = require('restify-router').Router,
 
 //=========================================================
 // Skill: googlesearch
-// Params: searchterm: String
+// Params: search_term: String
 //=========================================================
 function googlesearch (req, res, next) {
 
     // Get the search term
     var searchTerm = '';
-    if (typeof req.query.searchterm !== 'undefined' && req.query.searchterm !== null){
-        searchTerm = req.query.searchterm;
+    if (typeof req.query.search_term !== 'undefined' && req.query.search_term !== null){
+        searchTerm = req.query.search_term;
 
         var userAgent = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
@@ -196,13 +196,15 @@ function googlesearch (req, res, next) {
 
         })
     } else {
-        // send error response back to caller
+		// Construct returning data
         var returnMessage = 'Search term not provided',
         returnJSON = {
             code : 'error',
             data : returnMessage
         };
-        console.log('googlesearch: ' + returnMessage);
+        
+		// send response back to caller
+		console.log('googlesearch: ' + returnMessage);
         res.send(returnJSON);
     };
     next();
