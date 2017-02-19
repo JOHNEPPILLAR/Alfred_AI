@@ -17,10 +17,7 @@
     "restify-router": "*",
     "cheerio": "*",
     "html-entities": "*",
-    "striptags": "*",
     "x-ray": "*",
-    "cheerio-tableparser": "*",
-    "node-tldr": "*",
     "sanitize-html": "*"
   }
 }

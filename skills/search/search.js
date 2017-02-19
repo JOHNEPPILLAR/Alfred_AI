@@ -7,10 +7,7 @@ const Skills = require('restify-router').Router,
       cheerio = require('cheerio'),
       Entities = require('html-entities').XmlEntities,
       entities = new Entities(),
-      striptags = require('striptags'),
       xray = require('x-ray')(),
-      cheerioTableparser = require('cheerio-tableparser'),
-      summary = require('node-tldr'),
       sanitizeHtml = require('sanitize-html'),
       alfredHelper = require('../../helper');
 
@@ -96,7 +93,8 @@ function googlesearch (req, res, next) {
 			if (!found && $('._o0d',body).length>0){
                 console.log("Found instant and desc 2")
 				var tablehtml = $('._o0d',body).html(),
-                    title = '';
+                    title = '',
+                    htmlcontent = '';
                 
                 // get title
                 xray(tablehtml,'b')(function (conversionError, html) {
@@ -104,7 +102,6 @@ function googlesearch (req, res, next) {
                 })
 
                 // Get content
-                var htmlcontent = '';
                 xray(tablehtml, ['li'])(function (conversionError, html) {
                     htmlcontent = html;
                 })
@@ -114,54 +111,6 @@ function googlesearch (req, res, next) {
                     content = content + ' ' + value;
                 });
                 found = title + content;
-
-                /*
-
-                xray(tablehtml, ['table@html'])(function (conversionError, tableHtmlList) {
-                if (!alfredHelper.isEmptyObject(tableHtmlList)) {
-                //if (tableHtmlList) {
-                    // xray returns the html inside each table tag, and tabletojson
-                    // expects a valid html table, so we need to re-wrap the table.
-                    // var table1 = tabletojson.convert('<table>' + tableHtmlList[0]+ '</table>');
-                    var $table2 = cheerio.load('<table>' + tableHtmlList[0]+ '</table>');
-                    cheerioTableparser($table2);
-                    var headerStart = 0;
-                    var data2 = $table2("table").parsetable(false, false, true);
-                    var tableWidth = data2.length;
-                    var tableHeight = data2[0].length;
-                    var blankFound = 0;
-                    var headerText ='';
-                    // Look to see whether header row has blank cells in it. 
-                    // If it does then the headers are titles can't be used so we use first row of table as headers instead
-                    for (var i = 0; i < tableWidth; i++) { 
-                        console.log(data2[i][0]);
-                        if (data2[i][0] == "") {
-                            blankFound++;
-                        } else {
-                            headerText += (data2[i][0]) + '.';
-                        }
-                    }
-                    console.log ("Number of blank cells : " + blankFound)
-                    //found = localeResponse[3] + '.';
-                    if (blankFound != 0){
-                        headerStart = 1;
-                        //found += headerText +' ALEXAPAUSE ';
-                    }
-                    // Parse table from header row onwards
-                    for (var x = headerStart ; x < tableHeight; x++) { 
-                        for (var y = 0; y < tableWidth; y++) { 
-                            found += ( data2[y][x] +'.');
-                        }
-                        found += ('.');
-                    }
-                    console.log('Found :' + found)
-                }
-
-                if (conversionError){
-                    console.log("There was a conversion error: " + conversionError);
-                }
-              });
-                */
 			}
 
 			//Time, Date
@@ -216,12 +165,12 @@ function googlesearch (req, res, next) {
 				found = $('.g>.e>h3',body).html();
 				//how many
 				if ( $('.wob_t',body).first().length>0){
-					console.log("Found weather");
+					console.log("Found more weather info");
 					found+= " "+ $('.wob_t',body).first().html();
 				}
 				//how many
 				if ( $('._Lbd',body).length>0){
-					console.log("Found how many");
+					console.log("Found even more weather info");
 					found+= " "+ $('._Lbd',body).html();
 				}
             }
@@ -235,7 +184,7 @@ function googlesearch (req, res, next) {
                 });
                 var returnData = found;
             } else {
-                var returnData = "I’m sorry, I wasn't able to find an answer";
+                var returnData = "I’m sorry, I wasn't able to find a specific answer for you";
             };
 
             // send response back to caller
