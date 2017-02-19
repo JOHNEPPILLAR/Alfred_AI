@@ -10,7 +10,9 @@ const Skills = require('restify-router').Router,
       striptags = require('striptags'),
       xray = require('x-ray')(),
       cheerioTableparser = require('cheerio-tableparser'),
-      summary = require('node-tldr');
+      summary = require('node-tldr'),
+      sanitizeHtml = require('sanitize-html'),
+      alfredHelper = require('../../helper');
 
 //=========================================================
 // Skill: googlesearch
@@ -33,9 +35,6 @@ function googlesearch (req, res, next) {
 		userAgentRandom = userAgent[Math.floor((Math.random() * 5))],
         url = 'http://www.google.co.uk/search?q=' + searchTerm + '&oe=utf8&hl=en-GB';
         
-console.log('User Agent: - ' + userAgentRandom);
-console.log('url: - ' + url)
-
         alfredHelper.requestAPIdata(url)
         .then(function(apiData, userAgentRandom){
 
@@ -50,10 +49,10 @@ console.log('url: - ' + url)
 				//how many
 				var items = $('._m3b',body).get().length; // find how many lines there are in answer table
 				if (items) {
-                    console.log(items + " how many 2 answer found");
-					found = $('._eGc',body).html() + ", ";
+                    console.log('Found ' + items + " answers");
+					found = ''; //$('._eGc',body).html();
 					for (var count = 0; count < items; count++) {	
-						found = found + $('._m3b',body).eq(count).html() + ", ";
+                        found = found + $('._m3b',body).eq(count).html() + ", ";
 					}
 				}
             }
@@ -68,7 +67,12 @@ console.log('url: - ' + url)
 			if (!found && $('._tXc>span',body).length>0){
 				console.log("Found facts 1");
 				found = $('._tXc>span',body).html();
-			}
+                found = sanitizeHtml(found,{
+                    allowedTags: [],
+                    allowedAttributes: [],
+                    nonTextTags: ['a']
+                });
+            };
 
 			//facts 2
 			if (!found && $('._sPg',body).length>0){
@@ -90,11 +94,32 @@ console.log('url: - ' + url)
 
 			//instant + description 2
 			if (!found && $('._o0d',body).length>0){
-                console.log("Found Found instant and desc 2")
-				var tablehtml = $('._o0d',body).html()
-                found = tablehtml // fallback in case a table isn't found
+                console.log("Found instant and desc 2")
+				var tablehtml = $('._o0d',body).html(),
+                    title = '';
+                
+                // get title
+                xray(tablehtml,'b')(function (conversionError, html) {
+                    title = html + '.';
+                })
+
+                // Get content
+                var htmlcontent = '';
+                xray(tablehtml, ['li'])(function (conversionError, html) {
+                    htmlcontent = html;
+                })
+                
+                var content = '';
+                htmlcontent.forEach(function(value){
+                    content = content + ' ' + value;
+                });
+                found = title + content;
+
+                /*
+
                 xray(tablehtml, ['table@html'])(function (conversionError, tableHtmlList) {
-                if (tableHtmlList) {
+                if (!alfredHelper.isEmptyObject(tableHtmlList)) {
+                //if (tableHtmlList) {
                     // xray returns the html inside each table tag, and tabletojson
                     // expects a valid html table, so we need to re-wrap the table.
                     // var table1 = tabletojson.convert('<table>' + tableHtmlList[0]+ '</table>');
@@ -104,13 +129,8 @@ console.log('url: - ' + url)
                     var data2 = $table2("table").parsetable(false, false, true);
                     var tableWidth = data2.length;
                     var tableHeight = data2[0].length;
-                    console.log("Height " + tableHeight);
-                    console.log("Width " + tableWidth);
                     var blankFound = 0;
                     var headerText ='';
-                    for (var l = 0; l < tableWidth; l++) { 
-                        console.log('Table Data @@@@@' + data2[l]+ '@@@@');
-                    }
                     // Look to see whether header row has blank cells in it. 
                     // If it does then the headers are titles can't be used so we use first row of table as headers instead
                     for (var i = 0; i < tableWidth; i++) { 
@@ -118,11 +138,11 @@ console.log('url: - ' + url)
                         if (data2[i][0] == "") {
                             blankFound++;
                         } else {
-                            headerText += (data2[i][0]) + '. SHORTALEXAPAUSE';
+                            headerText += (data2[i][0]) + '.';
                         }
                     }
                     console.log ("Number of blank cells : " + blankFound)
-                    found = localeResponse[3] + ' ALEXAPAUSE ';
+                    //found = localeResponse[3] + '.';
                     if (blankFound != 0){
                         headerStart = 1;
                         //found += headerText +' ALEXAPAUSE ';
@@ -130,9 +150,9 @@ console.log('url: - ' + url)
                     // Parse table from header row onwards
                     for (var x = headerStart ; x < tableHeight; x++) { 
                         for (var y = 0; y < tableWidth; y++) { 
-                            found += ( data2[y][x] +', SHORTALEXAPAUSE');
+                            found += ( data2[y][x] +'.');
                         }
-                        found += ('ALEXAPAUSE');
+                        found += ('.');
                     }
                     console.log('Found :' + found)
                 }
@@ -141,6 +161,7 @@ console.log('url: - ' + url)
                     console.log("There was a conversion error: " + conversionError);
                 }
               });
+                */
 			}
 
 			//Time, Date
@@ -168,7 +189,7 @@ console.log('url: - ' + url)
 				//how many
 				var items = $('.g>div>table>tr>td>ol>li',body).get().length; // find how many lines there are in answer table
 				if (items) {
-					console.log( items + " Type 4 answer sections result");
+					console.log( items + " definitions found");
 					for (var count = 0; count < items; count++) {	
 						found = found + $('.g>div>table>tr>td>ol>li',body).eq(count).html() + ", ";
 					}
@@ -207,6 +228,11 @@ console.log('url: - ' + url)
 
             // Construct returning data
             if (found) {
+                found = entities.decode(found);
+                found = sanitizeHtml(found,{
+                    allowedTags: ['<b>'],
+                    allowedAttributes: [],
+                });
                 var returnData = found;
             } else {
                 var returnData = "I’m sorry, I wasn't able to find an answer";

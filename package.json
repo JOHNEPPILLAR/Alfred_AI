@@ -20,6 +20,7 @@
     "striptags": "*",
     "x-ray": "*",
     "cheerio-tableparser": "*",
-    "node-tldr": "*"
+    "node-tldr": "*",
+    "sanitize-html": "*"
   }
 }
