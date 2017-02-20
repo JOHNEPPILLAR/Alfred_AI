@@ -9,7 +9,7 @@ const Skills = require('restify-router').Router;
 //=========================================================
 function root (req, res, next) {
     var responseText = '',
-        aiNameText = 'My name is Alfred. I am the Pillar house AI.',
+        aiNameText = 'My name is Alfred. I am the Pillar house Digital Assistant.',
         dt = new Date().getHours()
 
     // Calc which part of day

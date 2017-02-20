@@ -67,7 +67,7 @@ function todaysWeatherFor (req, res, next) {
     .catch(function (err) {
         // if city not found return specific error message
         if(err.message.indexOf('Not found city') > -1) {
-            var errorMessage = 'Location was not found';
+            var errorMessage = 'Location was not found.';
         } else {
             var errorMessage = err.message;
         };
@@ -192,7 +192,7 @@ function weatherForcastForTomorrow (req, res, next) {
     .catch(function (err) {
         // if city not found return specific error message
         if(err.message.indexOf('Not found city') > -1) {
-            var errorMessage = 'Location was not found';
+            var errorMessage = 'Location was not found.';
         } else {
             var errorMessage = err.message;
         };
@@ -259,7 +259,7 @@ function willItSnow (req, res, next) {
     .catch(function (err) {
         // if city not found return specific error message
         if(err.message.indexOf('Not found city') > -1) {
-            var errorMessage = 'Location was not found';
+            var errorMessage = 'Location was not found.';
         } else {
             var errorMessage = err.message;
         };

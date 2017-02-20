@@ -12,7 +12,7 @@ function whatisthetime (req, res, next) {
         hour: 'numeric',
         minute: 'numeric'
     });
-    var responseText = 'The time is ' + time;
+    var responseText = 'The time is ' + time + '.';
 
     // Construct the returning message
     var returnJSON = {

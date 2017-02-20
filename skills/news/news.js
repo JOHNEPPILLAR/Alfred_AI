@@ -35,13 +35,15 @@ function latest (req, res, next) {
             newsTypeError = true;
             break;
         };
+    } else {
+        newsTypeError = true;
     };
 
     // If news source if not lised return error message
     if (newsTypeError) {
         
         // Construct the returning message
-        var errorMessage = 'That type of news is not currently supported', 
+        var errorMessage = 'Unsupported type of news.', 
             returnJSON = {
                 code : 'error',
                 data : errorMessage
@@ -85,6 +87,6 @@ function latest (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/latest', latest)
+skill.get('/news', latest)
 
 module.exports = skill;

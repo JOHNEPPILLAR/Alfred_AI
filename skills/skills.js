@@ -18,7 +18,7 @@ var appSkills = function(server) {
 
     // news skills
     var newsRouter = require('./news/news.js');
-    newsRouter.applyRoutes(server, '/news');
+    newsRouter.applyRoutes(server);
 
     // search skill
     var searchRouter = require('./search/search.js');
