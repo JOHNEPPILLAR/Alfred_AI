@@ -1,5 +1,5 @@
 var appSkills = function(server) {
- 
+
     // Generic skills such as hello, help
     var genericRouter = require('./generic/generic.js');
     genericRouter.applyRoutes(server);

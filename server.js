@@ -1,8 +1,8 @@
 //=========================================================
 // Setup server
 //=========================================================
-const restify    = require('restify'),
-      dotenv     = require('dotenv');
+const restify = require('restify'),
+      dotenv  = require('dotenv');
 
 // Load env vars
 dotenv.load()
@@ -21,18 +21,18 @@ const server = restify.createServer({
 //=========================================================
 // Middleware
 //=========================================================
-server.use(restify.jsonBodyParser({ mapParams: true }))
-server.use(restify.acceptParser(server.acceptable))
-server.use(restify.queryParser({ mapParams: true }))
-server.use(restify.fullResponse())
+server.use(restify.jsonBodyParser({ mapParams: true }));
+server.use(restify.acceptParser(server.acceptable));
+server.use(restify.queryParser({ mapParams: true }));
+server.use(restify.fullResponse());
 
 //=========================================================
 // Error logging
 //=========================================================
-server.use(function logger(req,res,next) {
-    console.log(new Date(),req.method,req.url);
-    next();
-})
+//server.use(function logger(req,res,next) {
+//    console.log(new Date(),req.method,req.url);
+//    next();
+//})
 
 server.on('uncaughtException',function(request, response, route, error) {
     console.error(error.stack);
@@ -44,6 +44,19 @@ server.on('uncaughtException',function(request, response, route, error) {
 //=========================================================
 server.listen(process.env.PORT, function() {
    console.log('%s listening to %s', server.name, server.url);
+});
+
+//=========================================================
+// Check for valid app_key param, if not then return error
+//=========================================================
+server.use(function (req, res, next) {
+    if (req.query.app_key == process.env.app_key) {
+        next();
+    } else {
+        // Invalid app_key, return error
+        next(new restify.NotAuthorizedError('The app_key was invalid'));
+    }
+    next();
 });
 
 //=========================================================

@@ -13,5 +13,9 @@ echo "setting node to v7.5.0"
 source ~/.nvm/nvm.sh
 nvm use 7.5.0
 
-echo "run node and the app"
+echo "removing node modules folder and installing latest"
+rm -rf node_modules
+npm install
+
+echo "run the server app"
 nodemon server.js
