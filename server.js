@@ -29,20 +29,15 @@ server.use(restify.fullResponse())
 //=========================================================
 // Error logging
 //=========================================================
-/*
-server.on('uncaughtException', (req, res, route, err) => {
-    var returnJSON = {
-        code : 'error',
-        data : {
-            message : err.message,
-            error : err,
-            skill : route,
-            call  : req
-        }
-    };
-    res.send(returnJSON);
+server.use(function logger(req,res,next) {
+    console.log(new Date(),req.method,req.url);
+    next();
+})
+
+server.on('uncaughtException',function(request, response, route, error) {
+    console.error(error.stack);
+    response.send(error);
 });
-*/
 
 //=========================================================
 // Start server and listen to messqges

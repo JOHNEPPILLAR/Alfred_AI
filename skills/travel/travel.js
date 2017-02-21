@@ -95,7 +95,7 @@ function nextbus (req, res, next) {
 };
 
 //=========================================================
-// Skill: busstatus
+// Skill: bus status
 // Params: bus_route: String
 //=========================================================
 function busstatus (req, res, next) {
