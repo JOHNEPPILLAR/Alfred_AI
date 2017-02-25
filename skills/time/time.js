@@ -14,14 +14,8 @@ function whatisthetime (req, res, next) {
     });
     var responseText = 'The time is ' + time + '.';
 
-    // Construct the returning message
-    var returnJSON = {
-        code : 'sucess',
-        data : responseText
-    };
-
     // Send response back to caller
-    res.send(returnJSON);
+    alfredHelper.sendResponse(res, 'sucess', responseText);
     
     next();
 };
@@ -29,6 +23,6 @@ function whatisthetime (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/whatisthetime', whatisthetime)
+skill.get('/whatisthetime', whatisthetime);
 
 module.exports = skill;

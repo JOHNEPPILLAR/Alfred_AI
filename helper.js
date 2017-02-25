@@ -2,6 +2,20 @@
 const rp = require('request-promise');
 
 //=========================================================
+// Construct and send JSON response back to caller
+//=========================================================
+exports.sendResponse = function (res, status, JSONobj) {
+    // Construct the returning message
+    var returnJSON = {
+        code : status,
+        data : JSONobj
+    };
+
+    // Send response back to caller
+    res.send(returnJSON);
+};
+
+//=========================================================
 // Call a remote API to get data
 //=========================================================
 exports.requestAPIdata = function (apiURL, userAgent) {

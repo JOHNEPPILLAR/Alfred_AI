@@ -28,6 +28,12 @@ var appSkills = function(server) {
     var searchRouter = require('./travel/travel.js');
     searchRouter.applyRoutes(server, '/travel');
 
+    // lights skill
+    var searchRouter = require('./lights/lights.js');
+    searchRouter.applyRoutes(server, '/lights');
+
+
+
 }
 
 module.exports = appSkills;

@@ -2,7 +2,7 @@
 // Setup news skills
 //=========================================================
 const Skills = require('restify-router').Router;  
-      skill = new Skills();
+      skill  = new Skills();
 
 //=========================================================
 // Skill: latest
@@ -42,43 +42,25 @@ function latest (req, res, next) {
     // If news source if not lised return error message
     if (newsTypeError) {
         
-        // Construct the returning message
-        var errorMessage = 'Unsupported type of news.', 
-            returnJSON = {
-                code : 'error',
-                data : errorMessage
-            };
-        
         // Send response back to caller
-        console.log('news-latest: ' + errorMessage);
-        res.send(returnJSON);
+        alfredHelper.sendResponse(res, 'error', 'Unsupported type of news.');
+        console.log('news-latest: ' + 'Unsupported type of news.');
     } else {
 
         // Get news data
         const url = 'https://newsapi.org/v1/articles?source=' + newsType + '&sortBy=top&apiKey=' + process.env.NEWSAPI;
+
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
 
-            // Construct the returning message
-            var returnJSON = {
-                code : 'sucess',
-                data : apiData.body.articles
-            };
-
             // Send response back to caller
-            res.send(returnJSON);
+            alfredHelper.sendResponse(res, 'sucess', apiData.body.articles);
         })
         .catch(function (err) {
 
-            // Construct the returning message
-            var returnJSON = {
-                code : 'error',
-                data : err.message
-            }
-
             // Send response back to caller
+            alfredHelper.sendResponse(res, 'error', err.message);
             console.log('news-latest: ' + err);
-            res.send(returnJSON);
         });
     };
     next();

@@ -1,15 +1,14 @@
 //=========================================================
 // Setup search skills
 //=========================================================
-const Skills = require('restify-router').Router,
-      skill = new Skills(),
-      $ = require('cheerio'),
-      cheerio = require('cheerio'),
-      Entities = require('html-entities').XmlEntities,
-      entities = new Entities(),
-      xray = require('x-ray')(),
-      sanitizeHtml = require('sanitize-html'),
-      alfredHelper = require('../../helper');
+const Skills       = require('restify-router').Router,
+      skill        = new Skills(),
+      $            = require('cheerio'),
+      cheerio      = require('cheerio'),
+      Entities     = require('html-entities').XmlEntities,
+      entities     = new Entities(),
+      xray         = require('x-ray')(),
+      sanitizeHtml = require('sanitize-html');
 
 //=========================================================
 // Skill: googlesearch
@@ -19,7 +18,7 @@ function googlesearch (req, res, next) {
 
     // Get the search term
     var searchTerm = '';
-    if (typeof req.query.search_term !== 'undefined' && req.query.search_term !== null){
+    if (typeof req.query.search_term !== 'undefined' && req.query.search_term !== null) {
         searchTerm = req.query.search_term;
 
         var userAgent = [
@@ -107,32 +106,32 @@ function googlesearch (req, res, next) {
                 })
                 
                 var content = '';
-                htmlcontent.forEach(function(value){
+                htmlcontent.forEach(function(value) {
                     content = content + ' ' + value;
                 });
                 found = title + content;
 			}
 
 			//Time, Date
-			if (!found && $('._rkc._Peb',body).length>0){
+			if (!found && $('._rkc._Peb',body).length>0) {
 				console.log("Found date and Time");
 				found = $('._rkc._Peb',body).html();
 			}
 
 			//Maths	
-			if (!found && $('.nobr>.r',body).length>0){
+			if (!found && $('.nobr>.r',body).length>0) {
 				console.log("Found maths");					
 				found = $('.nobr>.r',body).html();
 			}
 
 			//simple answer
-			if (!found && $('.obcontainer',body).length>0){
+			if (!found && $('.obcontainer',body).length>0) {
 				console.log("Found Simple answer");
 				found = $('.obcontainer',body).html();
 			}
 
 			//Definition
-			if (!found && $('.r>div>span',body).first().length>0){
+			if (!found && $('.r>div>span',body).first().length>0) {
 				console.log("Found definition");
 				found = $('.r>div>span',body).first().html() +" definition. ";
 				//how many
@@ -146,30 +145,30 @@ function googlesearch (req, res, next) {
 			}
 
 			//TV show
-			if (!found && $('._B5d',body).length>0){	
+			if (!found && $('._B5d',body).length>0) {	
 				console.log("Found tv show");
 				found = $('._B5d',body).html();
 				//how many
-				if ( $('._Pxg',body).length>0){
+				if ( $('._Pxg',body).length>0) {
 					found+= ". "+$('._Pxg',body).html();
 				}
 				//how many
-				if ( $('._tXc',body).length>0){
+				if ( $('._tXc',body).length>0) {
 					found+= ". "+$('._tXc',body).html();
 				}
 			}
 		
 			//Weather
-			if (!found && $('.g>.e>h3',body).length>0){
+			if (!found && $('.g>.e>h3',body).length>0) {
 				console.log("Found weather");
 				found = $('.g>.e>h3',body).html();
 				//how many
-				if ( $('.wob_t',body).first().length>0){
+				if ( $('.wob_t',body).first().length>0) {
 					console.log("Found more weather info");
 					found+= " "+ $('.wob_t',body).first().html();
 				}
 				//how many
-				if ( $('._Lbd',body).length>0){
+				if ( $('._Lbd',body).length>0) {
 					console.log("Found even more weather info");
 					found+= " "+ $('._Lbd',body).html();
 				}
@@ -178,34 +177,24 @@ function googlesearch (req, res, next) {
             // Construct returning data
             if (found) {
                 found = entities.decode(found);
-                found = sanitizeHtml(found,{
+                found = sanitizeHtml(found, {
                     allowedTags: ['<b>'],
                     allowedAttributes: [],
                 });
                 var returnData = found;
             } else {
-                var returnData = "I’m sorry, I wasn't able to find a specific answer for you";
+                var returnData = "I’m sorry, I wasn't able to find a specific answer for you.";
             };
 
-            // send response back to caller
-            var returnJSON = {
-                code : 'sucess',
-                data : returnData
-            };
-            res.send(returnJSON);
+            // Send response back to caller
+            alfredHelper.sendResponse(res, 'sucess', returnData);
 
         })
     } else {
-		// Construct returning data
-        var returnMessage = 'Search term not provided',
-        returnJSON = {
-            code : 'error',
-            data : returnMessage
-        };
-        
-		// send response back to caller
-		console.log('googlesearch: ' + returnMessage);
-        res.send(returnJSON);
+
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'Search term not provided.');
+		console.log('googlesearch: ' + 'Search term not provided.');
     };
     next();
 };

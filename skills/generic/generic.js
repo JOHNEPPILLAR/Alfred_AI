@@ -22,14 +22,9 @@ function root (req, res, next) {
     }
     responseText = responseText + ' ' + aiNameText;
 
-    // Construct the returning message
-    var returnJSON = {
-        code : 'sucess',
-        data : responseText
-    };
-
     // Send response back to caller
-    res.send(returnJSON);
+    alfredHelper.sendResponse(res, 'sucess', responseText);
+
     next();
 };
 
@@ -57,14 +52,9 @@ function hello (req, res, next) {
     }
     responseText = responseText + name + '. ' + aiNameText;
 
-    // Construct the returning message
-    var returnJSON = {
-        code : 'sucess',
-        data : responseText
-    };
-
     // Send response back to caller
-    res.send(returnJSON);
+    alfredHelper.sendResponse(res, 'sucess', responseText);
+
     next();
 };
 
@@ -74,14 +64,9 @@ function hello (req, res, next) {
 function help (req, res, next) {
     var responseText = 'I can help you with...';
 
-    // Construct the returning message
-    var returnJSON = {
-        code : 'sucess',
-        data : responseText
-    };
-    
     // Send response back to caller
-    res.send(returnJSON);
+    alfredHelper.sendResponse(res, 'sucess', responseText)
+
     next();
 };
 

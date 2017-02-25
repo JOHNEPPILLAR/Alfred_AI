@@ -20,13 +20,11 @@ function nextbus (req, res, next) {
                 var url = 'https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&' + tflapiKey;
                 break;
             default:
-                // Construct the returning message
-                var returnJSON = {
-                    code : 'error',
-                    data : 'Bus route not supported.'
-                }
+
                 // Send response back to caller
-                res.send(returnJSON);
+                alfredHelper.sendResponse(res, 'error', 'Bus route not supported.');
+                console.log('nextbus: Bus route not supported.');
+
                 validbusroute = false;
         };
 
@@ -37,15 +35,11 @@ function nextbus (req, res, next) {
                 // Get the bus data
                 apiData = apiData.body;
                 if (alfredHelper.isEmptyObject(apiData)) {
-                    console.log('nextbus - Failure, no data was returned from the TFL API call');
-                    // Construct the returning message
-                    const jsonDataObj = {
-                        code : 'error',
-                        data : 'No data was returned from the call to the TFL API.'
-                    };
 
                     // Send response back to caller
-                    res.send(jsonDataObj);
+                    alfredHelper.sendResponse(res, 'error', 'No data was returned from the call to the TFL API.');
+                    console.log('nextbus: No data was returned from the TFL API call');
+
                 } else { 
                     const numberOfElements = apiData.length;
                     if (numberOfElements > 2) { numberOfElements = 2 };

@@ -18,6 +18,7 @@
     "cheerio": "*",
     "html-entities": "*",
     "x-ray": "*",
-    "sanitize-html": "*"
+    "sanitize-html": "*",
+    "node-hue-api": "*"
   }
 }

@@ -1,9 +1,8 @@
 //=========================================================
 // Setup weather skills
 //=========================================================
-const Skills = require('restify-router').Router;  
-      skill = new Skills(),
-      alfredHelper = require('../../helper'),
+const Skills    = require('restify-router').Router;  
+      skill     = new Skills(),
       sortArray = require('array-sort');
 
 //=========================================================
@@ -14,15 +13,16 @@ function todaysWeatherFor (req, res, next) {
 
     // Get the location
     var location = '';
-    if (typeof req.query.location !== 'undefined' && req.query.location !== null){
+    if (typeof req.query.location !== 'undefined' && req.query.location !== null) {
         location = req.query.location;
     } else {
         location = 'london,uk';
     };
 
     const url = 'http://api.openweathermap.org/data/2.5/weather?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+
     alfredHelper.requestAPIdata(url)
-    .then(function(apiData){
+    .then(function(apiData) {
 
         // Get the weather data
         apiData = apiData.body;
@@ -47,22 +47,18 @@ function todaysWeatherFor (req, res, next) {
 
         // Construct the returning message
         const jsonDataObj = {
-              code : 'sucess',
-              data :
-              {
-                  locationname    : locationname,
-                  Summary         : Summary,
-                  CurrentTemp     : CurrentTemp,
-                  MaxTemp         : MaxTemp,
-                  MinTemp         : MinTemp,
-                  PercentOvercast : PercentOvercast,
-                  RainVolume      : RainVolume,
-                  SnowVolume      : SnowVolume
-              }
-        };
+                locationname    : locationname,
+                Summary         : Summary,
+                CurrentTemp     : CurrentTemp,
+                MaxTemp         : MaxTemp,
+                MinTemp         : MinTemp,
+                PercentOvercast : PercentOvercast,
+                RainVolume      : RainVolume,
+                SnowVolume      : SnowVolume
+              };
 
         // Send response back to caller
-        res.send(jsonDataObj);
+        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
     })
     .catch(function (err) {
         // if city not found return specific error message
@@ -72,17 +68,10 @@ function todaysWeatherFor (req, res, next) {
             var errorMessage = err.message;
         };
 
-        // Construct the returning message
-        var returnJSON = {
-            code : 'error',
-            data : errorMessage
-        }
-
         // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', errorMessage);
         console.log('todaysWeatherFor: ' + err);
-        res.send(returnJSON);
     });
-
     next();
 };
 
@@ -101,6 +90,7 @@ function weatherForcastForTomorrow (req, res, next) {
     };
 
     const url = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+
     alfredHelper.requestAPIdata(url)
     .then(function(apiData){
 
@@ -157,9 +147,6 @@ function weatherForcastForTomorrow (req, res, next) {
 
         // Construct the returning message
         const jsonDataObj = {
-              code : 'sucess',
-              data :
-              {
                   location : locationname,
                   tomorrow_morning:
                   {
@@ -183,11 +170,10 @@ function weatherForcastForTomorrow (req, res, next) {
                       RainVolume      : eveningRainVolume,
                       SnowVolume      : eveningSnowVolume
                   }
-              }
         };
 
         // Send response back to caller
-        res.send (jsonDataObj)
+        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
     })
     .catch(function (err) {
         // if city not found return specific error message
@@ -197,15 +183,9 @@ function weatherForcastForTomorrow (req, res, next) {
             var errorMessage = err.message;
         };
 
-        // Construct the returning message
-        var returnJSON = {
-            code : 'error',
-            data : errorMessage
-        }
-
         // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', errorMessage);
         console.log('weatherForcastForTomorrow: ' + err);
-        res.send(returnJSON);
     });
 
     next();
@@ -226,6 +206,7 @@ function willItSnow (req, res, next) {
     };
 
     const url = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+
     alfredHelper.requestAPIdata(url)
     .then(function(apiData){
 
@@ -244,17 +225,13 @@ function willItSnow (req, res, next) {
 
         // Construct the returning message
         const jsonDataObj = {
-              code : 'sucess',
-              data :
-              {
                   location      : apiData.body.city.location,
                   going_to_snow : goingtosnow,
                   snow_days     : daysSnowing
-              }
-        };
+              };
 
         // Send response back to caller
-        res.send (jsonDataObj)
+        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
     })
     .catch(function (err) {
         // if city not found return specific error message
@@ -264,14 +241,9 @@ function willItSnow (req, res, next) {
             var errorMessage = err.message;
         };
 
-        // Construct the returning message
-        var returnJSON = {
-            code : 'error',
-            data : errorMessage
-        }
         // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', errorMessage);
         console.log('weatherForcastForTomorrow: ' + err);
-        res.send(returnJSON);
     });
     next();
 };

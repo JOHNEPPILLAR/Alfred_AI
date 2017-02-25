@@ -9,33 +9,23 @@ const Skills = require('restify-router').Router;
 //=========================================================
 function joke (req, res, next) {
 
-    const url = 'http://tambal.azurewebsites.net/joke/random'
+    const url = 'http://tambal.azurewebsites.net/joke/random';
+    
     alfredHelper.requestAPIdata(url)
     .then(function(apiData){
 
         // Get the joke data
         apiData = apiData.body;
 
-        // Construct the returning message
-        const jsonDataObj = {
-              code : 'sucess',
-              data : apiData.joke
-        };
-
         // Send response back to caller
-        res.send(jsonDataObj);
+        alfredHelper.sendResponse(res, 'sucess', apiData.joke);
+
     })
     .catch(function (err) {
 
-        // Construct the returning message
-        var returnJSON = {
-            code : 'error',
-            data : err.message
-        }
-
         // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', err.message);
         console.log('joke: ' + err);
-        res.send(returnJSON);
     });
     next();
 };
