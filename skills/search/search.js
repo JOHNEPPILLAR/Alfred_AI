@@ -8,7 +8,8 @@ const Skills       = require('restify-router').Router,
       Entities     = require('html-entities').XmlEntities,
       entities     = new Entities(),
       xray         = require('x-ray')(),
-      sanitizeHtml = require('sanitize-html');
+      sanitizeHtml = require('sanitize-html'),
+	  alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: googlesearch
@@ -194,7 +195,7 @@ function googlesearch (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Search term not provided.');
-		console.log('googlesearch: ' + 'Search term not provided.');
+		console.log('googlesearch: Search term not provided.');
     };
     next();
 };

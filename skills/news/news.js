@@ -1,8 +1,9 @@
 //=========================================================
 // Setup news skills
 //=========================================================
-const Skills = require('restify-router').Router;  
-      skill  = new Skills();
+const Skills       = require('restify-router').Router;  
+      skill        = new Skills(),
+      alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: latest
@@ -44,7 +45,7 @@ function latest (req, res, next) {
         
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Unsupported type of news.');
-        console.log('news-latest: ' + 'Unsupported type of news.');
+        console.log('news-latest: Unsupported type of news.');
     } else {
 
         // Get news data

@@ -1,9 +1,10 @@
 //=========================================================
 // Setup weather skills
 //=========================================================
-const Skills    = require('restify-router').Router;  
-      skill     = new Skills(),
-      sortArray = require('array-sort');
+const Skills       = require('restify-router').Router;  
+      skill        = new Skills(),
+      sortArray    = require('array-sort'),
+      alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: base root, get today's weather for a location, default is London

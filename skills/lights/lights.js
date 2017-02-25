@@ -3,7 +3,8 @@
 //=========================================================
 const Skills = require('restify-router').Router;  
       skill  = new Skills(),
-      HueApi = require("node-hue-api").HueApi;
+      HueApi = require("node-hue-api").HueApi,
+      alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: lights on/off
@@ -21,31 +22,23 @@ function lightOnOff (req, res, next) {
 
     if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
         paramsOK = true;
-    } else {
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'Parameter light_number was not supplied.');
     };
 
     if (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) {
-        paramsOK = true;
         switch (req.query.light_status.toLowerCase()) {
         case 'on':
+            paramsOK = true;
             lightStatus = true;
             break;
         case 'off':
+            paramsOK = true;
             lightStatus = false;
             break;
         default:
             paramsOK = false;
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', 'Parameter light_status was invalid, please use on|off.');
         };
     } else {
         paramsOK = false;
-
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'Parameter light_status was not supplied.');
     };
 
     if(paramsOK) {
@@ -69,6 +62,9 @@ function lightOnOff (req, res, next) {
             alfredHelper.sendResponse(res, 'error', err);
         })
         .done();
+    } else {
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.');
     };
     next();
 };
@@ -76,6 +72,6 @@ function lightOnOff (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/lightsonoff', lightOnOff)
+skill.get('/lightonoff', lightOnOff)
 
 module.exports = skill;

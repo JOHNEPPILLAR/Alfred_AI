@@ -2,7 +2,8 @@
 // Setup generic skill
 //=========================================================
 const Skills = require('restify-router').Router;  
-      skill = new Skills();
+      skill = new Skills(),
+      alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: base root

@@ -1,8 +1,9 @@
 //=========================================================
 // Setup travel skills
 //=========================================================
-const Skills = require('restify-router').Router;  
-      skill  = new Skills();
+const Skills       = require('restify-router').Router;  
+      skill        = new Skills(),
+      alfredHelper = require('../../helper.js');
 
 //=========================================================
 // Skill: next bus
@@ -54,36 +55,21 @@ function nextbus (req, res, next) {
                             var textResponse = 'The next ' + busData[0].lineName + ' to ' + busData[0].towards + ' will arrive ' + alfredHelper.minutesToStop(busData[0].timeToStation);
                     };
 
-                    // Construct the returning message
-                    const jsonDataObj = {
-                        code : 'sucess',
-                        data : textResponse
-                    };
-
                     // Send response back to caller
-                    res.send(jsonDataObj);
+                    alfredHelper.sendResponse(res, 'sucess', textResponse);
                 };
             })
             .catch(function (err) {
-                // Construct the returning message
-                var returnJSON = {
-                    code : 'error',
-                    data : err.message
-                }
+
                 // Send response back to caller
+                alfredHelper.sendResponse(res, 'error', err.message);
                 console.log('nextbus: ' + err);
-                res.send(returnJSON);
             });
         };
     } else {
-        // Construct the returning message
-        const jsonDataObj = {
-            code : 'error',
-            data : 'No bus route was supplied.'
-        };
-
         // Send response back to caller
-        res.send(jsonDataObj);
+        alfredHelper.sendResponse(res, 'error', 'No bus route was supplied.');
+        console.log('nextbus: No bus route was supplied.');
     };
     next();
 };
@@ -107,15 +93,10 @@ function busstatus (req, res, next) {
             // Get the bus data
             apiData = apiData.body;
             if (alfredHelper.isEmptyObject(apiData)) {
-                console.log('busstatus - Failure, no data was returned from the TFL API call');
-                // Construct the returning message
-                const jsonDataObj = {
-                    code : 'error',
-                    data : 'No data was returned from the call to the TFL API.'
-                };
 
                 // Send response back to caller
-                res.send(jsonDataObj);
+                alfredHelper.sendResponse(res, 'error', 'No data was returned from the TFL API call.');
+                console.log('busstatus - Failure, no data was returned from the TFL API call');
             } else { 
 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
@@ -127,26 +108,19 @@ function busstatus (req, res, next) {
                     }
                 }
 
-                // Construct the returning message
-                const jsonDataObj = {
-                    code : 'sucess',
-                    data : textResponse
-                };
-
                 // Send response back to caller
-                res.send(jsonDataObj);
+                alfredHelper.sendResponse(res, 'sucess', textResponse);
             };
         })
         .catch(function (err) {
-            // Construct the returning message
-            var returnJSON = {
-                code : 'error',
-                data : err.message
-            }
             // Send response back to caller
+            alfredHelper.sendResponse(res, 'error', err.message);
             console.log('busstatus: ' + err);
-            res.send(returnJSON);
         });
+    } else {
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'Param bus_route was not supplied.');
+        console.log('Busstatus: Param bus_route was not supplied.');
     };
     next();
 };
@@ -162,8 +136,8 @@ function nexttrain (req, res, next) {
         validtrainroute = true,
         url             = 'https://transportapi.com/v3/uk/train/station/CTN/live.json?' + transportapiKey + '&darwin=false&train_status=passenger&destination=';
 
-    trainroute = trainroute.toUpperCase();
     if (typeof trainroute !== 'undefined' && trainroute !== null) {
+        trainroute = trainroute.toUpperCase();
         switch (trainroute) {
             case 'CST':
                 var url = url + trainroute;
@@ -172,13 +146,10 @@ function nexttrain (req, res, next) {
                 var url = url + trainroute;
                 break;
             default:
-                // Construct the returning message
-                var returnJSON = {
-                    code : 'error',
-                    data : 'Train route not supported.'
-                }
                 // Send response back to caller
-                res.send(returnJSON);
+                alfredHelper.sendResponse(res, 'error', 'Train route not supported.');
+                console.log('Nexttrain: Train destination not supported.');
+
                 validtrainroute = false;
         };
 
@@ -189,15 +160,9 @@ function nexttrain (req, res, next) {
                 // Get the bus data
                 apiData = apiData.body;
                 if (alfredHelper.isEmptyObject(apiData)) {
-                    console.log('nexttrain - Failure, no data was returned from the train API call');
-                    // Construct the returning message
-                    const jsonDataObj = {
-                        code : 'error',
-                        data : 'No data was returned from the call to the train API.'
-                    };
-
-                    // Send response back to caller
-                    res.send(jsonDataObj);
+        
+                    alfredHelper.sendResponse(res, 'error', 'No data was returned from the train API call.');
+                    console.log('nexttrain: No data was returned from the train API call.');
                 } else { 
                     if (apiData.departures.all[0].mode == 'bus') {
                         var textResponse = 'Sorry, there are no trains today! There is a bus replacement serverice in operation.'
@@ -217,40 +182,23 @@ function nexttrain (req, res, next) {
                                 var textResponse = 'The next train from ' + trainrouteData.station_name + ' is to ' + trainData[0].destination_name + ' and will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + '. It is currently ' + trainData[0].status.toLowerCase() + '.';
                          };
                     };
-                    // Construct the returning message
-                    const jsonDataObj = {
-                        code : 'sucess',
-                        data : textResponse
-                    };
-
                     // Send response back to caller
-                    res.send(jsonDataObj);
+                    alfredHelper.sendResponse(res, 'sucess', textResponse);
                 };
             })
             .catch(function (err) {
-                // Construct the returning message
-                var returnJSON = {
-                    code : 'error',
-                    data : err.message
-                }
                 // Send response back to caller
+                alfredHelper.sendResponse(res, 'error', err.message);
                 console.log('nexttrain: ' + err);
-                res.send(returnJSON);
             });
         };
     } else {
-        // Construct the returning message
-        const jsonDataObj = {
-            code : 'error',
-            data : 'No train route was supplied.'
-        };
-
         // Send response back to caller
-        res.send(jsonDataObj);
+        alfredHelper.sendResponse(res, 'error', 'No train route was supplied.');
+        console.log('nexttrain: No train route was supplied.');
     };
     next();
 };
-
 
 //=========================================================
 // Add skills to server
