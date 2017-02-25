@@ -25,15 +25,6 @@ server.use(restify.jsonBodyParser({ mapParams: true }));
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser({ mapParams: true }));
 server.use(restify.fullResponse());
-
-//=========================================================
-// Error logging
-//=========================================================
-//server.use(function logger(req,res,next) {
-//    console.log(new Date(),req.method,req.url);
-//    next();
-//})
-
 server.on('uncaughtException',function(request, response, route, error) {
     console.error(error.stack);
     response.send(error);
