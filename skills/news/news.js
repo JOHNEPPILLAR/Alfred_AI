@@ -20,7 +20,7 @@ function latest (req, res, next) {
         case 'news':
             newsType = 'sky-news';
             break;
-        case 'sport':
+        case 'sports':
             newsType = 'bbc-sport';
             break;
         case 'science':
