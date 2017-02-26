@@ -1,8 +1,9 @@
 //=========================================================
 // Setup server
 //=========================================================
-const restify = require('restify'),
-      dotenv  = require('dotenv');
+const restify      = require('restify'),
+      dotenv       = require('dotenv'),
+      alfredHelper = require('./helper.js');
 
 // Load env vars
 dotenv.load()
@@ -13,11 +14,6 @@ const server = restify.createServer({
     version : process.env.VERSION,
 });
 
-//server.get('/', restify.serveStatic({
-//    directory: __dirname,
-//    default: '/index.html'
-//}));
-
 //=========================================================
 // Middleware
 //=========================================================
@@ -25,10 +21,10 @@ server.use(restify.jsonBodyParser({ mapParams: true }));
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser({ mapParams: true }));
 server.use(restify.fullResponse());
-server.on('uncaughtException',function(request, response, route, error) {
-    console.error(error.stack);
-    response.send(error);
-});
+//server.on('uncaughtException',function(request, response, route, error) {
+//    console.error(error.stack);
+//    alfredHelper.sendResponse(res, 'error', error);
+//});
 
 //=========================================================
 // Start server and listen to messqges
@@ -45,7 +41,7 @@ server.use(function (req, res, next) {
         next();
     } else {
         // Invalid app_key, return error
-        next(new restify.NotAuthorizedError('The app_key was invalid'));
+        next(new restify.NotAuthorizedError('There was a problem authenticating you.'));
     }
     next();
 });
