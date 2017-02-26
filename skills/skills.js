@@ -4,23 +4,23 @@ var appSkills = function(server) {
     var genericRouter = require('./generic/generic.js');
     genericRouter.applyRoutes(server);
     
-    // weather skills
+    // Weather skills
     var weatherRouter = require('./weather/weather.js');
     weatherRouter.applyRoutes(server, '/weather');
 
-    // joke skill
+    // Joke skill
     var jokeRouter = require('./joke/joke.js');
     jokeRouter.applyRoutes(server);
 
-    // time skill
+    // Time skill
     var timeRouter = require('./time/time.js');
     timeRouter.applyRoutes(server);
 
-    // news skills
+    // News skills
     var newsRouter = require('./news/news.js');
     newsRouter.applyRoutes(server);
 
-    // search skill
+    // Search skill
     var searchRouter = require('./search/search.js');
     searchRouter.applyRoutes(server);
 
@@ -31,8 +31,6 @@ var appSkills = function(server) {
     // lights skill
     var searchRouter = require('./lights/lights.js');
     searchRouter.applyRoutes(server, '/lights');
-
-
 
 }
 
