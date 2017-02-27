@@ -19,6 +19,8 @@
     "html-entities": "*",
     "x-ray": "*",
     "sanitize-html": "*",
-    "node-hue-api": "*"
+    "node-hue-api": "*",
+    "node-geocoder": "*",
+    "dateformat": "*"
   }
 }
