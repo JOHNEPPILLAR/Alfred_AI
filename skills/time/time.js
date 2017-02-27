@@ -30,7 +30,7 @@ function whatisthetime (req, res, next) {
     .then(function(Data) {
         var lat = Data[0].latitude,
             lng = Data[0].longitude,
-            url = 'http://api.geonames.org/timezoneJSON?lat=' + lat + '&lng=' + lng + '&username=johneppillar';
+            url = 'http://api.geonames.org/timezoneJSON?lat=' + lat + '&lng=' + lng + '&username=' + process.env.geonames;
             alfredHelper.requestAPIdata(url)
             .then(function(apiData){
                 returnMessage = 'The time in ' + location + ' is currently ' + dateFormat(apiData.body.time, "h:MM TT") + '.';
