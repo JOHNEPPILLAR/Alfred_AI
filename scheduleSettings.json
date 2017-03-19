@@ -1,0 +1,25 @@
+{
+  "sunRiseOffSet": 2,
+  "sunSetOffSet": 2,
+  "brightness": 75,
+  "sunRiseSunsetLights": [
+      {
+        "lightID": 1,
+        "name" : "Hall"
+      },
+      {
+        "lightID": 2,
+        "name" : "Living room light"
+      },
+      {
+        "lightID": 3,
+        "name" : "Play area light"
+      },
+      {
+        "lightID": 12,
+        "name" : "Living room corner light"
+      }
+    ],
+    "morningLightsOut": "08:30",
+    "endOfDayLightsOut": "22:00"
+}
