@@ -21,6 +21,7 @@
     "sanitize-html": "*",
     "node-hue-api": "*",
     "node-geocoder": "*",
-    "dateformat": "*"
+    "dateformat": "*",
+    "harmonyhubjs-client": "*"
   }
 }

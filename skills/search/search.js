@@ -203,6 +203,6 @@ function googlesearch (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/search', googlesearch)
+skill.get('/search', googlesearch);
 
 module.exports = skill;

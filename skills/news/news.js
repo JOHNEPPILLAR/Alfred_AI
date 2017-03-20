@@ -70,6 +70,6 @@ function latest (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/news', latest)
+skill.get('/news', latest);
 
 module.exports = skill;

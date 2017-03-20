@@ -34,6 +34,6 @@ function joke (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/joke', joke)
+skill.get('/joke', joke);
 
 module.exports = skill;

@@ -32,6 +32,10 @@ var appSkills = function(server) {
     var searchRouter = require('./lights/lights.js');
     searchRouter.applyRoutes(server, '/lights');
 
+    // TV skill
+    var searchRouter = require('./tv/tv.js');
+    searchRouter.applyRoutes(server, '/tv');
+
 }
 
 module.exports = appSkills;

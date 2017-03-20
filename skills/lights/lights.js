@@ -192,7 +192,4 @@ skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
 skill.get('/listlights', listLights);
 
-//TODO
-//Move mode
-
 module.exports = skill;

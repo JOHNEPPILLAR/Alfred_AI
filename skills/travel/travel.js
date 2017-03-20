@@ -203,8 +203,8 @@ function nexttrain (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/nextbus', nextbus)
-skill.get('/busstatus', busstatus)
-skill.get('/nexttrain', nexttrain)
+skill.get('/nextbus', nextbus);
+skill.get('/busstatus', busstatus);
+skill.get('/nexttrain', nexttrain);
 
 module.exports = skill;

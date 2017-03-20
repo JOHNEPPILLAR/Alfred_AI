@@ -74,8 +74,8 @@ function help (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/', root)
-skill.get('/hello', hello)
-skill.get('/help', help)
+skill.get('/', root);
+skill.get('/hello', hello);
+skill.get('/help', help);
 
 module.exports = skill;
