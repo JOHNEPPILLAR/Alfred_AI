@@ -54,5 +54,5 @@ var defaultRouter = require("./skills/skills.js")(server);
 //=========================================================
 // Setup schedules
 //=========================================================
-//var defaultSchedule = require("./schedules/schedules.js")(server);
+var defaultSchedule = require("./schedules/schedules.js")(server);
 
