@@ -20,6 +20,8 @@ var appSchedules = function(server) {
         // Sunrise & Sunset schedules
         //=========================================================
 
+        console.log ('Running scheduler: ' + currentTime)
+
         // Get sunrise & sunset data
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
