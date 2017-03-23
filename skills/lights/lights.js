@@ -7,6 +7,28 @@ const Skills = require('restify-router').Router;
       alfredHelper = require('../../helper.js');
 
 //=========================================================
+// Skill: registerDevice
+//=========================================================
+function registerDevice (req, res, next) {
+
+    const HueBridgeIP   = process.env.HueBridgeIP,
+          HueBridgeUser = process.env.HueBridgeUser,
+          Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
+
+    // Send the register command to the Hue bridge
+    Hue.config()
+    .then(function(obj) {
+        alfredHelper.sendResponse(res, 'sucess', obj);
+    })
+    .fail(function(err) {
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', err);
+        console.log('registerDevice: ' + err);
+    })
+    next();
+};
+
+//=========================================================
 // Skill: lights on/off
 // Params: light_number: Number, light_status: String
 //=========================================================
@@ -187,6 +209,7 @@ function listLights (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
+skill.get('/registerdevice', registerDevice);
 skill.get('/lightonoff', lightOnOff);
 skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
