@@ -27,9 +27,9 @@ var appSchedules = function(server) {
                 time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime();
                 currentTime      = dateFormat(new Date(), 'HH:MM'),
                 minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
-                minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
+                //minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
                 maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
-                maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
+                //maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
                 sunRiseShort     = sunRise,
                 sunSetShort      = sunSet;
 
@@ -60,6 +60,7 @@ var appSchedules = function(server) {
             if (sunRiseShort >= minCurrentTime && sunRiseShort <= maxCurrentTime) {
                 runTask = true;
             };
+
             if (sunSetShort >= minCurrentTime && sunSetShort <= maxCurrentTime) {
                 runTask = true;
             };
@@ -80,7 +81,8 @@ var appSchedules = function(server) {
             //=========================================================
             // Morning & Night time lights off schedules
             //=========================================================
-            
+
+            runTask = false;          
             // If the current time matches the morning or night time light off setting, turn off the lights
             if (scheduleSettings.morningLightsOut >= minCurrentTime && scheduleSettings.morningLightsOu <= maxCurrentTime) {
                 runTask = true;
