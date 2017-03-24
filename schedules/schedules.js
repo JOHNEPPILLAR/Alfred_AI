@@ -9,30 +9,12 @@ var appSchedules = function(server) {
           HueBridgeUser = process.env.HueBridgeUser,
           Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
           lightState    = HueLights.lightState,
-          alfredHelper  = require('../helper.js');
-    
-    var sunRise        = new Date(),
+          alfredHelper  = require('../helper.js'),
+          dateFormat    = require('dateformat');
+          
+    var firstRun       = true,
+        sunRise        = new Date(),
         sunSet         = new Date(),
-        recursiveDaily = function() {
-        
-            //=========================================================
-            // Daily scheduler
-            //=========================================================
-            var currentTime = dateFormat(new Date(), 'HH:MM');
-
-            console.log ('Running daily scheduler: ' + currentTime)
-
-            // Get sunrise & sunset data
-            alfredHelper.requestAPIdata(url)
-            .then(function(apiData){
-                sunRise = new Date(apiData.body.sys.sunrise);
-                sunSet  = new Date(apiData.body.sys.sunset);
-            })
-            .catch(function (err) {
-                console.log('Schedule Error: ' + err);
-            });
-            setTimeout(recursiveDaily,1000 * 60 * 60 * 12); // run every 12 hours
-        },
         recursive = function() {
         
             var scheduleSettings = require('../scheduleSettings.json'),
@@ -44,10 +26,12 @@ var appSchedules = function(server) {
                 maxCurrentTime   = new Date(),
                 time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime();
                 currentTime      = dateFormat(new Date(), 'HH:MM'),
-                minCurrentTime.setMinutes(minCurrentTime.getMinutes() + 5),
+                minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
                 minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
-                maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 5),
-                maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM');
+                maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
+                maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
+                sunRiseShort     = sunRise,
+                sunSetShort      = sunSet;
 
             //=========================================================
             // Sunrise & Sunset schedules
@@ -59,23 +43,24 @@ var appSchedules = function(server) {
             state    = lightState.create().on().brightness(scheduleSettings.brightness);
 
             // Adjust sunrise & sunset time by offset stored in config
-            sunRise.setHours(new Date(sunRise).getHours() - scheduleSettings.sunRiseOffSet);
-            sunSet.setHours(new Date(sunSet).getHours() - scheduleSettings.sunSetOffSet);
+            sunRiseShort.setHours(new Date(sunRise).getHours() - scheduleSettings.sunRiseOffSet);
+            sunSetShort.setHours(new Date(sunSet).getHours() - scheduleSettings.sunSetOffSet);
 
-            // If the adjusted sunRise if before 6am reset to sunRise 6am.
-            if (sunRise.getTime() <= time6am) {
-                sunRise = new Date('2017-01-01 06:00');
+            // If the adjusted sunRise if before 6am reset sunRise to 6am.
+            if (sunRiseShort < time6am) {
+                sunRiseShort.setHours('06');
+                sunRiseShort.setMinutes('00');
             };
 
-            // Format sunRise & SunSet times
-            sunRise = dateFormat(sunRise, 'HH:MM');  
-            sunSet  = dateFormat(sunSet, 'HH:MM');
+            // Format sunRise and SunSet times
+            sunRiseShort = dateFormat(sunRise, 'HH:MM');  
+            sunSetShort  = dateFormat(sunSet, 'HH:MM');
 
             // If the current time matches the adjusted sunset or sunrise time, turn on the lights
-            if (sunRise >= minCurrentTime && sunRise <= maxCurrentTime) {
+            if (sunRiseShort >= minCurrentTime && sunRiseShort <= maxCurrentTime) {
                 runTask = true;
             };
-            if (sunSet >= minCurrentTime && sunSet <= maxCurrentTime) {
+            if (sunSetShort >= minCurrentTime && sunSetShort <= maxCurrentTime) {
                 runTask = true;
             };
 
@@ -91,14 +76,13 @@ var appSchedules = function(server) {
                     console.log('Schedule Error: ' + err);
                 });
             };
-            runTask = false;
 
             //=========================================================
             // Morning & Night time lights off schedules
             //=========================================================
             
             // If the current time matches the morning or night time light off setting, turn off the lights
-            if (scheduleSettings.morningLightsOu >= minCurrentTime && scheduleSettings.morningLightsOu <= maxCurrentTime) {
+            if (scheduleSettings.morningLightsOut >= minCurrentTime && scheduleSettings.morningLightsOu <= maxCurrentTime) {
                 runTask = true;
             };
             if (scheduleSettings.endOfDayLightsOut >= minCurrentTime && scheduleSettings.endOfDayLightsOut <= maxCurrentTime) {
@@ -127,12 +111,43 @@ var appSchedules = function(server) {
                     console.log('Schedule Error: ' + err);
                 });
             };
+
+            // Reset variables
+            runTask          = false;
+            sunRiseShort     = sunRise;
+            sunSetShort      = sunSet;
+            scheduleSettings = null;
+
             setTimeout(recursive,5 * 60 * 1000); // run every 5 minutes
+        },
+        recursiveDaily = function() {
+        
+            //=========================================================
+            // Daily scheduler
+            //=========================================================
+            var currentTime = dateFormat(new Date(), 'HH:MM');
+
+            console.log ('Running daily scheduler: ' + currentTime)
+
+            // Get sunrise & sunset data
+            alfredHelper.requestAPIdata(url)
+            .then(function(apiData){
+                sunRise = new Date(apiData.body.sys.sunrise);
+                sunSet  = new Date(apiData.body.sys.sunset);
+                sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
+                if (firstRun){
+                    recursive(); // Call the normal scheduler
+                    firstRun = false;
+                }
+            })
+            .catch(function (err) {
+                console.log('Schedule Error: ' + err);
+            });
+            setTimeout(recursiveDaily,1000 * 60 * 60 * 12); // run every 12 hours
         };
-    
+
     // Call timer functions
     recursiveDaily();
-    recursive();
 };
 
 module.exports = appSchedules;
