@@ -1,7 +1,5 @@
 var appSchedules = function(server) {
 
-    //const url           = 'http://api.geonames.org/timezoneJSON?lat=51.5074&lng=0.1278&username=' + process.env.geonames,
-
     const url           = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
           HueLights     = require("node-hue-api"),
           HueApi        = HueLights.HueApi,
@@ -12,35 +10,34 @@ var appSchedules = function(server) {
           alfredHelper  = require('../helper.js'),
           dateFormat    = require('dateformat');
           
-    var firstRun       = true,
-        sunRise        = new Date(),
-        sunSet         = new Date(),
+    var firstRun  = true,
+        sunRise   = new Date(),
+        sunSet    = new Date(),
         recursive = function() {
         
             var scheduleSettings = require('../scheduleSettings.json'),
                 runTask          = false,
                 promises         = [],
-                state,
-                lights           = scheduleSettings.sunRiseSunsetLights,
+                lights           = scheduleSettings.sunRiseSunSetLights,
                 minCurrentTime   = new Date(),
                 maxCurrentTime   = new Date(),
-                time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime();
+                time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime(),
                 currentTime      = dateFormat(new Date(), 'HH:MM'),
-                minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
-                minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
-                maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
-                maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
                 sunRiseShort     = sunRise,
-                sunSetShort      = sunSet;
+                sunSetShort      = sunSet,
+                state;
 
             //=========================================================
             // Sunrise & Sunset schedules
             //=========================================================
 
-            console.log ('Running scheduler: ' + currentTime)
+            console.log (currentTime + ' - Running scheduler')
 
-            promises = [];
-            state    = lightState.create().on().brightness(scheduleSettings.brightness);
+            // Setup the time rage 
+            minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
+            maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
+            minCurrentTime = dateFormat(minCurrentTime, 'HH:MM'),
+            maxCurrentTime = dateFormat(maxCurrentTime, 'HH:MM'),
 
             // Adjust sunrise & sunset time by offset stored in config
             sunRiseShort.setHours(new Date(sunRise).getHours() - scheduleSettings.sunRiseOffSet);
@@ -66,12 +63,15 @@ var appSchedules = function(server) {
             };
 
             if (runTask) {
+                promises = []; // Clear promise array
                 for (var i in lights) {
-                    promises.push(Hue.setLightState(lights[i].lightID, state)); // push the Promises to our array
+                    state = lightState.create().on().brightness(lights[i].brightness);
+                    console.log(state)
+                    promises.push(Hue.setLightState(lights[i].lightID, state));
                 };
                 Promise.all(promises)
                 .then(function(resolved) {
-                    console.log('Schedule: ' + currentTime  + ' - Turned on lights')
+                    console.log(currentTime  + ' - Turned on lights')
                 })
                 .catch(function (err) {
                     console.log('Schedule Error: ' + err);
@@ -79,20 +79,20 @@ var appSchedules = function(server) {
             };
 
             //=========================================================
-            // Morning & Night time lights off schedules
+            // Lights off schedules
             //=========================================================
 
             runTask = false;          
-            // If the current time matches the morning or night time light off setting, turn off the lights
-            if (scheduleSettings.morningLightsOut >= minCurrentTime && scheduleSettings.morningLightsOu <= maxCurrentTime) {
-                runTask = true;
-            };
-            if (scheduleSettings.endOfDayLightsOut >= minCurrentTime && scheduleSettings.endOfDayLightsOut <= maxCurrentTime) {
-                runTask = true;
+            
+            // If the current time matches a time in the loghts out section of the config, turn off the lights
+            for (var i in scheduleSettings.lightsOut) {
+                if (scheduleSettings.lightsOut[i].time >= minCurrentTime && scheduleSettings.lightsOut[i].time <= maxCurrentTime) {
+                    runTask = true;
+                };
             };
 
             if (runTask) {
-                promises = [];
+                promises = []; // Clear promise array
                 state    = lightState.create().off();
                 
                 // Get a list of all the lights
@@ -103,7 +103,7 @@ var appSchedules = function(server) {
                     };
                     Promise.all(promises)
                     .then(function(resolved) {
-                        console.log('Schedule: ' + currentTime  + ' - Turned off lights')
+                        console.log(currentTime  + ' - Turned off lights')
                     })
                     .catch(function (err) {
                         console.log('Schedule Error: ' + err);
@@ -129,7 +129,7 @@ var appSchedules = function(server) {
             //=========================================================
             var currentTime = dateFormat(new Date(), 'HH:MM');
 
-            console.log ('Running daily scheduler: ' + currentTime)
+            console.log (currentTime + ' - Running daily scheduler')
 
             // Get sunrise & sunset data
             alfredHelper.requestAPIdata(url)

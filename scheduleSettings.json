@@ -1,25 +1,39 @@
 {
   "sunRiseOffSet": 2,
   "sunSetOffSet": 2,
-  "brightness": 75,
-  "sunRiseSunsetLights": [
-      {
-        "lightID": 1,
-        "name" : "Hall light"
-      },
-      {
-        "lightID": 2,
-        "name" : "Living room light"
-      },
-      {
-        "lightID": 3,
-        "name" : "Play area light"
-      },
-      {
-        "lightID": 12,
-        "name" : "Lounge corner light"
-      }
-    ],
-    "morningLightsOut": "08:30",
-    "endOfDayLightsOut": "22:00"
+  "sunRiseSunSetLights": [
+    {
+      "lightID": 1,
+      "brightness": 65,
+      "name" : "Hall light"
+    },
+    {
+      "lightID": 2,
+      "brightness": 65,
+      "name" : "Living room light"
+    },
+    {
+      "lightID": 3,
+      "brightness": 65,
+      "name" : "Play area light"
+    },
+    {
+      "lightID": 12,
+      "brightness": 100,
+      "name" : "Lounge corner light"
+    },
+    {
+      "lightID": 5,
+      "brightness": 65,
+      "name" : "Kitchen side light"
+    }
+  ],
+  "lightsOut": [
+    {
+      "time": "08:30"
+    },
+    {
+      "time": "22:00"
+    }      
+  ]
 }
