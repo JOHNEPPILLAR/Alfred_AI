@@ -27,9 +27,9 @@ var appSchedules = function(server) {
                 time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime();
                 currentTime      = dateFormat(new Date(), 'HH:MM'),
                 minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
-                //minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
+                minCurrentTime   = dateFormat(minCurrentTime, 'HH:MM'),
                 maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
-                //maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
+                maxCurrentTime   = dateFormat(maxCurrentTime, 'HH:MM'),
                 sunRiseShort     = sunRise,
                 sunSetShort      = sunSet;
 
