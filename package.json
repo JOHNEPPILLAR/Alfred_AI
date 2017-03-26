@@ -1,7 +1,7 @@
 {
   "name": "alfred_di",
   "version": "1.0.0",
-  "description": "Pillar home DI API",
+  "description": "Pillar home Digital Assistant API",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,6 +22,7 @@
     "node-hue-api": "*",
     "node-geocoder": "*",
     "dateformat": "*",
-    "harmonyhubjs-client": "*"
+    "harmonyhubjs-client": "*",
+    "ssml-builder": "*"
   }
 }

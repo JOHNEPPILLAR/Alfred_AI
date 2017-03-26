@@ -4,11 +4,12 @@ const rp = require('request-promise');
 //=========================================================
 // Construct and send JSON response back to caller
 //=========================================================
-exports.sendResponse = function (res, status, JSONobj) {
+exports.sendResponse = function (res, status, dataObj, speechObj) {
     // Construct the returning message
     var returnJSON = {
         code : status,
-        data : JSONobj
+        data : dataObj,
+        ssml : speechObj
     };
 
     // Send response back to caller

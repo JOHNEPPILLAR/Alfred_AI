@@ -3,28 +3,39 @@
 //=========================================================
 const Skills       = require('restify-router').Router,
       skill        = new Skills(),
-      alfredHelper = require('../../helper.js');
+      alfredHelper = require('../../helper.js'),
+      Speech       = require('ssml-builder');
 
 //=========================================================
 // Skill: base root
 //=========================================================
 function root (req, res, next) {
     var responseText = '',
-        aiNameText = 'My name is Alfred. I am the Pillar house Digital Assistant.',
+        greeting = '',
+        aiNameText = 'My name is Alfred.',
+        aiDesc = 'I am the Pillar house Digital Assistant.'
         dt = new Date().getHours()
 
     // Calc which part of day
     if (dt >= 0 && dt <= 11) {
-        responseText = 'Good Morning.'
+        greeting = 'Good Morning.'
     } else if (dt >= 12 && dt <= 17) {
-        responseText = 'Good Afternoon.'
+        greeting = 'Good Afternoon.'
     } else {
-        responseText = 'Good Evening.'
+        greeting = 'Good Evening.'
     }
-    responseText = responseText + ' ' + aiNameText;
+    responseText = greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
+
+    // Construct ssml response
+    var speech = new Speech();
+    speech.say(greeting);
+    speech.pause('500ms');
+    speech.say(aiNameText);
+    speech.say(aiDesc);
+    var speechOutput = speech.ssml(true);
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
+    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput);
 
     next();
 };
@@ -35,26 +46,35 @@ function root (req, res, next) {
 //=========================================================
 function hello (req, res, next) {
     var responseText = '',
-        aiNameText = 'My name is Alfred. How can I help you today.',
+        greeting = '',
+        aiNameText = 'How can I help you today.',
         dt = new Date().getHours(),
         name = '';
 
     if (req.query.name){
-        name = ' ' + req.query.name;
+        name = req.query.name + '.';
     };
 
     // Calc which part of day
     if (dt >= 0 && dt <= 11) {
-        responseText = 'Good Morning'
+        greeting = 'Good Morning'
     } else if (dt >= 12 && dt <= 17) {
-        responseText = 'Good Afternoon'
+        greeting = 'Good Afternoon'
     } else {
-        responseText = 'Good Evening'
+        greeting = 'Good Evening'
     }
-    responseText = responseText + name + '. ' + aiNameText;
+    responseText = greeting + ' ' + name + ' ' + aiNameText; // construct json response
+
+    // Construct ssml response
+    var speech = new Speech();
+    speech.say(greeting);
+    speech.say(name);
+    speech.pause('500ms');
+    speech.say(aiNameText);
+    var speechOutput = speech.ssml(true);
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
+    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput);
 
     next();
 };
@@ -65,8 +85,13 @@ function hello (req, res, next) {
 function help (req, res, next) {
     var responseText = 'I can help you with...';
 
+    // Construct ssml response
+    var speech = new Speech();
+    speech.say(responseText);
+    var speechOutput = speech.ssml(true);
+
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText)
+    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput)
 
     next();
 };
