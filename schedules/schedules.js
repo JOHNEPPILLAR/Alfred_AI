@@ -31,13 +31,13 @@ var appSchedules = function(server) {
             // Sunrise & Sunset schedules
             //=========================================================
 
-            console.log (currentTime + ' - Running scheduler')
+            console.log (currentTime + ' - Running scheduler');
 
             // Setup the time rage 
-            minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2),
-            maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2),
-            minCurrentTime = dateFormat(minCurrentTime, 'HH:MM'),
-            maxCurrentTime = dateFormat(maxCurrentTime, 'HH:MM'),
+            minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2);
+            maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2);
+            minCurrentTime = dateFormat(minCurrentTime, 'HH:MM');
+            maxCurrentTime = dateFormat(maxCurrentTime, 'HH:MM');
 
             // Adjust sunrise & sunset time by offset stored in config
             sunRiseShort.setHours(new Date(sunRise).getHours() - scheduleSettings.sunRiseOffSet);
@@ -66,12 +66,11 @@ var appSchedules = function(server) {
                 promises = []; // Clear promise array
                 for (var i in lights) {
                     state = lightState.create().on().brightness(lights[i].brightness);
-                    console.log(state)
                     promises.push(Hue.setLightState(lights[i].lightID, state));
                 };
                 Promise.all(promises)
                 .then(function(resolved) {
-                    console.log(currentTime  + ' - Turned on lights')
+                    console.log(currentTime  + ' - Turned on lights');
                 })
                 .catch(function (err) {
                     console.log('Schedule Error: ' + err);
@@ -103,7 +102,7 @@ var appSchedules = function(server) {
                     };
                     Promise.all(promises)
                     .then(function(resolved) {
-                        console.log(currentTime  + ' - Turned off lights')
+                        console.log(currentTime  + ' - Turned off lights');
                     })
                     .catch(function (err) {
                         console.log('Schedule Error: ' + err);
@@ -129,7 +128,7 @@ var appSchedules = function(server) {
             //=========================================================
             var currentTime = dateFormat(new Date(), 'HH:MM');
 
-            console.log (currentTime + ' - Running daily scheduler')
+            console.log (currentTime + ' - Running daily scheduler');
 
             // Get sunrise & sunset data
             alfredHelper.requestAPIdata(url)
