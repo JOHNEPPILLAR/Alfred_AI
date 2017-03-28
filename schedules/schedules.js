@@ -32,49 +32,49 @@ var appSchedules = function(server) {
             console.log (currentTime + ' - Running daily scheduler');
 
             // Get sunrise & sunset data
+            const url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
             alfredHelper.requestAPIdata(url)
             .then(function(apiData){
+
                 sunRise = new Date(apiData.body.sys.sunrise);
                 sunSet  = new Date(apiData.body.sys.sunset);
                 sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
+
+                // Cancel existing timers
+                if (!firstRun){
+                    sunRiseTimer.cancel();
+                    sunSetTimer.cancel();
+                    firstRun = false;
+                    // TODO cancel off timers
+                };
+
+                // TODO reset sunRise if < 6 am
+
+                // Set new sunrise timer
+                sunRiseTimer = schedule.scheduleJob({hour: sunRise.getHours(), minute: sunRise.getMinutes()}, function(){
+                    turnOnLights();
+                });
+
+                // Set new sunset timer
+                sunSetTimer = schedule.scheduleJob({hour: sunSet.getHours(), minute: sunSet.getMinutes()}, function(){
+                    turnOnLights();
+                });
+
+                // set timers to turn off lights
+                turnOffTimes.forEach(function(value){
+                    sunSetTimer = schedule.scheduleJob({hour: value.hour, minute: value.minute}, function(){
+                        turnOffLights();
+                    });
+                });
             })
             .catch(function (err) {
                 console.log('Schedule get data Error: ' + err);
-                
-                // Set default times as API call failed
-                sunRise.setHours(06); 
-                sunRise.setMinutes(00);
-                sunSet.setHours(17);
-                sunSet.setMinutes(00);
-            });
-
-            // Cancel existing timers
-            if (!firstRun){
-                sunRiseTimer.cancel();
-                sunSetTimer.cancel();
-                firstRun = false;
-            };
-
-            // Set new sunrise timer
-            setTime =  sunRise.getMinutes() + " " + sunRise.getHours() + ' * * *';
-console.log ("SR: " + setTime);
-//            sunRiseTimer = schedule.scheduleJob(setTime, turnOnLights());
-            
-            // Set new sunset timer
-            setTime =  sunSet.getMinutes() + " " + sunSet.getHours() + ' * * *';
-console.log ("SS: " + setTime);
-//            sunSetTimer = schedule.scheduleJob(setTime, turnOnLights());
-
-            // set timers to turn off lights
-            turnOffTimes.forEach(function(value){
-                setTime = value.minute + " " + value.hour + ' * * *';
-console.log ("Off: " + setTime);
-//                offTimers[i] = schedule.scheduleJob(setTime, turnOffLights());
             });
         },
         turnOnLights = function() {
 
             var scheduleSettings = require('../scheduleSettings.json'),
+                currentTime      = dateFormat(new Date(), 'HH:MM'),
                 promises         = [],
                 lights           = scheduleSettings.sunRiseSunSetLights,
                 state;
@@ -94,6 +94,7 @@ console.log ("Off: " + setTime);
         turnOffLights = function() {
 
             var scheduleSettings = require('../scheduleSettings.json'),
+                currentTime      = dateFormat(new Date(), 'HH:MM'),
                 promises         = [],
                 lights           = scheduleSettings.sunRiseSunSetLights,
                 state            = lightState.create().off();
@@ -118,8 +119,10 @@ console.log ("Off: " + setTime);
         };
 
     // Set timer functions
-//    dailyTimer = schedule.scheduleJob('* 2 * * *', setSchedules());
-//setSchedules()
+    dailyTimer = schedule.scheduleJob({hour: 2, minute: 0}, function(){
+        setSchedules();
+    });
+
 };
 
 module.exports = appSchedules;
