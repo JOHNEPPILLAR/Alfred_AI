@@ -2,131 +2,32 @@ var appSchedules = function(server) {
 
     const url           = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
           HueLights     = require("node-hue-api"),
+          schedule      = require('node-schedule'),
+          alfredHelper  = require('../helper.js'),
+          dateFormat    = require('dateformat'),
           HueApi        = HueLights.HueApi,
           HueBridgeIP   = process.env.HueBridgeIP,
           HueBridgeUser = process.env.HueBridgeUser,
           Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lightState    = HueLights.lightState,
-          alfredHelper  = require('../helper.js'),
-          dateFormat    = require('dateformat');
-          
-    var firstRun  = true,
-        sunRise   = new Date(),
+          lightState    = HueLights.lightState;
+
+    var sunRise   = new Date(),
         sunSet    = new Date(),
-        recursive = function() {
+        firstRun  = true,
+        dailyTimer,
+        sunRiseTimer,
+        sunSetTimer,
         
-            var scheduleSettings = require('../scheduleSettings.json'),
-                runTask          = false,
-                promises         = [],
-                lights           = scheduleSettings.sunRiseSunSetLights,
-                minCurrentTime   = new Date(),
-                maxCurrentTime   = new Date(),
-                time6am          = new Date(2017, 01, 01, 6, 00, 0, 0).getTime(),
-                currentTime      = dateFormat(new Date(), 'HH:MM'),
-                sunRiseShort     = sunRise,
-                sunSetShort      = sunSet,
-                state;
-
-            //=========================================================
-            // Sunrise & Sunset schedules
-            //=========================================================
-
-            console.log (currentTime + ' - Running scheduler');
-
-            // Setup the time rage 
-            minCurrentTime.setMinutes(minCurrentTime.getMinutes() - 2);
-            maxCurrentTime.setMinutes(maxCurrentTime.getMinutes() + 2);
-            minCurrentTime = dateFormat(minCurrentTime, 'HH:MM');
-            maxCurrentTime = dateFormat(maxCurrentTime, 'HH:MM');
-
-            // Adjust sunrise & sunset time by offset stored in config
-            sunRiseShort.setHours(new Date(sunRise).getHours() - scheduleSettings.sunRiseOffSet);
-            sunSetShort.setHours(new Date(sunSet).getHours() - scheduleSettings.sunSetOffSet);
-
-            // If the adjusted sunRise if before 6am reset sunRise to 6am.
-            if (sunRiseShort < time6am) {
-                sunRiseShort.setHours('06');
-                sunRiseShort.setMinutes('00');
-            };
-
-            // Format sunRise and SunSet times
-            sunRiseShort = dateFormat(sunRise, 'HH:MM');  
-            sunSetShort  = dateFormat(sunSet, 'HH:MM');
-
-            // If the current time matches the adjusted sunset or sunrise time, turn on the lights
-            if (sunRiseShort >= minCurrentTime && sunRiseShort <= maxCurrentTime) {
-                runTask = true;
-            };
-
-            if (sunSetShort >= minCurrentTime && sunSetShort <= maxCurrentTime) {
-                runTask = true;
-            };
-
-            if (runTask) {
-                promises = []; // Clear promise array
-                for (var i in lights) {
-                    state = lightState.create().on().brightness(lights[i].brightness);
-                    promises.push(Hue.setLightState(lights[i].lightID, state));
-                };
-                Promise.all(promises)
-                .then(function(resolved) {
-                    console.log(currentTime  + ' - Turned on lights');
-                })
-                .catch(function (err) {
-                    console.log('Schedule Error: ' + err);
-                });
-            };
-
-            //=========================================================
-            // Lights off schedules
-            //=========================================================
-
-            runTask = false;          
-            
-            // If the current time matches a time in the loghts out section of the config, turn off the lights
-            for (var i in scheduleSettings.lightsOut) {
-                if (scheduleSettings.lightsOut[i].time >= minCurrentTime && scheduleSettings.lightsOut[i].time <= maxCurrentTime) {
-                    runTask = true;
-                };
-            };
-
-            if (runTask) {
-                promises = []; // Clear promise array
-                state    = lightState.create().off();
-                
-                // Get a list of all the lights
-                Hue.lights()
-                .then (function(lights){            
-                    for (var i in lights.lights) {
-                        promises.push(Hue.setLightState(lights.lights[i].id, state)); // push the Promises to our array
-                    };
-                    Promise.all(promises)
-                    .then(function(resolved) {
-                        console.log(currentTime  + ' - Turned off lights');
-                    })
-                    .catch(function (err) {
-                        console.log('Schedule Error: ' + err);
-                    });
-                })
-                .catch(function (err) {
-                    console.log('Schedule Error: ' + err);
-                });
-            };
-
-            // Reset variables
-            runTask          = false;
-            sunRiseShort     = sunRise;
-            sunSetShort      = sunSet;
-            scheduleSettings = null;
-
-            setTimeout(recursive,5 * 60 * 1000); // run every 5 minutes
-        },
-        recursiveDaily = function() {
+        setSchedules = function() {
         
             //=========================================================
-            // Daily scheduler
+            // Set the daily timers
             //=========================================================
-            var currentTime = dateFormat(new Date(), 'HH:MM');
+            var currentTime      = dateFormat(new Date(), 'HH:MM'),
+                scheduleSettings = require('../scheduleSettings.json'),
+                setTime,
+                offTimers        = [],
+                turnOffTimes     = scheduleSettings.lightsOut;
 
             console.log (currentTime + ' - Running daily scheduler');
 
@@ -136,19 +37,89 @@ var appSchedules = function(server) {
                 sunRise = new Date(apiData.body.sys.sunrise);
                 sunSet  = new Date(apiData.body.sys.sunset);
                 sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-                if (firstRun){
-                    recursive(); // Call the normal scheduler
-                    firstRun = false;
-                }
+            })
+            .catch(function (err) {
+                console.log('Schedule get data Error: ' + err);
+                
+                // Set default times as API call failed
+                sunRise.setHours(06); 
+                sunRise.setMinutes(00);
+                sunSet.setHours(17);
+                sunSet.setMinutes(00);
+            });
+
+            // Cancel existing timers
+            if (!firstRun){
+                sunRiseTimer.cancel();
+                sunSetTimer.cancel();
+                firstRun = false;
+            };
+
+            // Set new sunrise timer
+            setTime =  sunRise.getMinutes() + " " + sunRise.getHours() + ' * * *';
+console.log ("SR: " + setTime);
+//            sunRiseTimer = schedule.scheduleJob(setTime, turnOnLights());
+            
+            // Set new sunset timer
+            setTime =  sunSet.getMinutes() + " " + sunSet.getHours() + ' * * *';
+console.log ("SS: " + setTime);
+//            sunSetTimer = schedule.scheduleJob(setTime, turnOnLights());
+
+            // set timers to turn off lights
+            turnOffTimes.forEach(function(value){
+                setTime = value.minute + " " + value.hour + ' * * *';
+console.log ("Off: " + setTime);
+//                offTimers[i] = schedule.scheduleJob(setTime, turnOffLights());
+            });
+        },
+        turnOnLights = function() {
+
+            var scheduleSettings = require('../scheduleSettings.json'),
+                promises         = [],
+                lights           = scheduleSettings.sunRiseSunSetLights,
+                state;
+
+            lights.forEach(function(value){
+                state = lightState.create().on().brightness(value.brightness);
+                promises.push(Hue.setLightState(value.lightID, state));
+            });
+            Promise.all(promises)
+            .then(function(resolved) {
+                console.log(currentTime  + ' - Turned on lights');
+            })
+            .catch(function (err) {
+                console.log('Schedule turnOnLights Error: ' + err);
+            });
+        },
+        turnOffLights = function() {
+
+            var scheduleSettings = require('../scheduleSettings.json'),
+                promises         = [],
+                lights           = scheduleSettings.sunRiseSunSetLights,
+                state            = lightState.create().off();
+                
+            // Get a list of all the lights
+            Hue.lights()
+            .then (function(lights){            
+                lights.lights.forEach(function(value){
+                    promises.push(Hue.setLightState(value.id, state)); // push the Promises to our array
+                });
+                Promise.all(promises)
+                .then(function(resolved) {
+                    console.log(currentTime  + ' - Turned off lights');
+                })
+                .catch(function (err) {
+                    console.log('Schedule turnOnLights Error: ' + err);
+                });
             })
             .catch(function (err) {
                 console.log('Schedule Error: ' + err);
             });
-            setTimeout(recursiveDaily,1000 * 60 * 60 * 12); // run every 12 hours
         };
 
-    // Call timer functions
-    recursiveDaily();
+    // Set timer functions
+//    dailyTimer = schedule.scheduleJob('* 2 * * *', setSchedules());
+//setSchedules()
 };
 
 module.exports = appSchedules;

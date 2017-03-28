@@ -14,8 +14,8 @@ source ~/.nvm/nvm.sh
 nvm use 7.5.0
 
 echo "removing node modules folder and installing latest"
-rm -rf node_modules
-npm install
+#rm -rf node_modules
+#z≈npm install
 
 echo "run the server app"
 nodemon server.js

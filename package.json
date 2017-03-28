@@ -23,6 +23,7 @@
     "node-geocoder": "*",
     "dateformat": "*",
     "harmonyhubjs-client": "*",
-    "ssml-builder": "*"
+    "ssml-builder": "*",
+    "node-schedule": "*"
   }
 }
