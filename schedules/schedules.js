@@ -118,6 +118,7 @@ var appSchedules = function(server) {
             });
         };
 
+    setSchedules();
     // Set timer functions
     dailyTimer = schedule.scheduleJob({hour: 2, minute: 0}, function(){
         setSchedules();
