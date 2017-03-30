@@ -30,12 +30,12 @@
   ],
   "lightsOut": [
     {
-      "hour": "8",
-      "minute": "30"
+      "hour": 8,
+      "minute": 30
     },
     {
-      "hour": "22",
-      "minute": "00"
+      "hour": 22,
+      "minute": 0
     }      
   ]
 }
