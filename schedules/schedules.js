@@ -69,13 +69,13 @@ var appSchedules = function(server) {
         //=========================================================
         // Set the daily timers
         //=========================================================
-        console.log (currentTime + ' - Running daily scheduler');
-
         var currentTime      = dateFormat(new Date(), 'HH:MM'),
             scheduleSettings = require('../scheduleSettings.json'),
             turnOffTimes     = scheduleSettings.lightsOut,
             turnOffTimers    = [],
             turnOffTimer;
+
+        console.log (currentTime + ' - Running daily scheduler');
 
         // Get sunrise & sunset data
         const url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
