@@ -1,15 +1,16 @@
 var appSchedules = function(server) {
 
-    const url           = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
-          HueLights     = require("node-hue-api"),
-          schedule      = require('node-schedule'),
-          alfredHelper  = require('../helper.js'),
-          dateFormat    = require('dateformat'),
-          HueApi        = HueLights.HueApi,
-          HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lightState    = HueLights.lightState;
+    const url              = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
+          scheduleSettings = require('../scheduleSettings.json');
+          HueLights        = require("node-hue-api"),
+          schedule         = require('node-schedule'),
+          alfredHelper     = require('../helper.js'),
+          dateFormat       = require('dateformat'),
+          HueApi           = HueLights.HueApi,
+          HueBridgeIP      = process.env.HueBridgeIP,
+          HueBridgeUser    = process.env.HueBridgeUser,
+          Hue              = new HueApi(HueBridgeIP, HueBridgeUser),
+          lightState       = HueLights.lightState;
 
     var rule         = new schedule.RecurrenceRule(),
         sunRise      = new Date(),
@@ -17,10 +18,9 @@ var appSchedules = function(server) {
         firstRun     = true,
         turnOnLights = function() {
 
-            var scheduleSettings = require('../scheduleSettings.json'),
-                currentTime      = dateFormat(new Date(), 'HH:MM'),
-                promises         = [],
-                lights           = scheduleSettings.sunRiseSunSetLights,
+            var currentTime = dateFormat(new Date(), 'HH:MM'),
+                promises    = [],
+                lights      = scheduleSettings.sunRiseSunSetLights,
                 state;
 
             lights.forEach(function(value){
@@ -37,11 +37,10 @@ var appSchedules = function(server) {
         },
         turnOffLights = function() {
 
-            var scheduleSettings = require('../scheduleSettings.json'),
-                currentTime      = dateFormat(new Date(), 'HH:MM'),
-                promises         = [],
-                lights           = scheduleSettings.sunRiseSunSetLights,
-                state            = lightState.create().off();
+            var currentTime = dateFormat(new Date(), 'HH:MM'),
+                promises    = [],
+                lights      = scheduleSettings.sunRiseSunSetLights,
+                state       = lightState.create().off();
                 
             // Get a list of all the lights
             Hue.lights()
