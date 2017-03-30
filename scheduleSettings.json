@@ -1,4 +1,6 @@
 {
+  "runDailyTaskHR": 20,
+  "runDailyTaskMin": 45,
   "sunRiseOffSet": 2,
   "sunSetOffSet": 2,
   "sunRiseSunSetLights": [
