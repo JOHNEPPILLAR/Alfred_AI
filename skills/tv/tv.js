@@ -7,8 +7,6 @@ const Skills       = require('restify-router').Router;
       harmony      = require('harmonyhubjs-client'),
       logger       = require('winston');
 
-alfredHelper.setLogger(logger); // Configure logging
-
 //=========================================================
 // Skill: watch fire tv
 //=========================================================

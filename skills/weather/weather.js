@@ -7,8 +7,6 @@ const Skills       = require('restify-router').Router;
       alfredHelper = require('../../helper.js'),
       logger       = require('winston');
 
-alfredHelper.setLogger(logger); // Configure logging
-
 //=========================================================
 // Skill: base root, get today's weather for a location, default is London
 // Params: location: String

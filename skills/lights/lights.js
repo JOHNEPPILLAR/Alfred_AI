@@ -7,8 +7,6 @@ const Skills = require('restify-router').Router;
       alfredHelper = require('../../helper.js'),
       logger       = require('winston');
 
-alfredHelper.setLogger(logger); // Configure logging
-
 //=========================================================
 // Skill: registerDevice
 //=========================================================

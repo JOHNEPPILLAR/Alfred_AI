@@ -14,8 +14,6 @@ const Skills       = require('restify-router').Router;
       dateFormat   = require('dateformat'),      
       logger       = require('winston');
 
-alfredHelper.setLogger(logger); // Configure logging
-
 //=========================================================
 // Skill: whatisthetime
 //=========================================================
