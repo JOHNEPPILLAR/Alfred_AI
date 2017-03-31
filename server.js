@@ -3,10 +3,20 @@
 //=========================================================
 const restify      = require('restify'),
       dotenv       = require('dotenv'),
-      alfredHelper = require('./helper.js');
+      alfredHelper = require('./helper.js'),
+      logger       = require('winston');
 
 // Load env vars
 dotenv.load()
+
+if (process.env.environment == 'live'){
+    // Send logging to a file
+    logger.add(logger.transports.File, { filename: 'Alfred.log', timestamp: true, colorize: true });
+    logger.remove(logger.transports.Console);
+} else {
+    logger.remove(logger.transports.Console);
+    logger.add(logger.transports.Console, {timestamp: true, colorize: true});
+};
 
 // Restify server Init
 const server = restify.createServer({
@@ -30,7 +40,7 @@ server.use(restify.fullResponse());
 // Start server and listen to messqges
 //=========================================================
 server.listen(process.env.PORT, function() {
-   console.log('%s listening to %s', server.name, server.url);
+   logger.info('%s listening to %s', server.name, server.url);
 });
 
 //=========================================================

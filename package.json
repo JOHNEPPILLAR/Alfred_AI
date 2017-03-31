@@ -24,6 +24,7 @@
     "dateformat": "*",
     "harmonyhubjs-client": "*",
     "ssml-builder": "*",
-    "node-schedule": "*"
+    "node-schedule": "*",
+    "winston" : "*"
   }
 }

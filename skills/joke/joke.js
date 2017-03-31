@@ -3,13 +3,17 @@
 //=========================================================
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
-      alfredHelper = require('../../helper.js'),
-      Speech       = require('ssml-builder');
+      alfredHelper = require('../../helper.js');
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: joke
 //=========================================================
 function joke (req, res, next) {
+    
+    logger.info ('Joke API called');
 
     const url = 'http://tambal.azurewebsites.net/joke/random';
         
@@ -19,28 +23,15 @@ function joke (req, res, next) {
         // Get the joke data
         apiData = apiData.body;
 
-apiData = {"joke":"Two fish swim down a river, and hit a wall. One says: 'Dam!'"}
-
-        // Construct ssml response
-        var speachText = apiData.joke.split("."),
-            speech = new Speech();  
-
-        speachText.forEach(function(value){
-console.log (value);
-            speech.say("<p>" + value + "</p>");
-            speech.pause('500ms');
-        });
-        var speechOutput = speech.ssml(true);
-
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', apiData.joke, speechOutput);
+        alfredHelper.sendResponse(res, 'sucess', apiData.joke, apiData.joke);
 
     })
     .catch(function (err) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err.message);
-        console.log('joke: ' + err);
+        logger.error('joke: ' + err);
     });
     next();
 };

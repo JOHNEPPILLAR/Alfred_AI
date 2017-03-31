@@ -29,10 +29,10 @@ var appSchedules = function(server) {
             });
             Promise.all(promises)
             .then(function(resolved) {
-                console.log(currentTime  + ' - Turned on lights');
+                logger.info(currentTime  + ' - Turned on lights');
             })
             .catch(function (err) {
-                console.log('Schedule turnOnLights Error: ' + err);
+                logger.error('Schedule turnOnLights Error: ' + err);
             });
         },
         turnOffLights = function() {
@@ -50,14 +50,14 @@ var appSchedules = function(server) {
                 });
                 Promise.all(promises)
                 .then(function(resolved) {
-                    console.log(currentTime  + ' - Turned off lights');
+                    logger.info(currentTime  + ' - Turned off lights');
                 })
                 .catch(function (err) {
-                    console.log('Schedule turnOnLights Error: ' + err);
+                    logger.error('Schedule turnOnLights Error: ' + err);
                 });
             })
             .catch(function (err) {
-                console.log('Schedule Error: ' + err);
+                logger.error('Schedule Error: ' + err);
             });
         };
 
@@ -75,7 +75,7 @@ var appSchedules = function(server) {
             turnOffTimers    = [],
             turnOffTimer;
 
-        console.log (currentTime + ' - Running daily scheduler');
+        logger.info(currentTime + ' - Running daily scheduler');
 
         // Get sunrise & sunset data
         const url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
@@ -127,7 +127,7 @@ var appSchedules = function(server) {
             });
         })
         .catch(function (err) {
-            console.log('Schedule get data Error: ' + err);
+            logger.error('Schedule get data Error: ' + err);
         });
     });
 };

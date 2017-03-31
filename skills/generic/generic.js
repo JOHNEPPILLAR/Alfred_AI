@@ -4,7 +4,9 @@
 const Skills       = require('restify-router').Router,
       skill        = new Skills(),
       alfredHelper = require('../../helper.js'),
-      Speech       = require('ssml-builder');
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: base root
@@ -26,16 +28,8 @@ function root (req, res, next) {
     }
     responseText = greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
 
-    // Construct ssml response
-    var speech = new Speech();
-    speech.say(greeting);
-    speech.pause('500ms');
-    speech.say(aiNameText);
-    speech.say(aiDesc);
-    var speechOutput = speech.ssml(true);
-
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput);
+    alfredHelper.sendResponse(res, 'sucess', responseText, responseText);
 
     next();
 };
@@ -52,7 +46,9 @@ function hello (req, res, next) {
         name = '';
 
     if (req.query.name){
-        name = req.query.name + '.';
+        name = ' ' + req.query.name;
+    } else {
+        name = '';
     };
 
     // Calc which part of day
@@ -63,18 +59,10 @@ function hello (req, res, next) {
     } else {
         greeting = 'Good Evening'
     }
-    responseText = greeting + ' ' + name + ' ' + aiNameText; // construct json response
-
-    // Construct ssml response
-    var speech = new Speech();
-    speech.say(greeting);
-    speech.say(name);
-    speech.pause('500ms');
-    speech.say(aiNameText);
-    var speechOutput = speech.ssml(true);
+    responseText = greeting + name + '. ' + aiNameText; // construct json response
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput);
+    alfredHelper.sendResponse(res, 'sucess', responseText, responseText);
 
     next();
 };
@@ -85,13 +73,8 @@ function hello (req, res, next) {
 function help (req, res, next) {
     var responseText = 'I can help you with...';
 
-    // Construct ssml response
-    var speech = new Speech();
-    speech.say(responseText);
-    var speechOutput = speech.ssml(true);
-
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, speechOutput)
+    alfredHelper.sendResponse(res, 'sucess', responseText, responseText)
 
     next();
 };

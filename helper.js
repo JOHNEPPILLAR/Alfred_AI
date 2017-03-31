@@ -1,15 +1,56 @@
 'use strict';
-const rp = require('request-promise');
+const rp     = require('request-promise'),
+      Speech = require('ssml-builder'),
+      logger = require('winston');
+
+if (process.env.environment == 'live'){
+    // Send logging to a file
+    logger.add(logger.transports.File, { filename: 'Alfred.log', timestamp: true, colorize: true });
+    logger.remove(logger.transports.Console);
+} else {
+    logger.remove(logger.transports.Console);
+    logger.add(logger.transports.Console, {timestamp: true, colorize: true});
+};
+
+//=========================================================
+// Setup logging
+//=========================================================
+exports.setLogger = function (logger) {
+
+    if (process.env.environment == 'live'){
+        // Send logging to a file
+        logger.add(logger.transports.File, { filename: 'Alfred.log', timestamp: true, colorize: true });
+        logger.remove(logger.transports.Console);
+    } else {
+        logger.remove(logger.transports.Console);
+        logger.add(logger.transports.Console, {timestamp: true, colorize: true});
+    };
+};
 
 //=========================================================
 // Construct and send JSON response back to caller
 //=========================================================
-exports.sendResponse = function (res, status, dataObj, speechObj) {
+exports.sendResponse = function (res, status, dataObj, speechTxt) {
+
+    var speechOutput;
+
+    if (speechTxt !== null){
+        // Construct ssml response
+        var speechTxtObj = speechTxt.match(/[^\.!\?]+[\.!\?]+/g ),
+            speech = new Speech();  
+
+        speechTxtObj.forEach(function(value){
+            speech.say(value);
+            speech.pause('500ms');
+        });
+        speechOutput = speech.ssml(true);
+    };
+
     // Construct the returning message
     var returnJSON = {
         code : status,
         data : dataObj,
-        ssml : speechObj
+        ssml : speechOutput
     };
 
     // Send response back to caller

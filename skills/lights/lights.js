@@ -4,12 +4,17 @@
 const Skills = require('restify-router').Router;  
       skill  = new Skills(),
       HueApi = require("node-hue-api").HueApi,
-      alfredHelper = require('../../helper.js');
+      alfredHelper = require('../../helper.js'),
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: registerDevice
 //=========================================================
 function registerDevice (req, res, next) {
+
+    logger.info ('Register Device API called');
 
     const HueBridgeIP   = process.env.HueBridgeIP,
           HueBridgeUser = process.env.HueBridgeUser,
@@ -23,7 +28,7 @@ function registerDevice (req, res, next) {
     .fail(function(err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err);
-        console.log('registerDevice: ' + err);
+        logger.error('registerDevice: ' + err);
     })
     next();
 };
@@ -36,26 +41,31 @@ function lightOnOff (req, res, next) {
 
     const HueBridgeIP   = process.env.HueBridgeIP,
           HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lightNumber   = req.query.light_number;
+          Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
     
     var paramsOK    = false,
-        lightStatus = false,
-        lightState  = hue.lightState;
+        lightAction = false,
+        lightState  = Hue.lightState;
 
-    if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
+    logger.info ('Light On / Off API called');
+
+    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
         paramsOK = true;
     };
 
     if (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) {
+        paramsOK = true;
+    } else {
+       paramsOK = false; 
+    };
+
+    if (paramsOK){
         switch (req.query.light_status.toLowerCase()) {
         case 'on':
-            paramsOK = true;
-            lightStatus = true;
+            lightAction = true;
             break;
         case 'off':
-            paramsOK = true;
-            lightStatus = false;
+            lightAction = false;
             break;
         default:
             paramsOK = false;
@@ -67,30 +77,30 @@ function lightOnOff (req, res, next) {
     if(paramsOK) {
         // Turn on or off the light
         //Hue.lightState.create().on().brightness(100)
-        Hue.setLightState(lightNumber, {"on": lightStatus})
+        Hue.setLightState(req.query.light_number, {"on": lightAction})
         .then(function(obj) {
             if (obj=true) {
-                var returnMessage = 'The light state was changed.',
+                var returnMessage = 'The light was turned ' + req.query.light_status.toLowerCase() + '.',
                     status = 'sucess';
             } else {
-                var returnMessage = 'There was an error changing the light state.',
+                var returnMessage = 'There was an error turning the light ' + req.query.light_status.toLowerCase() + '.',
                     status = 'error';
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            console.log('lightOnOff: ' + err);
+            alfredHelper.sendResponse(res, 'error', err, null);
+            logger.error('lightOnOff: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.');
-        console.log('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
+        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.', 'The parameters light_status or light_number was either not supplied or invalid.');
+        logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     };
     next();
 };
@@ -106,6 +116,8 @@ function dimLight (req, res, next) {
           Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
           lightNumber   = req.query.light_number;
 
+    logger.info ('Dim Light API called');
+
     if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
         // Dim the light
         Hue.setLightState(lightNumber, {'brightness': '30'})
@@ -116,23 +128,23 @@ function dimLight (req, res, next) {
             } else {
                 var returnMessage = 'There was an error dimming the light.',
                     status = 'error';
-                    console.log('dimLight: ' + returnMessage);
+                    logger.error('dimLight: ' + returnMessage);
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            console.log('dimLight: ' + err);
+            alfredHelper.sendResponse(res, 'error', err, null);
+            logger.error('dimLight: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
-        console.log('dimLight: The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.', 'The parameter light_number was not supplied.');
+        logger.error('dimLight: The parameter light_number was not supplied.');
     };
     next();
 };
@@ -148,6 +160,8 @@ function brightenLight (req, res, next) {
           Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
           lightNumber   = req.query.light_number;
 
+    logger.info ('Brighten Light API called');
+
     if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
         // Brighten the light
         Hue.setLightState(lightNumber, {'brightness': '100'})
@@ -158,23 +172,23 @@ function brightenLight (req, res, next) {
             } else {
                 var returnMessage = 'There was an error increasing the brightness.',
                     status = 'error';
-                    console.log('dimLight: ' + returnMessage);
+                    logger.errror('dimLight: ' + returnMessage);
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            console.log('dimLight: ' + err);
+            alfredHelper.sendResponse(res, 'error', err, null);
+            logger.error('dimLight: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
-        console.log('dimLight: The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.', 'The parameter light_number was not supplied.');
+        logger.error('dimLight: The parameter light_number was not supplied.');
     };
     next();
 };
@@ -188,18 +202,20 @@ function listLights (req, res, next) {
           HueBridgeUser = process.env.HueBridgeUser,
           Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
 
+    logger.info ('List Lights API called');
+
     Hue.lights()
     .then(function(obj) {
 
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', obj);
+        alfredHelper.sendResponse(res, 'sucess', obj, null);
 
     })
     .fail(function(err) {
 
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err);
-        console.log('listLights: ' + err);
+        alfredHelper.sendResponse(res, 'error', err, 'There was an error listing the lights.');
+        logger.info('listLights: ' + err);
     })
     .done();
 
