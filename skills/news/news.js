@@ -3,13 +3,18 @@
 //=========================================================
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
-      alfredHelper = require('../../helper.js');
+      alfredHelper = require('../../helper.js'),
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: latest
 // Params: news_type: String
 //=========================================================
 function latest (req, res, next) {
+
+    logger.info ('NEWS API called');
 
     // Get the source
     var newsType      = 'sky-news',
@@ -36,8 +41,6 @@ function latest (req, res, next) {
             newsTypeError = true;
             break;
         };
-    } else {
-        newsTypeError = true;
     };
 
     // If news source if not lised return error message
@@ -45,7 +48,7 @@ function latest (req, res, next) {
         
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Unsupported type of news.');
-        console.log('news-latest: Unsupported type of news.');
+        logging.info('news-latest: Unsupported type of news.');
     } else {
 
         // Get news data
@@ -61,7 +64,7 @@ function latest (req, res, next) {
 
             // Send response back to caller
             alfredHelper.sendResponse(res, 'error', err.message);
-            console.log('news-latest: ' + err);
+            logger.error('news-latest: ' + err);
         });
     };
     next();

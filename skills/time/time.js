@@ -11,12 +11,17 @@ const Skills       = require('restify-router').Router;
         formatter: null         
       },
       geocoder     = NodeGeocoder(options),
-      dateFormat   = require('dateformat');
+      dateFormat   = require('dateformat'),      
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: whatisthetime
 //=========================================================
 function whatisthetime (req, res, next) {
+
+    logger.info ('Time API called');
 
     // Get the location
     var location = '';
@@ -39,13 +44,13 @@ function whatisthetime (req, res, next) {
             .catch(function (err) {
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', err.message);
-                console.log('whatisthetime: ' + err);
+                logger.error('whatisthetime: ' + err);
             });
     })
     .catch(function(err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err);
-        console.log('whatisthetime: ' + err);
+        logger.error('whatisthetime: ' + err);
     });
     next();
 };

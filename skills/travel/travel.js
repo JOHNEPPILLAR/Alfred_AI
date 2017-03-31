@@ -3,13 +3,18 @@
 //=========================================================
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
-      alfredHelper = require('../../helper.js');
+      alfredHelper = require('../../helper.js'),
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: next bus
 // Params: bus_route: String
 //=========================================================
 function nextbus (req, res, next) {
+
+    logger.info ('Next Bus API called');
 
     var tflapiKey     = process.env.tflapikey,
         busroute      = req.query.bus_route,
@@ -24,7 +29,7 @@ function nextbus (req, res, next) {
 
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', 'Bus route not supported.');
-                console.log('nextbus: Bus route not supported.');
+                logger.info('nextbus: Bus route not supported.');
 
                 validbusroute = false;
         };
@@ -39,7 +44,7 @@ function nextbus (req, res, next) {
 
                     // Send response back to caller
                     alfredHelper.sendResponse(res, 'error', 'No data was returned from the call to the TFL API.');
-                    console.log('nextbus: No data was returned from the TFL API call');
+                    logger.info('nextbus: No data was returned from the TFL API call');
 
                 } else { 
                     const numberOfElements = apiData.length;
@@ -63,13 +68,13 @@ function nextbus (req, res, next) {
 
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', err.message);
-                console.log('nextbus: ' + err);
+                logger.error('nextbus: ' + err);
             });
         };
     } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'No bus route was supplied.');
-        console.log('nextbus: No bus route was supplied.');
+        logger.info('nextbus: No bus route was supplied.');
     };
     next();
 };
@@ -79,6 +84,8 @@ function nextbus (req, res, next) {
 // Params: bus_route: String
 //=========================================================
 function busstatus (req, res, next) {
+
+    logger.info ('Bus Status API called');
 
     var busroute = req.query.bus_route;
 
@@ -96,7 +103,7 @@ function busstatus (req, res, next) {
 
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', 'No data was returned from the TFL API call.');
-                console.log('busstatus - Failure, no data was returned from the TFL API call');
+                logger.info('busstatus - Failure, no data was returned from the TFL API call');
             } else { 
 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
@@ -115,12 +122,12 @@ function busstatus (req, res, next) {
         .catch(function (err) {
             // Send response back to caller
             alfredHelper.sendResponse(res, 'error', err.message);
-            console.log('busstatus: ' + err);
+            logger.error('busstatus: ' + err);
         });
     } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Param bus_route was not supplied.');
-        console.log('Busstatus: Param bus_route was not supplied.');
+        logger.info('Busstatus: Param bus_route was not supplied.');
     };
     next();
 };
@@ -130,6 +137,8 @@ function busstatus (req, res, next) {
 // Params: train destination: String
 //=========================================================
 function nexttrain (req, res, next) {
+
+    logger.info ('Next Train API called');
 
     var transportapiKey = process.env.transportapiKey,
         trainroute      = req.query.train_destination,
@@ -148,7 +157,7 @@ function nexttrain (req, res, next) {
             default:
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', 'Train route not supported.');
-                console.log('Nexttrain: Train destination not supported.');
+                logger.info('Nexttrain: Train destination not supported.');
 
                 validtrainroute = false;
         };
@@ -162,7 +171,7 @@ function nexttrain (req, res, next) {
                 if (alfredHelper.isEmptyObject(apiData)) {
         
                     alfredHelper.sendResponse(res, 'error', 'No data was returned from the train API call.');
-                    console.log('nexttrain: No data was returned from the train API call.');
+                    logger.info('nexttrain: No data was returned from the train API call.');
                 } else { 
                     if (apiData.departures.all[0].mode == 'bus') {
                         var textResponse = 'Sorry, there are no trains today! There is a bus replacement serverice in operation.'
@@ -189,13 +198,13 @@ function nexttrain (req, res, next) {
             .catch(function (err) {
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', err.message);
-                console.log('nexttrain: ' + err);
+                logger.error('nexttrain: ' + err);
             });
         };
     } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'No train route was supplied.');
-        console.log('nexttrain: No train route was supplied.');
+        logger.error('nexttrain: No train route was supplied.');
     };
     next();
 };

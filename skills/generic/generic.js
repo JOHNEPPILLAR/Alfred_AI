@@ -29,7 +29,7 @@ function root (req, res, next) {
     responseText = greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, responseText);
+    alfredHelper.sendResponse(res, 'sucess', responseText);
 
     next();
 };
@@ -62,7 +62,7 @@ function hello (req, res, next) {
     responseText = greeting + name + '. ' + aiNameText; // construct json response
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, responseText);
+    alfredHelper.sendResponse(res, 'sucess', responseText);
 
     next();
 };
@@ -74,7 +74,7 @@ function help (req, res, next) {
     var responseText = 'I can help you with...';
 
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText, responseText)
+    alfredHelper.sendResponse(res, 'sucess', responseText);
 
     next();
 };

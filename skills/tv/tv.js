@@ -4,12 +4,18 @@
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
       alfredHelper = require('../../helper.js'),
-      harmony      = require('harmonyhubjs-client');
+      harmony      = require('harmonyhubjs-client'),
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: watch fire tv
 //=========================================================
 function watchFireTv (req, res, next) {
+
+    logger.info ('Watch Fire TV API called');
+
     harmony(process.env.harmonyip)
     .then(function(harmonyClient) {
         harmonyClient.startActivity(25026204); // Fire TV ID
@@ -19,7 +25,7 @@ function watchFireTv (req, res, next) {
     .catch(function (err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err.message);
-        console.log('watchFireTv: ' + err);
+        logger.error('watchFireTv: ' + err);
     });
     next();
 };
@@ -28,6 +34,9 @@ function watchFireTv (req, res, next) {
 // Skill: watch virgin tv
 //=========================================================
 function watchVirginTv (req, res, next) {
+
+    logger.info ('Watch Virgin TV API called');
+
     harmony(process.env.harmonyip)
     .then(function(harmonyClient) {
         harmonyClient.startActivity(22797599); // Virgin TV ID
@@ -37,7 +46,7 @@ function watchVirginTv (req, res, next) {
     .catch(function (err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err.message);
-        console.log('watchVirginTv: ' + err);
+        logger.error('watchVirginTv: ' + err);
     });
     next();
 };
@@ -46,6 +55,9 @@ function watchVirginTv (req, res, next) {
 // Skill: play PS4
 //=========================================================
 function playps4 (req, res, next) {
+
+    logger.info ('Play PS4 API called');
+
     harmony(process.env.harmonyip)
     .then(function(harmonyClient) {
         harmonyClient.startActivity(23898791); // PS4 ID
@@ -55,7 +67,7 @@ function playps4 (req, res, next) {
     .catch(function (err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err.message);
-        console.log('playPS4: ' + err);
+        logger.error('PlayPS4: ' + err);
     });
     next();
 };
@@ -64,6 +76,9 @@ function playps4 (req, res, next) {
 // Skill: turn everythig off
 //=========================================================
 function turnofftv (req, res, next) {
+
+    logger.info ('Turn off TV API called');
+
     harmony(process.env.harmonyip)
     .then(function(harmonyClient) {
         harmonyClient.startActivity(-1); // Turn off TV ID
@@ -73,7 +88,7 @@ function turnofftv (req, res, next) {
     .catch(function (err) {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', err.message);
-        console.log('turn off tv: ' + err);
+        logger.error('Turn off tv: ' + err);
     });
     next();
 };

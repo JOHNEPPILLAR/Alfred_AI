@@ -24,7 +24,7 @@ function joke (req, res, next) {
         apiData = apiData.body;
 
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', apiData.joke, apiData.joke);
+        alfredHelper.sendResponse(res, 'sucess', apiData.joke);
 
     })
     .catch(function (err) {

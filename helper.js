@@ -30,27 +30,12 @@ exports.setLogger = function (logger) {
 //=========================================================
 // Construct and send JSON response back to caller
 //=========================================================
-exports.sendResponse = function (res, status, dataObj, speechTxt) {
-
-    var speechOutput;
-
-    if (speechTxt !== null){
-        // Construct ssml response
-        var speechTxtObj = speechTxt.match(/[^\.!\?]+[\.!\?]+/g ),
-            speech = new Speech();  
-
-        speechTxtObj.forEach(function(value){
-            speech.say(value);
-            speech.pause('500ms');
-        });
-        speechOutput = speech.ssml(true);
-    };
+exports.sendResponse = function (res, status, dataObj) {
 
     // Construct the returning message
     var returnJSON = {
         code : status,
-        data : dataObj,
-        ssml : speechOutput
+        data : dataObj
     };
 
     // Send response back to caller

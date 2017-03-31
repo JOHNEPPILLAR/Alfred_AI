@@ -4,13 +4,18 @@
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
       sortArray    = require('array-sort'),
-      alfredHelper = require('../../helper.js');
+      alfredHelper = require('../../helper.js'),
+      logger       = require('winston');
+
+alfredHelper.setLogger(logger); // Configure logging
 
 //=========================================================
 // Skill: base root, get today's weather for a location, default is London
 // Params: location: String
 //=========================================================
 function todaysWeatherFor (req, res, next) {
+
+    logger.info ('Today\'s Weather API called');
 
     // Get the location
     var location = '';
@@ -71,7 +76,7 @@ function todaysWeatherFor (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', errorMessage);
-        console.log('todaysWeatherFor: ' + err);
+        logger.error('todaysWeatherFor: ' + err);
     });
     next();
 };
@@ -81,6 +86,8 @@ function todaysWeatherFor (req, res, next) {
 // Params: location: String
 //=========================================================
 function weatherForcastForTomorrow (req, res, next) {
+
+    logger.info ('Tomorrow\'s Weather API called');
 
     // Get the location
     var location = '';
@@ -186,7 +193,7 @@ function weatherForcastForTomorrow (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', errorMessage);
-        console.log('weatherForcastForTomorrow: ' + err);
+        logger.error('weatherForcastForTomorrow: ' + err);
     });
 
     next();
@@ -197,6 +204,8 @@ function weatherForcastForTomorrow (req, res, next) {
 // Params: location: String
 //=========================================================
 function willItSnow (req, res, next) {
+
+    logger.info ('Will it snow API called');
 
     // Get the location
     var location = '';
@@ -244,7 +253,7 @@ function willItSnow (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', errorMessage);
-        console.log('weatherForcastForTomorrow: ' + err);
+        logger.error('weatherForcastForTomorrow: ' + err);
     });
     next();
 };

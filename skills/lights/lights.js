@@ -76,7 +76,6 @@ function lightOnOff (req, res, next) {
 
     if(paramsOK) {
         // Turn on or off the light
-        //Hue.lightState.create().on().brightness(100)
         Hue.setLightState(req.query.light_number, {"on": lightAction})
         .then(function(obj) {
             if (obj=true) {
@@ -88,18 +87,18 @@ function lightOnOff (req, res, next) {
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err, null);
+            alfredHelper.sendResponse(res, 'error', err);
             logger.error('lightOnOff: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.', 'The parameters light_status or light_number was either not supplied or invalid.');
+        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.');
         logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     };
     next();
@@ -132,18 +131,18 @@ function dimLight (req, res, next) {
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err, null);
+            alfredHelper.sendResponse(res, 'error', err);
             logger.error('dimLight: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.', 'The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
         logger.error('dimLight: The parameter light_number was not supplied.');
     };
     next();
@@ -176,19 +175,18 @@ function brightenLight (req, res, next) {
             }
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage);
         })
         .fail(function(err) {
 
             // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err, null);
+            alfredHelper.sendResponse(res, 'error', err);
             logger.error('dimLight: ' + err);
         })
         .done();
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.', 'The parameter light_number was not supplied.');
-        logger.error('dimLight: The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
     };
     next();
 };
@@ -208,13 +206,13 @@ function listLights (req, res, next) {
     .then(function(obj) {
 
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', obj, null);
+        alfredHelper.sendResponse(res, 'sucess', obj);
 
     })
     .fail(function(err) {
 
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err, 'There was an error listing the lights.');
+        alfredHelper.sendResponse(res, 'error', err);
         logger.info('listLights: ' + err);
     })
     .done();
