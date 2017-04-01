@@ -1,6 +1,4 @@
 {
-  "runDailyTaskHR": 20,
-  "runDailyTaskMin": 45,
   "sunRiseOffSet": 2,
   "sunSetOffSet": 2,
   "sunRiseSunSetLights": [
@@ -12,12 +10,12 @@
     {
       "lightID": 2,
       "brightness": 65,
-      "name" : "Living room light"
+      "name" : "Play area light"
     },
     {
       "lightID": 3,
       "brightness": 65,
-      "name" : "Play area light"
+      "name" : "Living room light"
     },
     {
       "lightID": 12,
@@ -39,5 +37,21 @@
       "hour": 22,
       "minute": 0
     }      
+  ],
+  "tvLights": [
+    {
+      "lightID": 2,
+      "brightness": 45,
+      "x": 0.4448,
+      "y": 0.4066,
+      "name" : "Play area light"
+    },
+    {
+      "lightID": 3,
+      "brightness": 45,
+      "x": 0.4448,
+      "y": 0.4066,
+      "name" : "Living room light"
+    }
   ]
 }

@@ -1,11 +1,12 @@
 //=========================================================
 // Setup lights skills
 //=========================================================
-const Skills = require('restify-router').Router;  
-      skill  = new Skills(),
-      HueApi = require("node-hue-api").HueApi,
-      alfredHelper = require('../../helper.js'),
-      logger       = require('winston');
+const Skills           = require('restify-router').Router;  
+      skill            = new Skills(),
+      HueApi           = require("node-hue-api").HueApi,
+      alfredHelper     = require('../../helper.js'),
+      logger           = require('winston'),
+      scheduleSettings = require('../../scheduleSettings.json');
 
 //=========================================================
 // Skill: registerDevice
@@ -219,6 +220,39 @@ function listLights (req, res, next) {
 };
 
 //=========================================================
+// Skill: tvLights
+//=========================================================
+function tvLights (req, res, next) {
+
+    const HueBridgeIP   = process.env.HueBridgeIP,
+          HueBridgeUser = process.env.HueBridgeUser,
+          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
+          lights        = scheduleSettings.tvLights;
+
+    logger.info ('TV Lights API called');
+
+    var promises = [],
+        state;
+
+    lights.forEach(function(value){
+        state = lightState.create().on().brightness(value.brightness).xy(value.x, value.y);
+        promises.push(Hue.setLightState(value.lightID, state));
+    });
+    Promise.all(promises)
+    .then(function(resolved) {
+
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'sucess', 'TV Lights on');
+
+    })
+    .catch(function (err) {
+        logger.error('TV lights  Error: ' + err);
+    });
+
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/registerdevice', registerDevice);
@@ -226,5 +260,6 @@ skill.get('/lightonoff', lightOnOff);
 skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
 skill.get('/listlights', listLights);
+skill.get('/tvlights', tvLights);
 
 module.exports = skill;

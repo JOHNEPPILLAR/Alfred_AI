@@ -62,8 +62,8 @@ var appSchedules = function(server) {
         };
 
     // Setup daily timer function
-    rule.hour   = scheduleSettings.runDailyTaskHR;
-    rule.minute = scheduleSettings.runDailyTaskMin;
+    rule.hour      = new Date().getHours();
+    rule.minute    = new Date().getMinutes() + 1;
     var dailyTimer = new schedule.scheduleJob(rule, function(){
 
         //=========================================================
