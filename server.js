@@ -1,11 +1,14 @@
 //=========================================================
 // Setup server
 //=========================================================
-const restify        = require('restify'),
-      dotenv         = require('dotenv'),
-      alfredHelper   = require('./helper.js'),
-      logger         = require('winston'),
-      scheduleHelper = require('./schedules/schedules.js');
+const restify = require('restify'),
+      dotenv  = require('dotenv');
+
+// Get up global vars
+global.alfredHelper   = require('./helper.js');
+global.logger         = require('winston');
+global.scheduleHelper = require('./schedules/schedules.js');
+global.timers         = [];
 
 // Load env vars
 dotenv.load()
@@ -25,10 +28,10 @@ server.use(restify.jsonBodyParser({ mapParams: true }));
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser({ mapParams: true }));
 server.use(restify.fullResponse());
-//server.on('uncaughtException',function(request, response, route, error) {
-//    console.error(error.stack);
-//    alfredHelper.sendResponse(res, 'error', error);
-//});
+server.on('uncaughtException',function(request, response, route, error) {
+    logger.error(error.message);
+    alfredHelper.sendResponse(response, 'error', error.message);
+});
 
 //=========================================================
 // Start server and listen to messqges
@@ -53,7 +56,6 @@ server.use(function (req, res, next) {
 //=========================================================
 // Setup schedules
 //=========================================================
-global.timers = [];
 scheduleHelper.setSchedule(false);
 
 //=========================================================

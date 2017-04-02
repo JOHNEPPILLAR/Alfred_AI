@@ -1,84 +1,30 @@
 
-const url           = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
-      HueLights     = require("node-hue-api"),
-      schedule      = require('node-schedule'),
-      alfredHelper  = require('../helper.js'),
-      dateFormat    = require('dateformat'),
-      HueApi        = HueLights.HueApi,
-      HueBridgeIP   = process.env.HueBridgeIP,
-      HueBridgeUser = process.env.HueBridgeUser,
-      Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-      lightState    = HueLights.lightState;
+const url        = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
+      schedule   = require('node-schedule'),
+      dateFormat = require('dateformat');
 
 var rule    = new schedule.RecurrenceRule(),
     sunRise = new Date(),
     sunSet  = new Date();
               
-function turnOnLights(){
-
-    var currentTime      = dateFormat(new Date(), 'HH:MM'),
-        promises         = [],
-        scheduleSettings = require('../scheduleSettings.json'),
-        lights           = scheduleSettings.sunRiseSunSetLights,
-        state;
-
-    lights.forEach(function(value){
-        state = lightState.create().on().brightness(value.brightness);
-        promises.push(Hue.setLightState(value.lightID, state));
-    });
-    Promise.all(promises)
-    .then(function(resolved){
-        logger.info(currentTime + ' - Turned on lights');
-    })
-    .catch(function(err){
-        logger.error('Schedule turnOnLights Error: ' + err);
-    });
-};
-        
-function turnOffLights(){
-
-    var currentTime      = dateFormat(new Date(), 'HH:MM'),
-        promises         = [],
-        scheduleSettings = require('../scheduleSettings.json'),
-        lights           = scheduleSettings.sunRiseSunSetLights,
-        state            = lightState.create().off();
-                
-    // Get a list of all the lights
-    Hue.lights()
-    .then (function(lights){            
-        lights.lights.forEach(function(value){
-            promises.push(Hue.setLightState(value.id, state)); // push the Promises to our array
-        });
-        Promise.all(promises)
-        .then(function(resolved){
-            logger.info(currentTime + ' - Turned off lights');
-        })
-        .catch(function(err){
-            logger.error('Schedule turnOnLights Error: ' + err);
-        });
-    })
-    .catch(function(err){
-        logger.error('Schedule Error: ' + err);
-    });
-};
-
 exports.setSchedule = function (resetTimers){
 
     // Setup daily timer function
     rule.hour   = new Date().getHours();
     rule.minute = new Date().getMinutes() + 1;
 
-    var dailyTimer = new schedule.scheduleJob(rule, function(){
+    var alfredHelper = require('../helper.js');
+        logger       = require('winston');
+        dailyTimer   = new schedule.scheduleJob(rule, function(){
 
         //=========================================================
         // Set the daily timers
         //=========================================================
-        var currentTime      = dateFormat(new Date(), 'HH:MM'),
-            scheduleSettings = require('../scheduleSettings.json'),
+        var scheduleSettings = require('../scheduleSettings.json'),
             turnOffTimes     = scheduleSettings.lightsOut,
             tmpTimer;
 
-        logger.info(currentTime + ' - Running daily scheduler');
+        logger.info('Running daily scheduler');
 
         // Get sunrise & sunset data
         const url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
@@ -106,7 +52,7 @@ exports.setSchedule = function (resetTimers){
             rule.hour   = sunRise.getHours();
             rule.minute = sunRise.getMinutes();
             tmpTimer = new schedule.scheduleJob(rule, function(){
-                turnOnLights();
+                lightshelper.turnOnMorningEveningLights();
             });
             timers.push(tmpTimer)
 
@@ -114,7 +60,7 @@ exports.setSchedule = function (resetTimers){
             rule.hour   = sunSet.getHours();
             rule.minute = sunSet.getMinutes();
             tmpTimer = new schedule.scheduleJob(rule, function(){
-                turnOnLights();
+                lightshelper.turnOnMorningEveningLights();
             });
             timers.push(tmpTimer)
 
@@ -123,7 +69,7 @@ exports.setSchedule = function (resetTimers){
                 rule.hour   = value.hour;
                 rule.minute = value.minute;
                 tmpTimer = new schedule.scheduleJob(rule, function(){
-                    turnOffLights();
+                    lightshelper.allOff();
                 });
                 timers.push(tmpTimer);
             });

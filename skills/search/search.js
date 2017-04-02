@@ -8,9 +8,7 @@ const Skills       = require('restify-router').Router,
       Entities     = require('html-entities').XmlEntities,
       entities     = new Entities(),
       xray         = require('x-ray')(),
-      sanitizeHtml = require('sanitize-html'),
-	  alfredHelper = require('../../helper.js'),
-      logger       = require('winston');
+      sanitizeHtml = require('sanitize-html');
 
 //=========================================================
 // Skill: googlesearch

@@ -3,7 +3,6 @@
 //=========================================================
 const Skills       = require('restify-router').Router;  
       skill        = new Skills(),
-      alfredHelper = require('../../helper.js'),
       NodeGeocoder = require('node-geocoder'),
       options      = {
         provider: 'google',
@@ -11,8 +10,7 @@ const Skills       = require('restify-router').Router;
         formatter: null         
       },
       geocoder     = NodeGeocoder(options),
-      dateFormat   = require('dateformat'),      
-      logger       = require('winston');
+      dateFormat   = require('dateformat');
 
 //=========================================================
 // Skill: whatisthetime

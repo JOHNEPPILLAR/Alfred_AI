@@ -3,9 +3,7 @@
 //=========================================================
 const Skills         = require('restify-router').Router;  
       skill          = new Skills(),
-      alfredHelper   = require('../../helper.js'),
-      scheduleHelper = require('../../schedules/schedules.js'),
-      logger         = require('winston');
+      scheduleHelper = require('../../schedules/schedules.js');
 
 //=========================================================
 // Skill: reset schedules

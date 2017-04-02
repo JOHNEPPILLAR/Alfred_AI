@@ -1,11 +1,9 @@
 //=========================================================
 // Setup TV skill
 //=========================================================
-const Skills       = require('restify-router').Router;  
-      skill        = new Skills(),
-      alfredHelper = require('../../helper.js'),
-      harmony      = require('harmonyhubjs-client'),
-      logger       = require('winston');
+const Skills  = require('restify-router').Router;  
+      skill   = new Skills(),
+      harmony = require('harmonyhubjs-client');
 
 //=========================================================
 // Skill: watch fire tv

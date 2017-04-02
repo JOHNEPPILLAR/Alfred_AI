@@ -1,10 +1,8 @@
 //=========================================================
 // Setup news skills
 //=========================================================
-const Skills       = require('restify-router').Router;  
-      skill        = new Skills(),
-      alfredHelper = require('../../helper.js'),
-      logger       = require('winston');
+const Skills = require('restify-router').Router;  
+      skill  = new Skills();
 
 //=========================================================
 // Skill: latest

@@ -3,32 +3,15 @@
 //=========================================================
 const Skills           = require('restify-router').Router;  
       skill            = new Skills(),
-      HueApi           = require("node-hue-api").HueApi,
-      alfredHelper     = require('../../helper.js'),
-      logger           = require('winston'),
-      scheduleSettings = require('../../scheduleSettings.json');
+      scheduleSettings = require('../../scheduleSettings.json'),
+      lightshelper     = require('./lightshelper.js');
 
 //=========================================================
 // Skill: registerDevice
 //=========================================================
-function registerDevice (req, res, next) {
-
-    logger.info ('Register Device API called');
-
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
-
-    // Send the register command to the Hue bridge
-    Hue.config()
-    .then(function(obj) {
-        alfredHelper.sendResponse(res, 'sucess', obj);
-    })
-    .fail(function(err) {
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err);
-        logger.error('registerDevice: ' + err);
-    })
+function registerDevice(req, res, next){
+    logger.info('Register Device API called');
+    lightshelper.registerDevice(res);
     next();
 };
 
@@ -36,30 +19,15 @@ function registerDevice (req, res, next) {
 // Skill: lights on/off
 // Params: light_number: Number, light_status: String
 //=========================================================
-function lightOnOff (req, res, next) {
-
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
-    
-    var paramsOK    = false,
-        lightAction = false,
-        lightState  = Hue.lightState;
-
-    logger.info ('Light On / Off API called');
-
-    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
+function lightOnOff(req, res, next){
+    var paramsOK = false;
+    logger.info('Light On / Off API called');
+    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
         paramsOK = true;
     };
-
-    if (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) {
+    if (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null){
         paramsOK = true;
-    } else {
-       paramsOK = false; 
-    };
-
-    if (paramsOK){
-        switch (req.query.light_status.toLowerCase()) {
+        switch (req.query.light_status.toLowerCase()){
         case 'on':
             lightAction = true;
             break;
@@ -70,32 +38,11 @@ function lightOnOff (req, res, next) {
             paramsOK = false;
         };
     } else {
-        paramsOK = false;
+       paramsOK = false; 
     };
-
-    if(paramsOK) {
-        // Turn on or off the light
-        Hue.setLightState(req.query.light_number, {"on": lightAction})
-        .then(function(obj) {
-            if (obj=true) {
-                var returnMessage = 'The light was turned ' + req.query.light_status.toLowerCase() + '.',
-                    status = 'sucess';
-            } else {
-                var returnMessage = 'There was an error turning the light ' + req.query.light_status.toLowerCase() + '.',
-                    status = 'error';
-            }
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
-        })
-        .fail(function(err) {
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            logger.error('lightOnOff: ' + err);
-        })
-        .done();
-    } else {
+    if(paramsOK){
+        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase());
+    }else{
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.');
         logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
@@ -107,39 +54,11 @@ function lightOnOff (req, res, next) {
 // Skill: dimlight
 // Params: light_number: Number
 //=========================================================
-function dimLight (req, res, next) {
-
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lightNumber   = req.query.light_number;
-
-    logger.info ('Dim Light API called');
-
-    if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
-        // Dim the light
-        Hue.setLightState(lightNumber, {'brightness': '30'})
-        .then(function(obj) {
-            if (obj=true) {
-                var returnMessage = 'The light was dimmed.',
-                    status = 'sucess';
-            } else {
-                var returnMessage = 'There was an error dimming the light.',
-                    status = 'error';
-                    logger.error('dimLight: ' + returnMessage);
-            }
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
-        })
-        .fail(function(err) {
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            logger.error('dimLight: ' + err);
-        })
-        .done();
-    } else {
+function dimLight(req, res, next){
+    logger.info('Dim Light API called');
+    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
+        lightshelper.dimLight(res, req.query.light_number);
+    }else{
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
         logger.error('dimLight: The parameter light_number was not supplied.');
@@ -151,41 +70,15 @@ function dimLight (req, res, next) {
 // Skill: brightenLight
 // Params: light_number: Number
 //=========================================================
-function brightenLight (req, res, next) {
-
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lightNumber   = req.query.light_number;
-
-    logger.info ('Brighten Light API called');
-
-    if (typeof lightNumber !== 'undefined' && lightNumber !== null) {
+function brightenLight(req, res, next){
+    logger.info('Brighten Light API called');
+    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
         // Brighten the light
-        Hue.setLightState(lightNumber, {'brightness': '100'})
-        .then(function(obj) {
-            if (obj=true) {
-                var returnMessage = 'The light was brightened.',
-                    status = 'sucess';
-            } else {
-                var returnMessage = 'There was an error increasing the brightness.',
-                    status = 'error';
-                    logger.errror('dimLight: ' + returnMessage);
-            }
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
-        })
-        .fail(function(err) {
-
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
-            logger.error('dimLight: ' + err);
-        })
-        .done();
-    } else {
+        lightshelper.brightenLight(res, req.query.light_number);
+    }else{
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
+        logger.error('brightenLight: The parameter light_number was not supplied.');
     };
     next();
 };
@@ -193,62 +86,36 @@ function brightenLight (req, res, next) {
 //=========================================================
 // Skill: listLights
 //=========================================================
-function listLights (req, res, next) {
-
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
-
-    logger.info ('List Lights API called');
-
-    Hue.lights()
-    .then(function(obj) {
-
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', obj);
-
-    })
-    .fail(function(err) {
-
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err);
-        logger.info('listLights: ' + err);
-    })
-    .done();
-
+function listLights(req, res, next){
+    logger.info('List Lights API called');
+    lightshelper.listLights(res);
     next();
 };
 
 //=========================================================
 // Skill: tvLights
 //=========================================================
-function tvLights (req, res, next) {
+function tvLights(req, res, next){
+    logger.info('TV Lights API called');
+    lightshelper.tvLights(res);
+    next();
+};
 
-    const HueBridgeIP   = process.env.HueBridgeIP,
-          HueBridgeUser = process.env.HueBridgeUser,
-          Hue           = new HueApi(HueBridgeIP, HueBridgeUser),
-          lights        = scheduleSettings.tvLights;
+//=========================================================
+// Skill: tvLights
+//=========================================================
+function allOff (req, res, next){
+    logger.info('Turn off all Lights API called');
+    lightshelper.allOff(res);
+    next();
+};
 
-    logger.info ('TV Lights API called');
-
-    var promises = [],
-        state;
-
-    lights.forEach(function(value){
-        state = lightState.create().on().brightness(value.brightness).xy(value.x, value.y);
-        promises.push(Hue.setLightState(value.lightID, state));
-    });
-    Promise.all(promises)
-    .then(function(resolved) {
-
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', 'TV Lights on');
-
-    })
-    .catch(function (err) {
-        logger.error('TV lights  Error: ' + err);
-    });
-
+//=========================================================
+// Skill: Turn On Morning/Evening Lights
+//=========================================================
+function turnOnMorningEveningLights (req, res, next){
+    logger.info('Turn on Morning/Evening lights API called');
+    lightshelper.turnOnMorningEveningLights(res);
     next();
 };
 
@@ -261,5 +128,7 @@ skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
 skill.get('/listlights', listLights);
 skill.get('/tvlights', tvLights);
+skill.get('/alloff', allOff);
+skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
 
 module.exports = skill;
