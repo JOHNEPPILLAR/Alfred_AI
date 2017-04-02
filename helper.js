@@ -1,16 +1,6 @@
 'use strict';
 const rp     = require('request-promise'),
-      Speech = require('ssml-builder'),
-      logger = require('winston');
-
-if (process.env.environment == 'live'){
-    // Send logging to a file
-    logger.add(logger.transports.File, { filename: 'Alfred.log', timestamp: true, colorize: true });
-    logger.remove(logger.transports.Console);
-} else {
-    logger.remove(logger.transports.Console);
-    logger.add(logger.transports.Console, {timestamp: true, colorize: true});
-};
+      Speech = require('ssml-builder');
 
 //=========================================================
 // Setup logging

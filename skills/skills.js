@@ -1,4 +1,4 @@
-var appSkills = function(server, logger) {
+var appSkills = function(server) {
 
     // Generic skills such as hello, help
     var genericRouter = require('./generic/generic.js');
@@ -25,17 +25,21 @@ var appSkills = function(server, logger) {
     searchRouter.applyRoutes(server);
 
     // travel skill
-    var searchRouter = require('./travel/travel.js');
-    searchRouter.applyRoutes(server, '/travel');
+    var travelRouter = require('./travel/travel.js');
+    travelRouter.applyRoutes(server, '/travel');
 
     // lights skill
-    var searchRouter = require('./lights/lights.js');
-    searchRouter.applyRoutes(server, '/lights');
+    var lightRouter = require('./lights/lights.js');
+    lightRouter.applyRoutes(server, '/lights');
 
     // TV skill
-    var searchRouter = require('./tv/tv.js');
-    searchRouter.applyRoutes(server, '/tv');
+    var tvRouter = require('./tv/tv.js');
+    tvRouter.applyRoutes(server, '/tv');
 
-}
+    // Schedule skill
+    var scheduleRouter = require('./schedules/schedules.js');
+    scheduleRouter.applyRoutes(server);
+
+};
 
 module.exports = appSkills;

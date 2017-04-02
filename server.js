@@ -1,22 +1,16 @@
 //=========================================================
 // Setup server
 //=========================================================
-const restify      = require('restify'),
-      dotenv       = require('dotenv'),
-      alfredHelper = require('./helper.js'),
-      logger       = require('winston');
+const restify        = require('restify'),
+      dotenv         = require('dotenv'),
+      alfredHelper   = require('./helper.js'),
+      logger         = require('winston'),
+      scheduleHelper = require('./schedules/schedules.js');
 
 // Load env vars
 dotenv.load()
 
-if (process.env.environment == 'live'){
-    // Send logging to a file
-    logger.add(logger.transports.File, { filename: 'Alfred.log', timestamp: true, colorize: true });
-    logger.remove(logger.transports.Console);
-} else {
-    logger.remove(logger.transports.Console);
-    logger.add(logger.transports.Console, {timestamp: true, colorize: true});
-};
+alfredHelper.setLogger(logger); // Configure the logger
 
 // Restify server Init
 const server = restify.createServer({
@@ -57,12 +51,12 @@ server.use(function (req, res, next) {
 });
 
 //=========================================================
+// Setup schedules
+//=========================================================
+global.timers = [];
+scheduleHelper.setSchedule(false);
+
+//=========================================================
 // Configure skills
 //=========================================================
 var defaultRouter = require("./skills/skills.js")(server);
-
-//=========================================================
-// Setup schedules
-//=========================================================
-var defaultSchedule = require("./schedules/schedules.js")(server);
-
