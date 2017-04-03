@@ -38,7 +38,7 @@ var appSkills = function(server) {
 
     // Schedule skill
     var scheduleRouter = require('./schedules/schedules.js');
-    scheduleRouter.applyRoutes(server);
+    scheduleRouter.applyRoutes(server, 'schedule');
 
 };
 

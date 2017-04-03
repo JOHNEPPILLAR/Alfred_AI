@@ -1,14 +1,15 @@
 
-const url        = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY,
-      schedule   = require('node-schedule'),
-      dateFormat = require('dateformat');
+const schedule   = require('node-schedule'),
+      dateFormat = require('dateformat'),
+      dotenv     = require('dotenv');
 
-var rule    = new schedule.RecurrenceRule(),
-    sunRise = new Date(),
-    sunSet  = new Date();
-              
-exports.setSchedule = function (resetTimers){
+// Load env vars
+dotenv.load()
 
+const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+var rule  = new schedule.RecurrenceRule();
+
+exports.setSchedule = function (){
     // Setup daily timer function
     rule.hour   = new Date().getHours();
     rule.minute = new Date().getMinutes() + 1;
@@ -27,42 +28,37 @@ exports.setSchedule = function (resetTimers){
         logger.info('Running daily scheduler');
 
         // Get sunrise & sunset data
-        const url = 'http://api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
 
-            sunRise = new Date(apiData.body.sys.sunrise);
-            sunSet  = new Date(apiData.body.sys.sunset);
-            sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-
-            // Cancel existing timers
-            if (resetTimers){
-                timers.forEach(function(value){
-                    value.cancel();
-                });
-            };
-
-            // if sunrise is before 6am then reset to 6am
-            if (sunRise.getHours() < 6){
-                sunRise.setHours(6);
-                sunRise.setMinutes(0);
-            };
+            // Cancel any existing timers
+            timers.forEach(function(value){
+                value.cancel();
+            });
 
             // Set sunrise timer
-            rule.hour   = sunRise.getHours();
+            sunRise = new Date(),
+            sunRise.setHours(scheduleSettings.morningTimerHR);
+            sunRise.setMinutes(scheduleSettings.morningTimerMin);
+            rule.hour = sunRise.getHours();
             rule.minute = sunRise.getMinutes();
             tmpTimer = new schedule.scheduleJob(rule, function(){
                 lightshelper.turnOnMorningEveningLights();
             });
             timers.push(tmpTimer)
+            logger.info('Set sunrise schedule for: ' + rule.hour + ':' + rule.minute);
 
             // Set sunset timer
-            rule.hour   = sunSet.getHours();
+            sunSet = new Date(apiData.body.sys.sunset);
+            sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
+            sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSet); // Adjust according to the setting
+            rule.hour = sunSet.getHours();
             rule.minute = sunSet.getMinutes();
             tmpTimer = new schedule.scheduleJob(rule, function(){
                 lightshelper.turnOnMorningEveningLights();
             });
             timers.push(tmpTimer)
+            logger.info('Set sunset schedule for: ' + rule.hour + ':' + rule.minute);
 
             // set timers to turn off lights
             turnOffTimes.forEach(function(value){
@@ -72,6 +68,7 @@ exports.setSchedule = function (resetTimers){
                     lightshelper.allOff();
                 });
                 timers.push(tmpTimer);
+                logger.info('Set off timer schedule for: ' + rule.hour + ':' + rule.minute);
             });
         })
         .catch(function(err){

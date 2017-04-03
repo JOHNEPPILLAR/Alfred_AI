@@ -1,6 +1,7 @@
 {
-  "sunRiseOffSet": 2,
-  "sunSetOffSet": 2,
+  "morningTimerHR": 5,
+  "morningTimerMin": 30,
+  "sunSetOffSet": 1,
   "sunRiseSunSetLights": [
     {
       "lightID": 1,

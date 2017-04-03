@@ -56,7 +56,7 @@ server.use(function (req, res, next) {
 //=========================================================
 // Setup schedules
 //=========================================================
-scheduleHelper.setSchedule(false);
+scheduleHelper.setSchedule();
 
 //=========================================================
 // Configure skills
