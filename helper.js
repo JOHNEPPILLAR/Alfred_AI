@@ -13,7 +13,7 @@ exports.setLogger = function (logger) {
         logger.remove(logger.transports.Console);
     } else {
         logger.remove(logger.transports.Console);
-        logger.add(logger.transports.Console, {timestamp: true, colorize: true});
+        logger.add(logger.transports.Console, {timestamp: function() { return dateFormat(new Date(), "dd/mmm/zyyyy HH:MM") }, colorize: true});
     };
 };
 
