@@ -30,15 +30,20 @@ exports.registerDevice = function(res){
     });
 };
 
-exports.lightOnOff = function(res, lightNumber, lightAction){
+exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
     // Turn on or off the light
-    var lightChange = false;
-
-    if (lightAction=='on'){
-        lightChange = true;
+    if (typeof brightness == 'undefined' || brightness == null){
+        brightness = 100;
     };
 
-    Hue.setLightState(lightNumber, {"on": lightChange})
+    var state = lightState.create().off().brightness(brightness);
+
+    if (lightAction=='on'){
+        state = lightState.create().on().brightness(brightness);
+    };
+
+    Hue.setLightState(lightNumber, state)
+    //Hue.setLightState(lightNumber, {'on': lightChange, 'brightness': '30'})
     .then(function(obj){
         if (obj=true){
             var returnMessage = 'The light was turned ' + lightAction + '.',
