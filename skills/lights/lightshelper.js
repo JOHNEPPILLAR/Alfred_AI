@@ -36,14 +36,13 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
         brightness = 100;
     };
 
-    var state = lightState.create().off().brightness(brightness);
+    var state = lightState.create().off();
 
     if (lightAction=='on'){
         state = lightState.create().on().brightness(brightness);
     };
 
     Hue.setLightState(lightNumber, state)
-    //Hue.setLightState(lightNumber, {'on': lightChange, 'brightness': '30'})
     .then(function(obj){
         if (obj=true){
             var returnMessage = 'The light was turned ' + lightAction + '.',
@@ -66,22 +65,36 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
     })
 };
 
-exports.dimLight = function(res, lightNumber){
-    // Dim the light
-    Hue.setLightState(lightNumber, {'brightness': '30'})
+exports.dimLight = function(res, lightNumber, percentage){
+    // Get the current brighness
+    Hue.lightStatus(lightNumber)
     .then(function(obj){
-        if (obj=true){
-            var returnMessage = 'The light was dimmed.',
-                status = 'sucess';
-        }else{
-            var returnMessage = 'There was an error dimming the light.',
-                status = 'error';
-                logger.error('dimLight: ' + returnMessage);
-        };
-        if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
-        };
+        var brightness = ((obj.bri/100)*percentage) *= -1, // invert the sign as we are dimming the light
+            state      = lightState.create().on().bri_inc(brightness);
+
+        // Dim the light
+        Hue.setLightState(lightNumber, state)
+        .then(function(obj){
+            if (obj=true){
+                var returnMessage = 'The light was dimmed.',
+                    status = 'sucess';
+            }else{
+                var returnMessage = 'There was an error dimming the light.',
+                    status = 'error';
+                    logger.error('dimLight: ' + returnMessage);
+            };
+            if (typeof res !== 'undefined' && res !== null){
+                // Send response back to caller
+                alfredHelper.sendResponse(res, status, returnMessage);
+            };
+        })
+        .fail(function(err){
+            if (typeof res !== 'undefined' && res !== null){
+                // Send response back to caller
+                alfredHelper.sendResponse(res, 'error', err);
+            };
+            logger.error('dimLight: ' + err);
+        });
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
@@ -92,22 +105,36 @@ exports.dimLight = function(res, lightNumber){
     });
 };
 
-exports.brightenLight = function(res, lightNumber){
-    // Brightern the light
-    Hue.setLightState(lightNumber, {'brightness': '100'})
+exports.brightenLight = function(res, lightNumber, percentage){
+    // Get the current brighness
+    Hue.lightStatus(lightNumber)
     .then(function(obj){
-        if (obj=true){
-            var returnMessage = 'The light was brightened.',
-                status = 'sucess';
-        }else{
-            var returnMessage = 'There was an error increasing the brightness.',
-                status = 'error';
-                logger.error('brightenLight: ' + returnMessage);
-        };
-        if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
-        };
+        var brightness = (obj.bri/100)*percentage,
+            state      = lightState.create().on().bri_inc(brightness);
+
+        // Brightern the light
+        Hue.setLightState(lightNumber, state)
+        .then(function(obj){
+            if (obj=true){
+                var returnMessage = 'The light was brightened.',
+                    status = 'sucess';
+            }else{
+                var returnMessage = 'There was an error increasing the brightness.',
+                    status = 'error';
+                    logger.error('brightenLight: ' + returnMessage);
+            };
+            if (typeof res !== 'undefined' && res !== null){
+                // Send response back to caller
+                alfredHelper.sendResponse(res, status, returnMessage);
+            };
+        })
+        .fail(function(err){
+            if (typeof res !== 'undefined' && res !== null){
+                // Send response back to caller
+                alfredHelper.sendResponse(res, 'error', err);
+            };
+            logger.error('brightenLight: ' + err);
+        });
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){

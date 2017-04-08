@@ -53,15 +53,17 @@ function lightOnOff(req, res, next){
 //=========================================================
 // Skill: dimlight
 // Params: light_number: Number
+// Params: percentage
 //=========================================================
 function dimLight(req, res, next){
     logger.info('Dim Light API called');
-    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
-        lightshelper.dimLight(res, req.query.light_number);
+    if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
+        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){
+        lightshelper.dimLight(res, req.query.light_number, req.query.percentage);
     }else{
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
-        logger.error('dimLight: The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number or percentage was not supplied.');
+        logger.error('dimLight: The parameter light_number or percentage was not supplied.');
     };
     next();
 };
@@ -72,13 +74,14 @@ function dimLight(req, res, next){
 //=========================================================
 function brightenLight(req, res, next){
     logger.info('Brighten Light API called');
-    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
+    if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
+        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){
         // Brighten the light
-        lightshelper.brightenLight(res, req.query.light_number);
+        lightshelper.brightenLight(res, req.query.light_number, req.query.percentage);
     }else{
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
-        logger.error('brightenLight: The parameter light_number was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number or percentage was not supplied.');
+        logger.error('brightenLight: The parameter light_number or percentage was not supplied.');
     };
     next();
 };
