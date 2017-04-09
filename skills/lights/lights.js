@@ -22,11 +22,12 @@ function registerDevice(req, res, next){
 function lightOnOff(req, res, next){
     var paramsOK = false;
     logger.info('Light On / Off API called');
-    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null){
+    if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
+        (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
+        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){    
         paramsOK = true;
     };
-    if (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null){
-        paramsOK = true;
+    if (paramsOK){
         switch (req.query.light_status.toLowerCase()){
         case 'on':
             lightAction = true;
@@ -41,11 +42,11 @@ function lightOnOff(req, res, next){
        paramsOK = false; 
     };
     if(paramsOK){
-        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase());
+        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage);
     }else{
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'The parameters light_status or light_number was either not supplied or invalid.');
-        logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
+        alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+        logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
     };
     next();
 };
