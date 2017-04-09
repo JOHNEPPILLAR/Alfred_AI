@@ -9,6 +9,7 @@ global.alfredHelper   = require('./helper.js');
 global.logger         = require('winston');
 global.scheduleHelper = require('./schedules/schedules.js');
 global.timers         = [];
+global.sunSetTimer;
 
 // Load env vars
 dotenv.load()

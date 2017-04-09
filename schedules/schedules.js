@@ -68,18 +68,21 @@ exports.setSchedule = function (){
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
 
+            // Cancel the existing timers
+            if (typeof sunSetTimer !== 'undefined'){
+                sunSetTimer.cancel(); 
+            };
+
             // Set sunset timer
             sunSet = new Date(apiData.body.sys.sunset);
             sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
             sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSet); // Adjust according to the setting
             rule.hour = sunSet.getHours();
             rule.minute = sunSet.getMinutes();
-            tmpTimer = new schedule.scheduleJob(rule, function(){
+            sunSetTimer = new schedule.scheduleJob(rule, function(){
                 lightshelper.turnOnMorningEveningLights();
             });
-            timers.push(tmpTimer)
             logger.info('Scheduled sunset timer for: ' + rule.hour + ':' + rule.minute);
-
         })
         .catch(function(err){
             logger.error('Sunset get data Error: ' + err);

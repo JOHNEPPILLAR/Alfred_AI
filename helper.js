@@ -40,6 +40,7 @@ exports.requestAPIdata = function (apiURL, userAgent) {
         'User-Agent': userAgent,
         method: 'GET',
         uri: apiURL,
+        family: 4,
         resolveWithFullResponse: true,
         json: true
     }
