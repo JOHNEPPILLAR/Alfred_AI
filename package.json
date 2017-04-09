@@ -11,7 +11,7 @@
   "dependencies": {
     "array-sort": "*",
     "dotenv": "*",
-    "request": "^2.79.0",
+    "request": "*",
     "request-promise": "*",
     "restify": "*",
     "restify-router": "*",
