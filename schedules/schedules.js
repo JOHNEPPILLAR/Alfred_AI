@@ -51,8 +51,9 @@ exports.setSchedule = function (){
                 logger.info('Scheduled all lights off timer for: ' + rule.hour + ':' + rule.minute);
             }else{
                 value.lights.forEach(function(value){
+                    tmpTimer = null;
                     tmpTimer = new schedule.scheduleJob(rule, function(){
-                        lightshelper.lightOnOff(value.lightID, value.onoff, value.brightness);
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                     });
                     timers.push(tmpTimer);
                     logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + rule.hour + ':' + rule.minute);  

@@ -21,7 +21,6 @@ function registerDevice(req, res, next){
 //=========================================================
 function lightOnOff(req, res, next){
     var paramsOK = false;
-    logger.info('Light On / Off API called');
     if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
         (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
         (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){    

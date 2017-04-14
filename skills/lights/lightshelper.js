@@ -41,6 +41,7 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
     };
     Hue.setLightState(lightNumber, state)
     .then(function(obj){
+        logger.info('Turned ' + lightAction + ' light ' + lightNumber);
         if (obj=true){
             var returnMessage = 'The light was turned ' + lightAction + '.',
                 status = 'sucess';
@@ -52,6 +53,7 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
             // Send response back to caller
             alfredHelper.sendResponse(res, status, returnMessage);
         };
+
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
