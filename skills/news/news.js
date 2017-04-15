@@ -13,13 +13,13 @@ function latest (req, res, next) {
     logger.info ('NEWS API called');
 
     // Get the source
-    var newsType      = 'sky-news',
+    var newsType      = 'bbc-news',
         newsTypeError = false,
         newsParam     = req.query.news_type; 
     if (typeof newsParam !== 'undefined' && newsParam !== null) {
         switch (newsParam.toLowerCase()) {
         case 'news':
-            newsType = 'sky-news';
+            newsType = 'bbc-news';
             break;
         case 'sports':
             newsType = 'bbc-sport';
