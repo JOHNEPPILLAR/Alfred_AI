@@ -44,7 +44,7 @@ function latest (req, res, next) {
         
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Unsupported type of news.');
-        logging.info('news-latest: Unsupported type of news.');
+        logger.info('news-latest: Unsupported type of news.');
     } else {
 
         // Get news data

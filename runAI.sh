@@ -18,5 +18,5 @@ echo "removing node modules folder and installing latest"
 #npm install
 
 echo "run the server app"
-#nodemon server.js
-node server.js
+nodemon server.js
+#node server.js
