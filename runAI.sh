@@ -18,6 +18,8 @@ echo "Removing node modules folder and installing latest"
 rm -rf node_modules
 npm install
 
+clear
+
 echo "Run the server app"
 #nodemon server.js
 node server.js
