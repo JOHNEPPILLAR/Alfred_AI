@@ -4,10 +4,7 @@
 const Skills = require('restify-router').Router,
       skill  = new Skills();
 
-//=========================================================
-// Skill: base root
-//=========================================================
-function root (req, res, next) {
+function sayHello() {
     var responseText = '',
         greeting = '',
         aiNameText = 'My name is Alfred.',
@@ -22,44 +19,22 @@ function root (req, res, next) {
     } else {
         greeting = 'Good Evening.'
     }
-    responseText = greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
+    return greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
+};
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
-
+//=========================================================
+// Skill: base root
+//=========================================================
+function root (req, res, next) {
+    alfredHelper.sendResponse(res, 'sucess', sayHello()); // Send response back to caller
     next();
 };
 
 //=========================================================
 // Skill: Hello
-// Params: name: String
 //=========================================================
 function hello (req, res, next) {
-    var responseText = '',
-        greeting = '',
-        aiNameText = 'How can I help you today.',
-        dt = new Date().getHours(),
-        name = '';
-
-    if (req.query.name){
-        name = ' ' + req.query.name;
-    } else {
-        name = '';
-    };
-
-    // Calc which part of day
-    if (dt >= 0 && dt <= 11) {
-        greeting = 'Good Morning'
-    } else if (dt >= 12 && dt <= 17) {
-        greeting = 'Good Afternoon'
-    } else {
-        greeting = 'Good Evening'
-    }
-    responseText = greeting + name + '. ' + aiNameText; // construct json response
-
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
-
+    alfredHelper.sendResponse(res, 'sucess', sayHello()); // Send response back to caller
     next();
 };
 
@@ -67,8 +42,17 @@ function hello (req, res, next) {
 // Skill: Help
 //=========================================================
 function help (req, res, next) {
-    var responseText = 'I can help you with...';
-
+    var responseText = 'So you need some help, not a problem.' +
+                        'You can ask: ' +
+                        'Tell me a joke. ' +
+                        'Turn on the lights. ' +
+                        'What is the news. ' +
+                        'Search for. ' +
+                        'What is the time. ' +
+                        'When is the next train. ' +
+                        'Turn on the TV. ' +
+                        'or what is the weather.';
+                        
     // Send response back to caller
     alfredHelper.sendResponse(res, 'sucess', responseText);
 

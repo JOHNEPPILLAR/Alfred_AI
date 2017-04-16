@@ -204,11 +204,10 @@ function willItSnow (req, res, next) {
     logger.info ('Will it snow API called');
 
     // Get the location
-    var location = '';
-    if (typeof req.query.location !== 'undefined' && req.query.location !== null){
+    var location = 'london,uk';
+
+    if (typeof req.query.location !== 'undefined' && req.query.location !== null && req.query.location !== ''){
         location = req.query.location;
-    } else {
-        location = 'london,uk';
     };
 
     const url = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
@@ -249,7 +248,7 @@ function willItSnow (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', errorMessage);
-        logger.error('weatherForcastForTomorrow: ' + err);
+        logger.error('willItSnow: ' + err);
     });
     next();
 };
