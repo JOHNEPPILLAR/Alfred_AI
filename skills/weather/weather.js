@@ -9,7 +9,7 @@ const Skills    = require('restify-router').Router;
 // Skill: base root, get today's weather for a location, default is London
 // Params: location: String
 //=========================================================
-function todaysWeatherFor (req, res, next) {
+function weatherForcastForToday (req, res, next) {
 
     logger.info ('Today\'s Weather API called');
 
@@ -256,7 +256,7 @@ function willItSnow (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/today', todaysWeatherFor);
+skill.get('/today', weatherForcastForToday);
 skill.get('/tomorrow', weatherForcastForTomorrow);
 skill.get('/willitsnow', willItSnow);
 
