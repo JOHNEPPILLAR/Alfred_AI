@@ -21,8 +21,8 @@ function weatherForcastForToday (req, res, next) {
         location = 'london,uk';
     };
 
-    const url = 'http://api.openweathermap.org/data/2.5/weather?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
-
+    const url = 'http://api.openweathermap.org/data/2.5/weather?units=metric&q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+logger.info(url)
     alfredHelper.requestAPIdata(url)
     .then(function(apiData) {
 
@@ -93,7 +93,7 @@ function weatherForcastForTomorrow (req, res, next) {
         location = 'london,uk';
     };
 
-    const url = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+    const url = 'http://api.openweathermap.org/data/2.5/forecast?units=metric&q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
 
     alfredHelper.requestAPIdata(url)
     .then(function(apiData){
@@ -210,7 +210,7 @@ function willItSnow (req, res, next) {
         location = req.query.location;
     };
 
-    const url = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+    const url = 'http://api.openweathermap.org/data/2.5/forecast?units=metric&q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
 
     alfredHelper.requestAPIdata(url)
     .then(function(apiData){
