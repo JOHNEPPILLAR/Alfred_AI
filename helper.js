@@ -1,6 +1,5 @@
 'use strict';
-const rp     = require('request-promise'),
-      Speech = require('ssml-builder');
+const rp = require('request-promise');
 
 //=========================================================
 // Setup logging
