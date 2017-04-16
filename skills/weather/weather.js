@@ -15,14 +15,16 @@ function weatherForcastForToday (req, res, next) {
 
     // Get the location
     var location = '';
-    if (typeof req.query.location !== 'undefined' && req.query.location !== null) {
+    if (typeof req.query.location !== 'undefined' 
+                && req.query.location !== null
+                && req.query.location !== '') {
         location = req.query.location;
     } else {
         location = 'london,uk';
     };
 
     const url = 'http://api.openweathermap.org/data/2.5/weather?units=metric&q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
-logger.info(url)
+
     alfredHelper.requestAPIdata(url)
     .then(function(apiData) {
 
@@ -87,7 +89,9 @@ function weatherForcastForTomorrow (req, res, next) {
 
     // Get the location
     var location = '';
-    if (typeof req.query.location !== 'undefined' && req.query.location !== null){
+    if (typeof req.query.location !== 'undefined' 
+                && req.query.location !== null
+                && req.query.location !== ''){
         location = req.query.location;
     } else {
         location = 'london,uk';
