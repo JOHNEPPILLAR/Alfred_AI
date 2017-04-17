@@ -65,7 +65,7 @@ exports.setSchedule = function (){
         // Set up the timer for sunset
         //=========================================================
         
-        // Get sunrise & sunset data
+        // Get sunset data
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
 
@@ -77,9 +77,11 @@ exports.setSchedule = function (){
             // Set sunset timer
             sunSet = new Date(apiData.body.sys.sunset);
             sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-            sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSet); // Adjust according to the setting
+            sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSetHR); // Adjust according to the setting
+            sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.sunSetOffSetMin); // Adjust 
             rule.hour = sunSet.getHours();
             rule.minute = sunSet.getMinutes();
+
             sunSetTimer = new schedule.scheduleJob(rule, function(){
                 lightshelper.turnOnMorningEveningLights();
             });

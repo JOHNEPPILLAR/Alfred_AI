@@ -204,6 +204,7 @@ exports.turnOnMorningEveningLights = function(res){
     lights.forEach(function(value){
         state = lightState.create().on().brightness(value.brightness);
         promises.push(Hue.setLightState(value.lightID, state));
+        state = null; // Flush the state var
     });
     Promise.all(promises)
     .then(function(resolved){

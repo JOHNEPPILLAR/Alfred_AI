@@ -15,8 +15,8 @@ source ~/.nvm/nvm.sh
 nvm use 7.5.0
 
 echo "Removing node modules folder and installing latest"
-rm -rf node_modules
-npm install
+#rm -rf node_modules
+#npm install
 
 clear
 

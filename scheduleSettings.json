@@ -47,7 +47,8 @@
       "lights" : "off"
     }
   ],
-  "sunSetOffSet": 1,
+  "sunSetOffSetHR": 0,
+  "sunSetOffSetMin": 30,
   "sunRiseSunSetLights": [
     {
       "lightID": 1,
