@@ -39,7 +39,7 @@ function googlesearch (req, res, next) {
             // Get the search results data
             var body = apiData.body;
 
-            logger.info("Running parsing");
+//            logger.info("Running parsing");
 
 			// result variable init
 			var found = 0;
@@ -47,7 +47,7 @@ function googlesearch (req, res, next) {
 				//how many
 				var items = $('._m3b',body).get().length; // find how many lines there are in answer table
 				if (items) {
-                    logger.info('Found ' + items + " answers");
+//                    logger.info('Found ' + items + " answers");
 					found = ''; //$('._eGc',body).html();
 					for (var count = 0; count < items; count++) {	
                         found = found + $('._m3b',body).eq(count).html() + ", ";
@@ -57,13 +57,13 @@ function googlesearch (req, res, next) {
 
             //name list
 			if (!found && $('#_vBb',body).length>0) {
-				logger.info("Found name list");
+//				logger.info("Found name list");
 				found = $('#_vBb',body).html();
 			};
 
 			//facts 1
 			if (!found && $('._tXc>span',body).length>0) {
-				logger.info("Found facts 1");
+//				logger.info("Found facts 1");
 				found = $('._tXc>span',body).html();
                 found = sanitizeHtml(found,{
                     allowedTags: [],
@@ -74,25 +74,25 @@ function googlesearch (req, res, next) {
 
 			//facts 2
 			if (!found && $('._sPg',body).length>0) {
-				logger.info("Found facts 2");			
+//				logger.info("Found facts 2");			
 				found = " "+$('._sPg',body).html();
 			};
 
 			//instant + description 1
 			if (!found && $('._Oqb',body).length>0) {
-				logger.info("Found instant and desc 1");
+//				logger.info("Found instant and desc 1");
 				found = $('._Oqb',body).html();
 
     			//how many 1
 				if ( $('._Mqb',body).length>0) {
-					logger.info("Found Found instant and desc 1 - how many");
+//					logger.info("Found Found instant and desc 1 - how many");
 					found+= " "+$('._Mqb',body).html();
 				};
 			};
 
 			//instant + description 2
 			if (!found && $('._o0d',body).length>0) {
-                logger.info("Found instant and desc 2");
+//                logger.info("Found instant and desc 2");
 				var tablehtml = $('._o0d',body).html(),
                     title = '',
                     htmlcontent = '';
@@ -116,30 +116,30 @@ function googlesearch (req, res, next) {
 
 			//Time, Date
 			if (!found && $('._rkc._Peb',body).length>0) {
-				logger.info("Found date and Time");
+//				logger.info("Found date and Time");
 				found = $('._rkc._Peb',body).html();
 			};
 
 			//Maths	
 			if (!found && $('.nobr>.r',body).length>0) {
-				logger.info("Found maths");					
+//				logger.info("Found maths");					
 				found = $('.nobr>.r',body).html();
 			};
 
 			//simple answer
 			if (!found && $('.obcontainer',body).length>0) {
-				logger.info("Found Simple answer");
+//				logger.info("Found Simple answer");
 				found = $('.obcontainer',body).html();
 			};
 
 			//Definition
 			if (!found && $('.r>div>span',body).first().length>0) {
-				logger.info("Found definition");
+//				logger.info("Found definition");
 				found = $('.r>div>span',body).first().html() +" definition. ";
 				//how many
 				var items = $('.g>div>table>tr>td>ol>li',body).get().length; // find how many lines there are in answer table
 				if (items) {
-					logger.info( items + " definitions found");
+//					logger.info( items + " definitions found");
 					for (var count = 0; count < items; count++) {	
 						found = found + $('.g>div>table>tr>td>ol>li',body).eq(count).html() + ", ";
 					};
@@ -148,7 +148,7 @@ function googlesearch (req, res, next) {
 
 			//TV show
 			if (!found && $('._B5d',body).length>0) {	
-				logger.info("Found tv show");
+//				logger.info("Found tv show");
 				found = $('._B5d',body).html();
 				//how many
 				if ( $('._Pxg',body).length>0) {
@@ -162,16 +162,16 @@ function googlesearch (req, res, next) {
 		
 			//Weather
 			if (!found && $('.g>.e>h3',body).length>0) {
-				logger.info("Found weather");
+//				logger.info("Found weather");
 				found = $('.g>.e>h3',body).html();
 				//how many
 				if ( $('.wob_t',body).first().length>0) {
-					logger.info("Found more weather info");
+//					logger.info("Found more weather info");
 					found+= " "+ $('.wob_t',body).first().html();
 				};
 				//how many
 				if ( $('._Lbd',body).length>0) {
-					logger.info("Found even more weather info");
+//					logger.info("Found even more weather info");
 					found+= " "+ $('._Lbd',body).html();
 				};
             };
@@ -196,7 +196,7 @@ function googlesearch (req, res, next) {
 
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'Search term not provided.');
-		logger.error('googlesearch: Search term not provided.');
+		logger.error('search: Search term not provided.');
     };
     next();
 };
