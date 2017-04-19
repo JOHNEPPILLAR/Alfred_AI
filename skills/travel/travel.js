@@ -76,40 +76,41 @@ function nextbus (req, res, next) {
 };
 
 //=========================================================
-// Skill: bus status
-// Params: bus_route: String
+// Skill: bus & tube status
+// Params: route: String
 //=========================================================
-function busstatus (req, res, next) {
+function bustubestatus (req, res, next) {
 
     logger.info ('Bus Status API called');
 
-    var busroute = req.query.bus_route;
+    var route = req.query.route;
 
-    if (typeof busroute !== 'undefined' && busroute !== null) {
+    if (typeof route !== 'undefined' && route !== null) {
         
         const tflapiKey = process.env.tflapikey,
-              url = 'https://api.tfl.gov.uk/Line/' + busroute;
+              url = 'https://api.tfl.gov.uk/Line/' + route;
         
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
-
             // Get the bus data
             apiData = apiData.body;
             if (alfredHelper.isEmptyObject(apiData)) {
-
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', 'No data was returned from the TFL API call.');
-                logger.info('busstatus - Failure, no data was returned from the TFL API call');
+                logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
             } else { 
-
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
-                    var textResponse = 'There are no disruptions currently reported for the number ' + busroute + ' bus.';
+                    if (apiData[0].modeName == 'tube') {
+                        var textResponse = 'There are no disruptions currently reported on the  ' + apiData[0].name + ' line.';
+                    } else {
+                        var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
+                    };
                 } else {
                     var textResponse = '';
                     for (index = 0, len = apiData[0].disruptions.length; index < len; ++index) {
                         textResponse = textResponse + apiData[0].disruptions[index];
-                    }
-                }
+                    };
+                };
 
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'sucess', textResponse);
@@ -118,12 +119,12 @@ function busstatus (req, res, next) {
         .catch(function (err) {
             // Send response back to caller
             alfredHelper.sendResponse(res, 'error', err.message);
-            logger.error('busstatus: ' + err);
+            logger.error('bustubestatus: ' + err);
         });
     } else {
         // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'Param bus_route was not supplied.');
-        logger.info('Busstatus: Param bus_route was not supplied.');
+        alfredHelper.sendResponse(res, 'error', 'Param route was not supplied.');
+        logger.info('bustubestatus: Param route was not supplied.');
     };
     next();
 };
@@ -209,7 +210,7 @@ function nexttrain (req, res, next) {
 // Add skills to server
 //=========================================================
 skill.get('/nextbus', nextbus);
-skill.get('/busstatus', busstatus);
+skill.get('/bustubestatus', bustubestatus);
 skill.get('/nexttrain', nexttrain);
 
 module.exports = skill;
