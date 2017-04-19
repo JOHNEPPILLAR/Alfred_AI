@@ -101,7 +101,7 @@ function bustubestatus (req, res, next) {
             } else { 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
                     if (apiData[0].modeName == 'tube') {
-                        var textResponse = 'There are no disruptions currently reported on the  ' + apiData[0].name + ' line.';
+                        var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
                     } else {
                         var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
                     };
