@@ -78,17 +78,30 @@ function nextbus (req, res, next) {
 //=========================================================
 // Skill: bus & tube status
 // Params: route: String
+// Params: raw: bool
 //=========================================================
 function bustubestatus (req, res, next) {
 
     logger.info ('Bus Status API called');
 
-    var route = req.query.route;
+    var route = req.query.route,
+        raw   = req.query.raw;
+
+    if (typeof raw !== 'undefined' && raw !== null) {
+        switch (raw.toLowerCase()) {
+            case 'true':
+                raw = true;
+            case 'false':
+                raw = false;
+            default:
+                raw = false;
+        };
+    } else {
+        raw = false;    
+    };
 
     if (typeof route !== 'undefined' && route !== null) {
-        
-        const tflapiKey = process.env.tflapikey,
-              url = 'https://api.tfl.gov.uk/Line/' + route;
+        const url = 'https://api.tfl.gov.uk/Line/' + route;
         
         alfredHelper.requestAPIdata(url)
         .then(function(apiData){
@@ -101,7 +114,11 @@ function bustubestatus (req, res, next) {
             } else { 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
                     if (apiData[0].modeName == 'tube') {
-                        var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
+                        if (raw) {
+                            var textResponse = 'true';
+                        } else {
+                            var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
+                        };
                     } else {
                         var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
                     };
