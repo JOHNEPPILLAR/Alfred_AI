@@ -85,16 +85,16 @@ function bustubestatus (req, res, next) {
     logger.info ('Bus Status API called');
 
     var route = req.query.route,
-        raw   = false;;
+        raw   = false;
 
     if (typeof req.query.raw !== 'undefined' && req.query.raw !== null) {
-        switch (req.query.raw.toLowerCase()) {
-            case 'yes':
+        switch (req.query.raw) {
+            case 'true':
                 raw = true;
-            case 'no':
+                break;
+            case 'false':
                 raw = false;
-            default:
-                raw = false;
+                break;
         };
     };
 
