@@ -111,19 +111,23 @@ function bustubestatus (req, res, next) {
                 logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
             } else { 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
-                    if (apiData[0].modeName == 'tube') {
-                        if (raw) {
-                            var textResponse = 'true';
-                        } else {
-                            var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
-                        };
+                    if (raw) {
+                        var textResponse = 'false';
                     } else {
-                        var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
+                        if (apiData[0].modeName == 'tube') {
+                            var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
+                        } else {
+                            var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
+                        };
                     };
                 } else {
-                    var textResponse = '';
-                    for (index = 0, len = apiData[0].disruptions.length; index < len; ++index) {
-                        textResponse = textResponse + apiData[0].disruptions[index];
+                    if (raw) {
+                        var textResponse = 'true';
+                    } else {
+                        var textResponse = '';
+                        for (index = 0, len = apiData[0].disruptions.length; index < len; ++index) {
+                            textResponse = textResponse + apiData[0].disruptions[index];
+                        };
                     };
                 };
 
