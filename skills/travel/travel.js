@@ -89,9 +89,9 @@ function bustubestatus (req, res, next) {
 
     if (typeof req.query.raw !== 'undefined' && req.query.raw !== null) {
         switch (req.query.raw.toLowerCase()) {
-            case 'true':
+            case true:
                 raw = true;
-            case 'false':
+            case false:
                 raw = false;
             default:
                 raw = false;
