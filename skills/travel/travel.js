@@ -82,7 +82,7 @@ function nextbus (req, res, next) {
 //=========================================================
 function bustubestatus (req, res, next) {
 
-    logger.info ('Bus Status API called');
+    logger.info ('Bus & Tube Status API called');
 
     var route = req.query.route,
         raw   = false;
