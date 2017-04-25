@@ -216,8 +216,8 @@ function nexttrain (req, res, next) {
                                 } else {
                                     textResponse = textResponse + 'The first train to ' + trainData[0].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[0].status.toLowerCase() + '. ';
                                 };
-                                if (trainData[1].status.toLowerCase() == 'it is currently off route' || trainData[0].status.toLowerCase() == 'cancelled'){
-                                    textResponse = textResponse + 'The second train due ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + ' to ' + trainData[0].destination_name + ' has been cancelled. '
+                                if (trainData[1].status.toLowerCase() == 'it is currently off route' || trainData[1].status.toLowerCase() == 'cancelled'){
+                                    textResponse = textResponse + 'The second train due ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + ' to ' + trainData[1].destination_name + ' has been cancelled. '
                                 } else {
                                     textResponse = textResponse + ' The second train to ' + trainData[1].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[1].status.toLowerCase() + '. ';
                                 };
