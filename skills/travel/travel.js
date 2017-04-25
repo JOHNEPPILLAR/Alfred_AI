@@ -1,4 +1,15 @@
 //=========================================================
+/*  To Do
+If trains are canceled the response from tfl is 
+The first train from Charlton is to London Charing Cross and will arrive in -13 minutes. <break time='500ms'/>  It is currently off route. 
+
+add a commute flag or raw flag so that the text can be custom
+*/
+//=========================================================
+
+
+
+//=========================================================
 // Setup travel skills
 //=========================================================
 const Skills = require('restify-router').Router;  
@@ -174,7 +185,6 @@ function nexttrain (req, res, next) {
                 // Send response back to caller
                 alfredHelper.sendResponse(res, 'error', 'Train route not supported.');
                 logger.info('Nexttrain: Train destination not supported.');
-
                 validtrainroute = false;
         };
 
@@ -185,7 +195,6 @@ function nexttrain (req, res, next) {
                 // Get the bus data
                 apiData = apiData.body;
                 if (alfredHelper.isEmptyObject(apiData)) {
-        
                     alfredHelper.sendResponse(res, 'error', 'No data was returned from the train API call.');
                     logger.info('nexttrain: No data was returned from the train API call.');
                 } else { 
@@ -201,7 +210,17 @@ function nexttrain (req, res, next) {
                         trainData = trainData.sort(alfredHelper.GetSortOrder("best_arrival_estimate_mins"));
                         switch (numberOfElements) {
                             case 2:
-                                var textResponse = 'The first train from ' + apiData.station_name + ' is to ' + trainData[0].destination_name + ' and will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + '. It is currently ' + trainData[0].status.toLowerCase() + '.' + ' The second train is to ' + trainData[1].destination_name + ' and will arrive ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + '.';
+                                var textResponse = '';
+                                if (trainData[0].status.toLowerCase() == 'it is currently off route'){
+                                    textResponse = 'The next train to ' + trainData[0].destination_name + ' has been cancelled. '
+                                } else {
+                                    textResponse = textResponse + 'The first train to ' + trainData[0].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[0].status.toLowerCase() + '. ';
+                                };
+                                if (trainData[1].status.toLowerCase() == 'it is currently off route'){
+                                    textResponse = textResponse + 'The second train to ' + trainData[0].destination_name + ' has been cancelled. '
+                                } else {
+                                    textResponse = textResponse + ' The second train to ' + trainData[1].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[1].status.toLowerCase() + '. ';
+                                };
                                 break;
                             default:
                                 var textResponse = 'The next train from ' + trainrouteData.station_name + ' is to ' + trainData[0].destination_name + ' and will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + '. It is currently ' + trainData[0].status.toLowerCase() + '.';
