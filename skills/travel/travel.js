@@ -122,23 +122,24 @@ function bustubestatus (req, res, next) {
                 logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
             } else { 
                 if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
-                    if (raw) {
-                        var textResponse = 'false';
+                    var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name;
+                    if (apiData[0].modeName == 'tube') {
+                        var textResponse = textResponse + ' line. ';
                     } else {
-                        if (apiData[0].modeName == 'tube') {
-                            var textResponse = 'There are no disruptions currently reported on the ' + apiData[0].name + ' line.';
-                        } else {
-                            var textResponse = 'There are no disruptions currently reported for the nuber ' + apiData[0].name + ' bus.';
-                        };
+                        var textResponse = textResponse + ' bus. ';
+                    };
+                    if (raw) {
+                        var textResponse = { disruptions: false, message : textResponse };
                     };
                 } else {
-                    if (raw) {
-                        var textResponse = 'true';
+                    var textResponse = 'There are disruptions reported on the ' + apiData[0].name;
+                    if (apiData[0].modeName == 'tube') {
+                        var textResponse = textResponse + ' line. ';
                     } else {
-                        var textResponse = '';
-                        for (index = 0, len = apiData[0].disruptions.length; index < len; ++index) {
-                            textResponse = textResponse + apiData[0].disruptions[index];
-                        };
+                        var textResponse = textResponse + ' bus. ';
+                    };
+                    if (raw) {
+                        var textResponse = { disruptions: true, message: textResponse, info: apiData[0].disruptions };
                     };
                 };
 
@@ -170,7 +171,20 @@ function nexttrain (req, res, next) {
     var transportapiKey = process.env.transportapiKey,
         trainroute      = req.query.train_destination,
         validtrainroute = true,
-        url             = 'https://transportapi.com/v3/uk/train/station/CTN/live.json?' + transportapiKey + '&darwin=false&train_status=passenger&destination=';
+        url             = 'https://transportapi.com/v3/uk/train/station/CTN/live.json?' + transportapiKey + '&darwin=false&train_status=passenger&destination=',
+        raw             = false,
+        disruptions     = false;
+
+    if (typeof req.query.raw !== 'undefined' && req.query.raw !== null) {
+        switch (req.query.raw) {
+            case 'true':
+                raw = true;
+                break;
+            case 'false':
+                raw = false;
+                break;
+        };
+    };
 
     if (typeof trainroute !== 'undefined' && trainroute !== null) {
         trainroute = trainroute.toUpperCase();
@@ -199,7 +213,7 @@ function nexttrain (req, res, next) {
                     logger.info('nexttrain: No data was returned from the train API call.');
                 } else { 
                     if (apiData.departures.all[0].mode == 'bus') {
-                        var textResponse = 'Sorry, there are no trains today! There is a bus replacement serverice in operation.'
+                        var textResponse = 'Sorry, there are no trains today! There is a bus replacement serverice in operation.';
                     } else {
                         var trainData = apiData.departures.all,
                             numberOfElements = trainData.length;
@@ -212,11 +226,13 @@ function nexttrain (req, res, next) {
                             case 2:
                                 var textResponse = '';
                                 if (trainData[0].status.toLowerCase() == 'it is currently off route' || trainData[0].status.toLowerCase() == 'cancelled'){
+                                    disruptions = true;
                                     textResponse = 'The next train due ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + ' to ' + trainData[0].destination_name + ' has been cancelled. '
                                 } else {
                                     textResponse = textResponse + 'The first train to ' + trainData[0].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[0].status.toLowerCase() + '. ';
                                 };
                                 if (trainData[1].status.toLowerCase() == 'it is currently off route' || trainData[1].status.toLowerCase() == 'cancelled'){
+                                    disruptions = true;
                                     textResponse = textResponse + 'The second train due ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + ' to ' + trainData[1].destination_name + ' has been cancelled. '
                                 } else {
                                     textResponse = textResponse + ' The second train to ' + trainData[1].destination_name + ' will arrive ' + alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60) + ' and is currently ' + trainData[1].status.toLowerCase() + '. ';
@@ -225,6 +241,9 @@ function nexttrain (req, res, next) {
                             default:
                                 var textResponse = 'The next train from ' + trainrouteData.station_name + ' is to ' + trainData[0].destination_name + ' and will arrive ' + alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60) + '. It is currently ' + trainData[0].status.toLowerCase() + '.';
                          };
+                    };
+                    if (raw) { // Overright output for Alexa Skill
+                        var textResponse = { disruptions: disruptions, message : textResponse };
                     };
                     // Send response back to caller
                     alfredHelper.sendResponse(res, 'sucess', textResponse);
