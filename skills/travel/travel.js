@@ -1,15 +1,4 @@
 //=========================================================
-/*  To Do
-If trains are canceled the response from tfl is 
-The first train from Charlton is to London Charing Cross and will arrive in -13 minutes. <break time='500ms'/>  It is currently off route. 
-
-add a commute flag or raw flag so that the text can be custom
-*/
-//=========================================================
-
-
-
-//=========================================================
 // Setup travel skills
 //=========================================================
 const Skills = require('restify-router').Router;  
