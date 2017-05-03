@@ -8,7 +8,7 @@ exports.setLogger = function (logger) {
 
     if (process.env.environment == 'live'){
         // Send logging to a file
-        logger.add(logger.transports.File, { filename: 'Alfred.log', colorize: true });
+        logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true });
         logger.remove(logger.transports.Console);
     } else {
         logger.remove(logger.transports.Console);
