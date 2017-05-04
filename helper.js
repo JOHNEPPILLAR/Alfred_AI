@@ -6,12 +6,11 @@ const rp = require('request-promise');
 //=========================================================
 exports.setLogger = function (logger) {
 
+    logger.remove(logger.transports.Console);
     if (process.env.environment == 'live'){
-        // Send logging to a file
         logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true });
-        logger.remove(logger.transports.Console);
     } else {
-        logger.remove(logger.transports.Console);
+        logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true });
         logger.add(logger.transports.Console, {timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM") }, colorize: true});
     };
 };
