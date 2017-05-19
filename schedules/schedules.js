@@ -52,14 +52,14 @@ exports.setSchedule = function (){
                         lightshelper.allOff();
                     });
                     timers.push(tmpTimer);
-                    logger.info('Scheduled all lights off timer for: ' + rule.hour + ':' + rule.minute);
+                    logger.info('Scheduled all lights off timer for: ' + tmpRule.hour + ':' + tmpRule.minute);
                 }else{
                     value.lights.forEach(function(value){
                         tmpTimer = new schedule.scheduleJob(tmpRule, function(){
                             lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                         });
                         timers.push(tmpTimer);
-                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + rule.hour + ':' + rule.minute);  
+                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + tmpRule.hour + ':' + tmpRule.minute);  
                         tmpTimer = null;
                     });
                 };
