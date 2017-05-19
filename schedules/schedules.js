@@ -52,14 +52,14 @@ exports.setSchedule = function (){
                         lightshelper.allOff();
                     });
                     timers.push(tmpTimer);
-                    logger.info('Scheduled all lights off timer for: ' + tmpRule.hour + ':' + tmpRule.minute);
+                    logger.info('Scheduled all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
                 }else{
                     value.lights.forEach(function(value){
                         tmpTimer = new schedule.scheduleJob(tmpRule, function(){
                             lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                         });
                         timers.push(tmpTimer);
-                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + tmpRule.hour + ':' + tmpRule.minute);  
+                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
                         tmpTimer = null;
                     });
                 };
@@ -91,7 +91,7 @@ exports.setSchedule = function (){
                 sunSetTimer = new schedule.scheduleJob(tmpRule, function(){
                     lightshelper.turnOnMorningEveningLights();
                 });
-                logger.info('Scheduled sunset timer for: ' + tmpRule.hour + ':' + tmpRule.minute);
+                logger.info('Scheduled sunset timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
             })
             .catch(function(err){
                 logger.error('Sunset get data Error: ' + err);
