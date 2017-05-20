@@ -24,7 +24,6 @@ exports.setSchedule = function (){
             // Set the daily timers
             //=========================================================
             var scheduleSettings = require('../scheduleSettings.json'),
-                scheduleTimers   = scheduleSettings.timers,
                 tmpRule,
                 tmpTimer;
 
@@ -38,32 +37,33 @@ exports.setSchedule = function (){
             });
 
             //=========================================================
-            // Set up all of the timers in setting
+            // Set up morning lights on timer
             //=========================================================
-            scheduleTimers.forEach(function(value){
+            tmpTimer       = null;
+            tmpRule        = new schedule.RecurrenceRule(),
+            tmpRule.hour   = scheduleSettings.morning[0].on_hr;
+            tmpRule.minute = scheduleSettings.morning[0].on_min;
 
-                tmpTimer       = null;
-                tmpRule        = new schedule.RecurrenceRule(),
-                tmpRule.hour   = value.hour;
-                tmpRule.minute = value.minute;
-
-                if (!Array.isArray(value.lights)){
-                    tmpTimer = new schedule.scheduleJob(tmpRule, function(){
-                        lightshelper.allOff();
-                    });
-                    timers.push(tmpTimer);
-                    logger.info('Scheduled all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
-                }else{
-                    value.lights.forEach(function(value){
-                        tmpTimer = new schedule.scheduleJob(tmpRule, function(){
-                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
-                        });
-                        timers.push(tmpTimer);
-                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
-                        tmpTimer = null;
-                    });
-                };
+            scheduleSettings.morning[0].lights.forEach(function(value){
+                tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
+                });
+                timers.push(tmpTimer);
+                logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                tmpTimer = null;
             });
+
+            //=========================================================
+            // Set up morning lights off timer
+            //=========================================================
+            tmpRule        = new schedule.RecurrenceRule(),
+            tmpRule.hour   = scheduleSettings.morning[0].off_hr;
+            tmpRule.minute = scheduleSettings.morning[0].off_min;
+            tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+                lightshelper.allOff();
+            });
+            timers.push(tmpTimer);
+            logger.info('Scheduled morning all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
 
             //=========================================================
             // Set up the timer for sunset
@@ -81,8 +81,8 @@ exports.setSchedule = function (){
                 // Set sunset timer
                 sunSet = new Date(apiData.body.sys.sunset);
                 sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-                sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSetHR); // Adjust according to the setting
-                sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.sunSetOffSetMin); // Adjust 
+                sunSet.setHours(sunSet.getHours() - scheduleSettings.evening[0].offset_hr); // Adjust according to the setting
+                sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening[0].offset_min); // Adjust 
                 
                 tmpRule        = new schedule.RecurrenceRule(),
                 tmpRule.hour   = sunSet.getHours();
@@ -97,6 +97,18 @@ exports.setSchedule = function (){
                 logger.error('Sunset get data Error: ' + err);
                 return false;
             });
+
+            //=========================================================
+            // Set up night lights off timer
+            //=========================================================
+            tmpRule        = new schedule.RecurrenceRule(),
+            tmpRule.hour   = scheduleSettings.evening[0].off_hr;
+            tmpRule.minute = scheduleSettings.evening[0].off_min;
+            tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+                lightshelper.allOff();
+            });
+            timers.push(tmpTimer);
+            logger.info('Scheduled night all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
         });
     return true;
 };

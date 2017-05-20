@@ -1,82 +1,85 @@
 {
-  "timers" : [
+  "morning": [
     {
-      "hour" : 5,
-      "minute": 30,
-      "lights" : [
+      "on_hr": 5,
+      "on_min": 30,
+      "lights": [
+        {
+          "lightID": "1",
+          "onoff": "on",
+          "brightness": "63",
+          "name": "Hall light"
+        },
+        {
+          "lightID": "2",
+          "onoff": "on",
+          "brightness": "65",
+          "name": "Play area light"
+        },
+        {
+          "lightID": "3",
+          "onoff": "on",
+          "brightness": "65",
+          "name": "Living room light"
+        },
+        {
+          "lightID": "12",
+          "onoff": "on",
+          "brightness": "100",
+          "name": "Lounge corner light"
+        },
+        {
+          "lightID": "5",
+          "onoff": "on",
+          "brightness": "65",
+          "name": "Kitchen side light"
+        }
+      ],
+      "off_hr": 8,
+      "off_min": 30
+    }
+  ],
+  "evening": [
+    {
+      "offset_hr": 0,
+      "offset_min": 30,
+      "lights": [
         {
           "lightID": 1,
-          "onoff" : "on",
-          "brightness": 65,
-          "name" : "Hall light"
+          "brightness": "75",
+          "name": "Hall light",
+          "onoff": "on"
         },
         {
           "lightID": 2,
-          "onoff" : "on",
-          "brightness": 65,
-          "name" : "Play area light"
+          "brightness": "203",
+          "name": "Play area light",
+          "onoff": "on"
         },
         {
           "lightID": 3,
-          "onoff" : "on",
-          "brightness": 65,
-          "name" : "Living room light"
+          "brightness": "65",
+          "name": "Living room light",
+          "onoff": "on"
         },
         {
           "lightID": 12,
-          "onoff" : "on",
-          "brightness": 100,
-          "name" : "Lounge corner light"
+          "brightness": "100",
+          "name": "Lounge corner light",
+          "onoff": "on"
         },
         {
           "lightID": 5,
-          "onoff" : "on",
-          "brightness": 65,
-          "name" : "Kitchen side light"
+          "brightness": "65",
+          "name": "Kitchen side light",
+          "onoff": "on"
         }
-      ]
-    },
-    {
-      "hour" : 8,
-      "minute": 30,
-      "lights" : "off"
-    },
-    {
-      "hour" : 22,
-      "minute": 0,
-      "lights" : "off"
+      ],
+      "off_hr": 22,
+      "off_min": 0
     }
   ],
-  "sunSetOffSetHR": 0,
-  "sunSetOffSetMin": 30,
-  "sunRiseSunSetLights": [
-    {
-      "lightID": 1,
-      "brightness": 65,
-      "name" : "Hall light"
-    },
-    {
-      "lightID": 2,
-      "brightness": 65,
-      "name" : "Play area light"
-    },
-    {
-      "lightID": 3,
-      "brightness": 65,
-      "name" : "Living room light"
-    },
-    {
-      "lightID": 12,
-      "brightness": 100,
-      "name" : "Lounge corner light"
-    },
-    {
-      "lightID": 5,
-      "brightness": 65,
-      "name" : "Kitchen side light"
-    }
-  ],
-  "tvLights": [
+    "tvLights": [
     {
       "lightID": 2,
       "brightness": 45,
