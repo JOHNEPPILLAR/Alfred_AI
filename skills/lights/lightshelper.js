@@ -30,15 +30,21 @@ exports.registerDevice = function(res){
     });
 };
 
-exports.lightOnOff = function(res, lightNumber, lightAction, brightness){
-    // Turn on or off the light
+exports.lightOnOff = function(res, lightNumber, lightAction, brightness, rgb){
+    // Validate input params and set state
     if (typeof brightness == 'undefined' || brightness == null){
         brightness = 100;
     };
-    var state = lightState.create().off();
+
+    var state = lightState.create().off(); // Default off
     if (lightAction=='on'){
-        state = lightState.create().on().brightness(brightness);
+        if (typeof rgb == 'undefined' || rgb == null){
+            state = lightState.create().on().brightness(brightness);
+        } else {
+            state = lightState.create().on().brightness(brightness).rgb(rgb[0]);
+        };
     };
+    // Change the light state
     Hue.setLightState(lightNumber, state)
     .then(function(obj){
         logger.info('Turned ' + lightAction + ' light ' + lightNumber);
@@ -192,32 +198,5 @@ exports.allOff = function(res){
             alfredHelper.sendResponse(res, 'error', err);
         };
         logger.error('allOff Error: ' + err);
-    });
-};
-
-exports.turnOnMorningEveningLights = function(res){
-    // Turn on the morning/evening lights
-    var promises = [],
-        lights   = scheduleSettings.sunRiseSunSetLights,
-        state;
-
-    lights.forEach(function(value){
-        state = lightState.create().on().brightness(value.brightness);
-        promises.push(Hue.setLightState(value.lightID, state));
-        state = null; // Flush the state var
-    });
-    Promise.all(promises)
-    .then(function(resolved){
-        if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'sucess', 'Turned on the morning/evening lights.');
-        };
-        logger.info('Turned on the morning/evening lights');
-    })
-    .catch(function(err){
-        if (typeof res !== 'undefined' && res !== null){
-            alfredHelper.sendResponse(res, 'error', err);
-        };
-        logger.error('turnOnMorningLights Error: ' + err);
     });
 };

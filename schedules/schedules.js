@@ -45,12 +45,14 @@ exports.setSchedule = function (){
             tmpRule.minute = scheduleSettings.morning[0].on_min;
 
             scheduleSettings.morning[0].lights.forEach(function(value){
-                tmpTimer = new schedule.scheduleJob(tmpRule, function(){
-                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
-                });
-                timers.push(tmpTimer);
-                logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
-                tmpTimer = null;
+                if(value.onoff == 'on'){
+                    tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.rgb);
+                    });
+                    timers.push(tmpTimer);
+                    logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                    tmpTimer = null;
+                };
             });
 
             //=========================================================
@@ -87,11 +89,16 @@ exports.setSchedule = function (){
                 tmpRule        = new schedule.RecurrenceRule(),
                 tmpRule.hour   = sunSet.getHours();
                 tmpRule.minute = sunSet.getMinutes();
-
-                sunSetTimer = new schedule.scheduleJob(tmpRule, function(){
-                    lightshelper.turnOnMorningEveningLights();
+                scheduleSettings.evening[0].lights.forEach(function(value){
+                    if(value.onoff == 'on'){
+                        tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.rgb);
+                        });
+                        timers.push(tmpTimer);
+                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                        tmpTimer = null;
+                    };
                 });
-                logger.info('Scheduled sunset timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
             })
             .catch(function(err){
                 logger.error('Sunset get data Error: ' + err);

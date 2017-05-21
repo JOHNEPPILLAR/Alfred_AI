@@ -1,98 +1,92 @@
 {
-  "morning": [
-    {
-      "on_hr": 5,
-      "on_min": 30,
-      "lights": [
+    "morning": [
         {
-          "lightID": "1",
-          "onoff": "on",
-          "brightness": "63",
-          "name": "Hall light"
-        },
-        {
-          "lightID": "2",
-          "onoff": "on",
-          "brightness": "65",
-          "name": "Play area light"
-        },
-        {
-          "lightID": "3",
-          "onoff": "on",
-          "brightness": "65",
-          "name": "Living room light"
-        },
-        {
-          "lightID": "12",
-          "onoff": "on",
-          "brightness": "100",
-          "name": "Lounge corner light"
-        },
-        {
-          "lightID": "5",
-          "onoff": "on",
-          "brightness": "65",
-          "name": "Kitchen side light"
+            "on_hr": 7,
+            "on_min": 56,
+            "lights": [
+                {
+                    "lightID": "1",
+                    "onoff": "on",
+                    "brightness": "63",
+                    "name": "Hall light",
+                    "rgb": [255, 0, 0]
+                },
+                {
+                    "lightID": "2",
+                    "onoff": "on",
+                    "brightness": "65",
+                    "name": "Play area light",
+                    "rgb": [255, 0, 0]
+                },
+                {
+                    "lightID": "3",
+                    "onoff": "on",
+                    "brightness": "65",
+                    "name": "Living room light",
+                    "rgb": [255, 0, 0]
+                },
+                {
+                    "lightID": "12",
+                    "onoff": "on",
+                    "brightness": "133",
+                    "name": "Lounge corner light",
+                    "type": "Dimmable light"
+                },
+                {
+                    "lightID": "5",
+                    "onoff": "on",
+                    "brightness": "65",
+                    "name": "Kitchen side light",
+                    "type": "Dimmable light"
+                }
+            ],
+            "off_hr": 8,
+            "off_min": 30
         }
-      ],
-      "off_hr": 8,
-      "off_min": 30
-    }
-  ],
-  "evening": [
-    {
-      "offset_hr": 0,
-      "offset_min": 30,
-      "lights": [
+    ],
+    "evening": [
         {
-          "lightID": 1,
-          "brightness": "75",
-          "name": "Hall light",
-          "onoff": "on"
-        },
-        {
-          "lightID": 2,
-          "brightness": "203",
-          "name": "Play area light",
-          "onoff": "on"
-        },
-        {
-          "lightID": 3,
-          "brightness": "65",
-          "name": "Living room light",
-          "onoff": "on"
-        },
-        {
-          "lightID": 12,
-          "brightness": "100",
-          "name": "Lounge corner light",
-          "onoff": "on"
-        },
-        {
-          "lightID": 5,
-          "brightness": "65",
-          "name": "Kitchen side light",
-          "onoff": "on"
+            "offset_hr": 0,
+            "offset_min": 30,
+            "lights": [
+                {
+                    "lightID": 1,
+                    "brightness": "75",
+                    "name": "Hall light",
+                    "rgb": [255, 0, 0],
+                    "onoff": "on"
+                },
+                {
+                    "lightID": 2,
+                    "brightness": "203",
+                    "rgb": [255, 0, 0],
+                    "name": "Play area light",
+                    "onoff": "on"
+                },
+                {
+                    "lightID": 3,
+                    "brightness": "65",
+                    "rgb": [255, 0, 0],
+                    "name": "Living room light",
+                    "onoff": "on"
+                },
+                {
+                    "lightID": 12,
+                    "brightness": "100",
+                    "name": "Lounge corner light",
+                    "onoff": "on",
+                    "type": "Dimmable light"
+                },
+                {
+                    "lightID": 5,
+                    "brightness": "65",
+                    "name": "Kitchen side light",
+                    "type": "Dimmable light",
+                    "onoff": "on"
+                }
+            ],
+            "off_hr": 22,
+            "off_min": 0
         }
-      ],
-      "off_hr": 22,
-      "off_min": 0
-    }
-  ],
-    "tvLights": [
-    {
-      "lightID": 2,
-      "brightness": 45,
-      "x": 0.4448,
-      "y": 0.4066,
-      "name" : "Play area light"
-    },
-    {
-      "lightID": 3,
-      "brightness": 45,
-      "x": 0.4448,
-      "y": 0.4066,
-      "name" : "Living room light"
-    }
-  ]
+    ]
 }
