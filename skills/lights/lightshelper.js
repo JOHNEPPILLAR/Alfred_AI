@@ -30,7 +30,7 @@ exports.registerDevice = function(res){
     });
 };
 
-exports.lightOnOff = function(res, lightNumber, lightAction, brightness, rgb){
+exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
     // Validate input params and set state
     if (typeof brightness == 'undefined' || brightness == null){
         brightness = 100;
@@ -38,10 +38,10 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, rgb){
 
     var state = lightState.create().off(); // Default off
     if (lightAction=='on'){
-        if (typeof rgb == 'undefined' || rgb == null){
+        if (typeof x == 'undefined' || x == null){
             state = lightState.create().on().brightness(brightness);
         } else {
-            state = lightState.create().on().brightness(brightness).rgb(rgb[0]);
+            state = lightState.create().on().brightness(brightness).xy(x, y);
         };
     };
     // Change the light state

@@ -3,12 +3,11 @@ const schedule   = require('node-schedule'),
       dateFormat = require('dateformat'),
       dotenv     = require('dotenv');
 
-// Load env vars
-dotenv.load()
+dotenv.load() // Load env vars
 
 const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
 
-exports.setSchedule = function (){
+exports.setSchedule = function () {
 
     // Setup daily timer function
     var rule    = new schedule.RecurrenceRule();
@@ -18,21 +17,22 @@ exports.setSchedule = function (){
     var alfredHelper = require('../helper.js'),
         logger       = require('winston'),
         lightshelper = require('../skills/lights/lightshelper.js'),
-        dailyTimer   = new schedule.scheduleJob(rule, function(){
+        dailyTimer   = new schedule.scheduleJob(rule, function() {
 
             //=========================================================
             // Set the daily timers
             //=========================================================
             var scheduleSettings = require('../scheduleSettings.json'),
                 tmpRule,
-                tmpTimer;
+                tmpTimer,
+                tmpXY;
 
             logger.info('Running daily scheduler');
 
             //=========================================================
             // Cancel any existing timers
             //=========================================================
-            timers.forEach(function(value){
+            timers.forEach(function(value) {
                 value.cancel();
             });
 
@@ -44,14 +44,19 @@ exports.setSchedule = function (){
             tmpRule.hour   = scheduleSettings.morning[0].on_hr;
             tmpRule.minute = scheduleSettings.morning[0].on_min;
 
-            scheduleSettings.morning[0].lights.forEach(function(value){
-                if(value.onoff == 'on'){
-                    tmpTimer = new schedule.scheduleJob(tmpRule, function(){
-                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.rgb);
+            scheduleSettings.morning[0].lights.forEach(function(value) {
+                if(value.onoff == 'on') {
+                    tmpTimer = new schedule.scheduleJob(tmpRule, function() {
+                        if (typeof value.x == 'undefined' || value.x == null) {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
+                        } else {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                        };
                     });
                     timers.push(tmpTimer);
                     logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
                     tmpTimer = null;
+                    tmpRGB = null;
                 };
             });
 
@@ -61,7 +66,7 @@ exports.setSchedule = function (){
             tmpRule        = new schedule.RecurrenceRule(),
             tmpRule.hour   = scheduleSettings.morning[0].off_hr;
             tmpRule.minute = scheduleSettings.morning[0].off_min;
-            tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+            tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 lightshelper.allOff();
             });
             timers.push(tmpTimer);
@@ -73,10 +78,10 @@ exports.setSchedule = function (){
             
             // Get sunset data
             alfredHelper.requestAPIdata(url)
-            .then(function(apiData){
+            .then(function(apiData) {
 
                 // Cancel the existing timers
-                if (typeof sunSetTimer !== 'undefined'){
+                if (typeof sunSetTimer !== 'undefined') {
                     sunSetTimer.cancel(); 
                 };
 
@@ -89,10 +94,14 @@ exports.setSchedule = function (){
                 tmpRule        = new schedule.RecurrenceRule(),
                 tmpRule.hour   = sunSet.getHours();
                 tmpRule.minute = sunSet.getMinutes();
-                scheduleSettings.evening[0].lights.forEach(function(value){
-                    if(value.onoff == 'on'){
-                        tmpTimer = new schedule.scheduleJob(tmpRule, function(){
-                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.rgb);
+                scheduleSettings.evening[0].lights.forEach(function(value) {
+                    if (value.onoff == 'on') {
+                        tmpTimer = new schedule.scheduleJob(tmpRule, function() {
+                            if (typeof value.x == 'undefined' || value.x == null) {
+                                lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
+                            } else {
+                                lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                            };
                         });
                         timers.push(tmpTimer);
                         logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
@@ -100,7 +109,7 @@ exports.setSchedule = function (){
                     };
                 });
             })
-            .catch(function(err){
+            .catch(function(err) {
                 logger.error('Sunset get data Error: ' + err);
                 return false;
             });
@@ -111,7 +120,7 @@ exports.setSchedule = function (){
             tmpRule        = new schedule.RecurrenceRule(),
             tmpRule.hour   = scheduleSettings.evening[0].off_hr;
             tmpRule.minute = scheduleSettings.evening[0].off_min;
-            tmpTimer = new schedule.scheduleJob(tmpRule, function(){
+            tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 lightshelper.allOff();
             });
             timers.push(tmpTimer);
