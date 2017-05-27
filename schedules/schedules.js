@@ -1,6 +1,7 @@
 
 const schedule   = require('node-schedule'),
       dateFormat = require('dateformat'),
+      fs         = require('fs'),
       dotenv     = require('dotenv');
 
 dotenv.load() // Load env vars
@@ -22,7 +23,7 @@ exports.setSchedule = function () {
             //=========================================================
             // Set the daily timers
             //=========================================================
-            var scheduleSettings = require('../scheduleSettings.json'),
+            var scheduleSettings = JSON.parse(require('fs').readFileSync('./scheduleSettings.json', 'utf8')),
                 tmpRule,
                 tmpTimer,
                 tmpXY;
