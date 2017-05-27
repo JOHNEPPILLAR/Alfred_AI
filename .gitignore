@@ -2,3 +2,4 @@ node_modules/
 .env
 runAI.sh
 Alfred.log
+scheduleSettings.json
