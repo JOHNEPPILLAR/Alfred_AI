@@ -258,10 +258,69 @@ function willItSnow (req, res, next) {
 };
 
 //=========================================================
+// Skill: willItRain, will it rain in the next 5 days for a location, default is London
+// Params: location: String
+//=========================================================
+function willItRain (req, res, next) {
+
+    logger.info ('Will it rain API called');
+
+    // Get the location
+    var location = 'london,uk';
+
+    if (typeof req.query.location !== 'undefined' && req.query.location !== null && req.query.location !== ''){
+        location = req.query.location;
+    };
+
+    const url = 'http://api.openweathermap.org/data/2.5/forecast?units=metric&q=' + location + '&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+
+    alfredHelper.requestAPIdata(url)
+    .then(function(apiData){
+
+        var weatherData = apiData.body.list,
+            goingtorain = false,
+            daysRaining = [];
+
+        // Loop through the 5 day forecast to see if it will rain
+        weatherData = sortArray(weatherData, 'dt');
+        weatherData.forEach(function(obj) {
+            if (typeof obj.rain['3h'] !== 'undefined'){
+                daysRaining.push(obj.dt_txt);
+                goingtorain = true;
+            };
+        });
+
+        // Construct the returning message
+        const jsonDataObj = {
+                  location      : apiData.body.city.location,
+                  going_to_rain : goingtorain,
+                  rain_days     : daysRaining
+              };
+
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
+    })
+    .catch(function (err) {
+        // if city not found return specific error message
+        if(err.message.indexOf('Not found city') > -1) {
+            var errorMessage = 'Location was not found.';
+        } else {
+            var errorMessage = err.message;
+        };
+
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', errorMessage);
+        logger.error('willItRain: ' + err);
+    });
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/today', weatherForcastForToday);
 skill.get('/tomorrow', weatherForcastForTomorrow);
 skill.get('/willitsnow', willItSnow);
+skill.get('/willitrain', willItRain);
 
 module.exports = skill;

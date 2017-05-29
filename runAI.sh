@@ -21,5 +21,5 @@ npm install
 clear
 
 echo "Run the server app"
-#nodemon server.js
-node server.js
+nodemon server.js
+#node server.js
