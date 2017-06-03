@@ -55,7 +55,7 @@ exports.setSchedule = function () {
                         };
                     });
                     timers.push(tmpTimer);
-                    logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                    logger.info('Morning schedule: ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
                     tmpTimer = null;
                     tmpRGB = null;
                 };
@@ -71,7 +71,7 @@ exports.setSchedule = function () {
                 lightshelper.allOff();
             });
             timers.push(tmpTimer);
-            logger.info('Scheduled morning all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+            logger.info('Morning schedule: All lights off at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
 
             //=========================================================
             // Set up the timer for sunset
@@ -105,13 +105,13 @@ exports.setSchedule = function () {
                             };
                         });
                         timers.push(tmpTimer);
-                        logger.info('Scheduled ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                        logger.info('Evening schedule: ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
                         tmpTimer = null;
                     };
                 });
             })
             .catch(function(err) {
-                logger.error('Sunset get data Error: ' + err);
+                logger.error('Evening get data Error: ' + err);
                 return false;
             });
 
@@ -125,7 +125,31 @@ exports.setSchedule = function () {
                 lightshelper.allOff();
             });
             timers.push(tmpTimer);
-            logger.info('Scheduled night all lights off timer for: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+            logger.info('Evening schedule: All lights off at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+
+            //=========================================================
+            // Set up mevening TV lights on timer
+            //=========================================================
+            tmpTimer       = null;
+            tmpRule        = new schedule.RecurrenceRule(),
+            tmpRule.hour   = scheduleSettings.eveningtv[0].on_hr;
+            tmpRule.minute = scheduleSettings.eveningtv[0].on_min;
+
+            scheduleSettings.eveningtv[0].lights.forEach(function(value) {
+                if(value.onoff == 'on') {
+                    tmpTimer = new schedule.scheduleJob(tmpRule, function() {
+                        if (typeof value.x == 'undefined' || value.x == null) {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
+                        } else {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                        };
+                    });
+                    timers.push(tmpTimer);
+                    logger.info('Evening TV schedule: ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                    tmpTimer = null;
+                    tmpRGB = null;
+                };
+            });
         });
     return true;
 };
