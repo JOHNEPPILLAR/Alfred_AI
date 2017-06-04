@@ -3,11 +3,15 @@
 //=========================================================
 const HueLights        = require("node-hue-api"),
       HueApi           = require("node-hue-api").HueApi,
-      scheduleSettings = require('../../scheduleSettings.json'),
-      HueBridgeIP      = process.env.HueBridgeIP,
-      HueBridgeUser    = process.env.HueBridgeUser,
-      Hue              = new HueApi(HueBridgeIP, HueBridgeUser),
       lightState       = HueLights.lightState;
+      scheduleSettings = require('../../scheduleSettings.json'),
+      dotenv           = require('dotenv');
+
+dotenv.load() // Load env vars
+
+const HueBridgeIP   = process.env.HueBridgeIP,
+      HueBridgeUser = process.env.HueBridgeUser,
+      Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
 
 //=========================================================
 // Skill: registerDevice
@@ -19,12 +23,16 @@ exports.registerDevice = function(res){
         // Send response back to caller
         if (typeof res !== 'undefined' && res !== null){
             alfredHelper.sendResponse(res, 'sucess', obj);
+        } else {
+            return obj;
         };
     })
     .fail(function(err){
         // Send response back to caller
         if (typeof res !== 'undefined' && res !== null){
             alfredHelper.sendResponse(res, 'error', err.message);
+        } else {
+            return err.message;
         };
         logger.error('registerDevice: ' + err);
     });
@@ -56,15 +64,16 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
                 status = 'error';
         };
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
+        } else {
+            return returnMessage;
         };
-
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
         };
         logger.error('lightOnOff: ' + err);
     })
@@ -84,14 +93,16 @@ exports.dimLight = function(res, lightNumber, percentage){
                 logger.error('dimLight: ' + returnMessage);
         };
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
+        } else {
+            return returnMessage;
         };
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
         };
         logger.error('dimLight: ' + err);
     });
@@ -111,32 +122,35 @@ exports.brightenLight = function(res, lightNumber, percentage){
                 logger.error('brightenLight: ' + returnMessage);
         };
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, status, returnMessage);
+            alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
+        } else {
+            return returnMessage;
         };
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
         };
         logger.error('brightenLight: ' + err);
     });
 };
 
-exports.listLights = function(res){
-    // Brightern the light
+exports.listLights = function(res){            
     Hue.lights()
     .then(function(obj){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'sucess', obj);
+            alfredHelper.sendResponse(res, 'sucess', obj); // Send response back to caller
+        } else {
+            return obj;  
         };
     })
     .fail(function(err){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err);
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
         };
         logger.info('listLights: ' + err);
     });
@@ -144,8 +158,8 @@ exports.listLights = function(res){
 
 exports.tvLights = function(res){
     // Set the lights for watching TV
-    var promises   = [],
-        lights     = scheduleSettings.tvLights,
+    var promises = [],
+        lights   = scheduleSettings.tvLights,
         state;
 
     lights.forEach(function(value){
@@ -155,22 +169,25 @@ exports.tvLights = function(res){
     Promise.all(promises)
     .then(function(resolved){
         if (typeof res !== 'undefined' && res !== null){
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'sucess', 'Turned on TV lights.');
+            alfredHelper.sendResponse(res, 'sucess', 'Turned on TV lights.'); // Send response back to caller
+        } else {
+            return 'Turned on TV lights.';
         };
     })
     .catch(function (err){
         if (typeof res !== 'undefined' && res !== null){
             alfredHelper.sendResponse(res, 'error', err);
-            logger.error('tvLights: ' + err);
+        } else {
+            return err;
         };
+        logger.error('tvLights: ' + err);
     });
 };
 
 exports.allOff = function(res){
     // Set the lights for watching TV
-    var state = lightState.create().off(),
-        promises   = [];
+    var state    = lightState.create().off(),
+        promises = [];
                
     // Get a list of all the lights
     Hue.lights()
@@ -181,14 +198,17 @@ exports.allOff = function(res){
         Promise.all(promises)
         .then(function(resolved){
             if (typeof res !== 'undefined' && res !== null){
-                // Send response back to caller
-                alfredHelper.sendResponse(res, 'sucess', 'Turned off all lights.');
+                alfredHelper.sendResponse(res, 'sucess', 'Turned off all lights.'); // Send response back to caller
+            } else {
+                return 'Turned off all lights.';
             };
             logger.info('Turned off lights');
         })
         .catch(function(err){
             if (typeof res !== 'undefined' && res !== null){
                 alfredHelper.sendResponse(res, 'error', 'There was a problem turning off all the lights.');
+            } else {
+                return err;
             };
             logger.error('allOff Error: ' + err);
         });
@@ -196,6 +216,8 @@ exports.allOff = function(res){
     .catch(function(err){
         if (typeof res !== 'undefined' && res !== null){
             alfredHelper.sendResponse(res, 'error', err);
+        } else {
+            return err;
         };
         logger.error('allOff Error: ' + err);
     });

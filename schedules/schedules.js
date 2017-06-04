@@ -1,8 +1,9 @@
 
-const schedule   = require('node-schedule'),
-      dateFormat = require('dateformat'),
-      fs         = require('fs'),
-      dotenv     = require('dotenv');
+const schedule     = require('node-schedule'),
+      dateFormat   = require('dateformat'),
+      fs           = require('fs'),
+      dotenv       = require('dotenv'),
+      lightshelper = require('../skills/lights/lightshelper.js');
 
 dotenv.load() // Load env vars
 
@@ -15,10 +16,7 @@ exports.setSchedule = function () {
     rule.hour   = new Date().getHours();
     rule.minute = new Date().getMinutes() + 1;
 
-    var alfredHelper = require('../helper.js'),
-        logger       = require('winston'),
-        lightshelper = require('../skills/lights/lightshelper.js'),
-        dailyTimer   = new schedule.scheduleJob(rule, function() {
+    var dailyTimer = new schedule.scheduleJob(rule, function() {
 
             //=========================================================
             // Set the daily timers
@@ -53,6 +51,9 @@ exports.setSchedule = function () {
                         } else {
                             lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
                         };
+                        if (value.lightID == scheduleSettings.motionSensorLights[0].lightID) {
+                            motionSensorLightsOn = true; // Stop the motion sensor takeing over
+                        };
                     });
                     timers.push(tmpTimer);
                     logger.info('Morning schedule: ' + value.name + ' to be turned ' + value.onoff + ' at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
@@ -69,6 +70,7 @@ exports.setSchedule = function () {
             tmpRule.minute = scheduleSettings.morning[0].off_min;
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 lightshelper.allOff();
+                motionSensorLightsOn = false; // Let the motion sensor now take over                
             });
             timers.push(tmpTimer);
             logger.info('Morning schedule: All lights off at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
@@ -80,11 +82,6 @@ exports.setSchedule = function () {
             // Get sunset data
             alfredHelper.requestAPIdata(url)
             .then(function(apiData) {
-
-                // Cancel the existing timers
-                if (typeof sunSetTimer !== 'undefined') {
-                    sunSetTimer.cancel(); 
-                };
 
                 // Set sunset timer
                 sunSet = new Date(apiData.body.sys.sunset);
@@ -123,6 +120,7 @@ exports.setSchedule = function () {
             tmpRule.minute = scheduleSettings.evening[0].off_min;
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 lightshelper.allOff();
+                motionSensorLightsOn = false; // Let the motion sensor now take over
             });
             timers.push(tmpTimer);
             logger.info('Evening schedule: All lights off at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
@@ -153,3 +151,19 @@ exports.setSchedule = function () {
         });
     return true;
 };
+
+exports.setMotionSensor = function () {
+    setInterval(intervalFunc, 4000);
+};
+
+function intervalFunc () {
+    logger.info('Cant stop me now!');
+    logger.info (lightshelper.listLights(null))
+}
+
+
+// function
+// if not global var hall light on timer then 
+// read motion sensor
+// if detection turn on hall light 
+// figure out when to turn light off

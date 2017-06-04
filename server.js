@@ -7,14 +7,13 @@ const restify = require('restify'),
       dotenv  = require('dotenv');
 
 // Get up global vars
-global.alfredHelper   = require('./helper.js');
-global.logger         = require('winston');
-global.scheduleHelper = require('./schedules/schedules.js');
-global.timers         = [];
-global.sunSetTimer;
+global.alfredHelper         = require('./helper.js');
+global.logger               = require('winston');
+global.scheduleHelper       = require('./schedules/schedules.js');
+global.timers               = [];
+global.motionSensorLightsOn = false;
 
-// Load env vars
-dotenv.load()
+dotenv.load() // Load env vars
 
 alfredHelper.setLogger(logger); // Configure the logger
 
@@ -50,16 +49,16 @@ server.use(function (req, res, next) {
     if (req.query.app_key == process.env.app_key) {
         next();
     } else {
-        // Invalid app_key, return error
-        next(new restify.NotAuthorizedError('There was a problem authenticating you.'));
+        next(new restify.NotAuthorizedError('There was a problem authenticating you.')); // Invalid app_key, return error
     }
     next();
 });
 
 //=========================================================
-// Setup schedules
+// Setup light schedules & motion sensor
 //=========================================================
 scheduleHelper.setSchedule();
+//scheduleHelper.setMotionSensor();
 
 //=========================================================
 // Configure skills

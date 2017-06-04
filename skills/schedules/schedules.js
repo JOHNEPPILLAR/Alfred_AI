@@ -9,15 +9,11 @@ const Skills         = require('restify-router').Router;
 // Skill: reset schedules
 //=========================================================
 function resetSchedule (req, res, next) {
-    
     logger.info ('Reset Schedule API called');
-
     if (scheduleHelper.setSchedule()) {
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', 'Reset scheduler');
+        alfredHelper.sendResponse(res, 'sucess', 'Reset scheduler'); // Send response back to caller
     } else {
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', 'Reset scheduler error');
+        alfredHelper.sendResponse(res, 'error', 'Reset scheduler error'); // Send response back to caller
     };
     next();
 };
@@ -27,8 +23,7 @@ function resetSchedule (req, res, next) {
 //=========================================================
 function sunSet (req, res, next) {
     
-    logger.info ('Sunset schedule info API called');
-
+    logger.info ('Sunset info API called');
     const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
 
     alfredHelper.requestAPIdata(url)
@@ -36,20 +31,18 @@ function sunSet (req, res, next) {
 
         var sunSet = new Date(apiData.body.sys.sunset);
         sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-        sunSet.setHours(sunSet.getHours() - scheduleSettings.sunSetOffSet); // Adjust according to the setting
+        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening[0].offset_hr); // Adjust hr
+        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening[0].offset_min); // Adjust min 
 
         var rtnJSON = {
             sunSet : dateFormat(sunSet, "HH:MM"),
-            offSetHR : scheduleSettings.sunSetOffSet
+            offSetHR : scheduleSettings.evening[0].offset_hr,
+            offSetMin : scheduleSettings.evening[0].offset_min            
         };
-
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', rtnJSON);
-
+        alfredHelper.sendResponse(res, 'sucess', rtnJSON); // Send response back to caller
     })
     .catch(function(err){
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err.message);
+        alfredHelper.sendResponse(res, 'error', err.message); // Send response back to caller
         logger.error('Schedule get data Error: ' + err);
     });
 };

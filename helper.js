@@ -1,5 +1,6 @@
 'use strict';
-const rp = require('request-promise');
+const rp         = require('request-promise'),
+      dateFormat = require('dateformat');
 
 //=========================================================
 // Setup logging
@@ -7,11 +8,10 @@ const rp = require('request-promise');
 exports.setLogger = function (logger) {
 
     logger.remove(logger.transports.Console);
-    if (process.env.environment == 'live'){
-        logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true });
-    } else {
-        logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true });
-        logger.add(logger.transports.Console, {timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM") }, colorize: true});
+    logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true, timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM")}});
+
+    if (process.env.environment == 'dev'){
+        logger.add(logger.transports.Console, {timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM")}, colorize: true});
     };
 };
 

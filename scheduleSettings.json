@@ -165,5 +165,19 @@
                 }
             ]
         }
+    ],
+    "motionSensorLights": [
+        {
+            "lightID": 1,
+            "brightness": "120",
+            "name": "Hall light",
+            "rgb": [
+                255,
+                252,
+                201
+            ],
+            "x": "0.3633",
+            "y": "0.3851"
+        }    
     ]
 }
