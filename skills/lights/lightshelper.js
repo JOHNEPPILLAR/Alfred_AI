@@ -55,7 +55,7 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
     // Change the light state
     Hue.setLightState(lightNumber, state)
     .then(function(obj){
-        logger.info('Turned ' + lightAction + ' light ' + lightNumber);
+        logger.info('Turned ' + lightAction + ' light ' + alfredHelper.getLightName(lightNumber));
         if (obj=true){
             var returnMessage = 'The light was turned ' + lightAction + '.',
                 status = 'sucess';
@@ -85,10 +85,10 @@ exports.dimLight = function(res, lightNumber, percentage){
     Hue.setLightState(lightNumber, state)
     .then(function(obj){
         if (obj=true){
-            var returnMessage = 'The light was dimmed.',
+            var returnMessage = 'The ' + alfredHelper.getLightName(lightNumber) + ' was dimmed.',
                 status = 'sucess';
         }else{
-            var returnMessage = 'There was an error dimming the light.',
+            var returnMessage = 'There was an error dimming the ' + alfredHelper.getLightName(lightNumber) + '.',
                 status = 'error';
                 logger.error('dimLight: ' + returnMessage);
         };
@@ -114,10 +114,10 @@ exports.brightenLight = function(res, lightNumber, percentage){
     Hue.setLightState(lightNumber, state)
     .then(function(obj){
         if (obj=true){
-            var returnMessage = 'The light was brightened.',
+            var returnMessage = 'The ' + alfredHelper.getLightName(lightNumber) + ' was brightened.',
                 status = 'sucess';
         }else{
-            var returnMessage = 'There was an error increasing the brightness.',
+            var returnMessage = 'There was an error increasing the brightness for ' + alfredHelper.getLightName(lightNumber) + '.',
                 status = 'error';
                 logger.error('brightenLight: ' + returnMessage);
         };
