@@ -137,23 +137,24 @@ exports.brightenLight = function(res, lightNumber, percentage){
     });
 };
 
-exports.listLights = function(res){            
-    Hue.lights()
-    .then(function(obj){
-        if (typeof res !== 'undefined' && res !== null){
-            alfredHelper.sendResponse(res, 'sucess', obj); // Send response back to caller
-        } else {
-            return obj;  
-        };
-    })
-    .fail(function(err){
-        if (typeof res !== 'undefined' && res !== null){
-            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
-        } else {
+exports.listLights = function listLights(res) {
+    return getLights(res)
+
+    async function getLights(res) {
+        try {
+            var lights = await Hue.lights()
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'sucess', lights); // Send response back to caller
+            };
+            return lights;
+        } catch(err) {
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+            };
+            logger.info('listLights: ' + err);
             return err;
         };
-        logger.info('listLights: ' + err);
-    });
+    };
 };
 
 exports.tvLights = function(res){

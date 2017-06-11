@@ -11,7 +11,9 @@ global.alfredHelper         = require('./helper.js');
 global.logger               = require('winston');
 global.scheduleHelper       = require('./schedules/schedules.js');
 global.timers               = [];
+global.motionSensorActive   = false;
 global.motionSensorLightsOn = false;
+global.lightNames           = [];
 
 dotenv.load() // Load env vars
 
