@@ -284,15 +284,18 @@ function willItRain (req, res, next) {
         // Loop through the 5 day forecast to see if it will rain
         weatherData = sortArray(weatherData, 'dt');
         weatherData.forEach(function(obj) {
-            if (typeof obj.rain['3h'] !== 'undefined'){
-                daysRaining.push(obj.dt_txt);
-                goingtorain = true;
+
+            if (typeof obj.rain !== 'undefined'){
+                if (typeof obj.rain['3h'] !== 'undefined'){
+                    daysRaining.push(obj.dt_txt);
+                    goingtorain = true;
+                };
             };
         });
 
         // Construct the returning message
         const jsonDataObj = {
-                  location      : apiData.body.city.location,
+                  location      : apiData.body.city.location || location,
                   going_to_rain : goingtorain,
                   rain_days     : daysRaining
               };
