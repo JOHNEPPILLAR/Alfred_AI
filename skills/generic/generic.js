@@ -60,10 +60,23 @@ function help (req, res, next) {
 };
 
 //=========================================================
+// Skill: ping
+//=========================================================
+function ping (req, res, next) {
+    var responseText = 'sucess.';
+                        
+    // Send response back to caller
+    alfredHelper.sendResponse(res, 'sucess', responseText);
+
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/', root);
 skill.get('/hello', hello);
 skill.get('/help', help);
+skill.get('/ping', ping);
 
 module.exports = skill;
