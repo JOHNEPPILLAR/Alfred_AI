@@ -10,9 +10,9 @@ kill -9 $(ps aux | grep '\snode\s' | awk '{print $2}')
 
 echo "Done."
 
-echo "Now setting node to v8.1.0"
+echo "Now setting node to v8.1.3"
 source ~/.nvm/nvm.sh
-nvm use 8.1.0
+nvm use 8.1.3
 
 echo "Removing node modules folder and installing latest"
 #rm -rf node_modules

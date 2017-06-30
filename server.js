@@ -1,5 +1,3 @@
-#!/usr/bin/env nodejs
-
 //=========================================================
 // Setup server
 //=========================================================
@@ -28,10 +26,10 @@ const server = restify.createServer({
 //=========================================================
 // Middleware
 //=========================================================
-server.use(restify.jsonBodyParser({ mapParams: true }));
-server.use(restify.acceptParser(server.acceptable));
-server.use(restify.queryParser({ mapParams: true }));
-server.use(restify.fullResponse());
+server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
+server.use(restify.plugins.acceptParser(server.acceptable));
+server.use(restify.plugins.queryParser({ mapParams: true }));
+server.use(restify.plugins.fullResponse());
 server.on('uncaughtException',function(request, response, route, error) {
     logger.error(error.message);
     alfredHelper.sendResponse(response, 'error', error.message);
