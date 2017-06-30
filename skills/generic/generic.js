@@ -72,11 +72,26 @@ function ping (req, res, next) {
 };
 
 //=========================================================
+// Skill: clearlog
+//=========================================================
+function clearlog (req, res, next) {
+    var responseText = 'sucess.';
+                        
+    // Clear logfile contents
+
+    // Send response back to caller
+    alfredHelper.sendResponse(res, 'sucess', responseText);
+
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/', root);
 skill.get('/hello', hello);
 skill.get('/help', help);
 skill.get('/ping', ping);
+skill.get('/clearlog', clearlog);
 
 module.exports = skill;
