@@ -78,6 +78,7 @@ function clearlog (req, res, next) {
     var responseText = 'sucess.';
                         
     // Clear logfile contents
+    
 
     // Send response back to caller
     alfredHelper.sendResponse(res, 'sucess', responseText);
