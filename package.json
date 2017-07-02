@@ -26,6 +26,7 @@
     "ssml-builder": "*",
     "node-schedule": "*",
     "fs": "*",
-    "winston": "*"
+    "winston": "*",
+    "lodash": "*"
   }
 }

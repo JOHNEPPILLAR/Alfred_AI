@@ -2,6 +2,7 @@
 // Setup generic skill
 //=========================================================
 const Skills = require('restify-router').Router,
+      _      = require('lodash'),
       skill  = new Skills();
 
 function sayHello() {
@@ -72,18 +73,50 @@ function ping (req, res, next) {
 };
 
 //=========================================================
-// Skill: clearlog
+// Skill: displaylog
 //=========================================================
-function clearlog (req, res, next) {
-    var responseText = 'sucess.';
-                        
-    // Clear logfile contents
-    
+function displaylog (req, res, next) {                        
+    if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== ''){
+        var page = parseInt(req.query.page || 1);
+    };
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
+    var itemsOnPage = 20,
+        rl = require('readline').createInterface({
+            input: require('fs').createReadStream('./Alfred.log')
+        }),
+        results = [];
 
-    next();
+    rl.on('line', function (line) {
+        results.push(JSON.parse(line));
+    });
+
+    rl.on('close', function () {
+
+        var pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
+
+        if (page > pagesCount) { page = pagesCount };
+        var logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
+
+        if (page == pagesCount) { 
+            nextpage = pagesCount;
+        } else { 
+            nextpage = page + 1;
+        };
+
+        // Construct the returning message
+        const jsonDataObj = {
+                currentpage : page,
+                prevpage    : page - 1,
+                nextpage    : nextpage,
+                lastpage    : pagesCount,
+                lpm1        : pagesCount - 1,
+                pages       : _.range(1, pagesCount + 1),
+                logs        : logs
+        };
+
+        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
+        next();
+    });
 };
 
 //=========================================================
@@ -93,6 +126,6 @@ skill.get('/', root);
 skill.get('/hello', hello);
 skill.get('/help', help);
 skill.get('/ping', ping);
-skill.get('/clearlog', clearlog);
+skill.get('/displaylog', displaylog);
 
 module.exports = skill;
