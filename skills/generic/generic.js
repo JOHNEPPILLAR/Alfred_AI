@@ -125,6 +125,17 @@ function displaylog (req, res, next) {
 };
 
 //=========================================================
+// Skill: settings
+//=========================================================
+function settings (req, res, next) {                        
+
+    var scheduleSettings = JSON.parse(require('fs').readFileSync('scheduleSettings.json', 'utf8'));
+
+    alfredHelper.sendResponse(res, 'sucess', scheduleSettings);
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/', root);
@@ -132,5 +143,6 @@ skill.get('/hello', hello);
 skill.get('/help', help);
 skill.get('/ping', ping);
 skill.get('/displaylog', displaylog);
+skill.get('/settings', settings);
 
 module.exports = skill;
