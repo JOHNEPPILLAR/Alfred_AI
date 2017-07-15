@@ -56,10 +56,10 @@ function setUpLights() {
     //=========================================================
     tmpTimer       = null;
     tmpRule        = new schedule.RecurrenceRule(),
-    tmpRule.hour   = scheduleSettings.morning[0].on_hr;
-    tmpRule.minute = scheduleSettings.morning[0].on_min;
+    tmpRule.hour   = scheduleSettings.morning.on_hr;
+    tmpRule.minute = scheduleSettings.morning.on_min;
 
-    scheduleSettings.morning[0].lights.forEach(function(value) {
+    scheduleSettings.morning.lights.forEach(function(value) {
         if(value.onoff == 'on') {
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 if (typeof value.x == 'undefined' || value.x == null) {
@@ -82,8 +82,8 @@ function setUpLights() {
     // Set up morning lights off timer
     //=========================================================
     tmpRule        = new schedule.RecurrenceRule(),
-    tmpRule.hour   = scheduleSettings.morning[0].off_hr;
-    tmpRule.minute = scheduleSettings.morning[0].off_min;
+    tmpRule.hour   = scheduleSettings.morning.off_hr;
+    tmpRule.minute = scheduleSettings.morning.off_min;
     tmpTimer = new schedule.scheduleJob(tmpRule, function() {
         lightshelper.allOff();
         motionSensorActive = true; // Let the motion sensor now take over                
@@ -102,13 +102,13 @@ function setUpLights() {
         // Set sunset timer
         sunSet = new Date(apiData.body.sys.sunset);
         sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening[0].offset_hr); // Adjust according to the setting
-        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening[0].offset_min); // Adjust 
+        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening.offset_hr); // Adjust according to the setting
+        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening.offset_min); // Adjust 
                 
         tmpRule        = new schedule.RecurrenceRule(),
         tmpRule.hour   = sunSet.getHours();
         tmpRule.minute = sunSet.getMinutes();
-        scheduleSettings.evening[0].lights.forEach(function(value) {
+        scheduleSettings.evening.lights.forEach(function(value) {
             if (value.onoff == 'on') {
                 tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                     if (typeof value.x == 'undefined' || value.x == null) {
@@ -135,8 +135,8 @@ function setUpLights() {
     // Set up night lights off timer
     //=========================================================
     tmpRule        = new schedule.RecurrenceRule(),
-    tmpRule.hour   = scheduleSettings.evening[0].off_hr;
-    tmpRule.minute = scheduleSettings.evening[0].off_min;
+    tmpRule.hour   = scheduleSettings.evening.off_hr;
+    tmpRule.minute = scheduleSettings.evening.off_min;
     tmpTimer = new schedule.scheduleJob(tmpRule, function() {
         lightshelper.allOff();
         motionSensorActive = true; // Let the motion sensor now take over
@@ -149,10 +149,10 @@ function setUpLights() {
     //=========================================================
     tmpTimer       = null;
     tmpRule        = new schedule.RecurrenceRule(),
-    tmpRule.hour   = scheduleSettings.eveningtv[0].on_hr;
-    tmpRule.minute = scheduleSettings.eveningtv[0].on_min;
+    tmpRule.hour   = scheduleSettings.eveningtv.on_hr;
+    tmpRule.minute = scheduleSettings.eveningtv.on_min;
 
-    scheduleSettings.eveningtv[0].lights.forEach(function(value) {
+    scheduleSettings.eveningtv.lights.forEach(function(value) {
         if(value.onoff == 'on') {
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
                 if (typeof value.x == 'undefined' || value.x == null) {

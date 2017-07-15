@@ -1,5 +1,5 @@
 {
-    "morning": [
+    "morning": 
         {
             "on_hr": 5,
             "on_min": 30,
@@ -57,8 +57,8 @@
             "off_hr": 8,
             "off_min": 30
         }
-    ],
-    "evening": [
+    ,
+    "evening":
         {
             "offset_hr": 0,
             "offset_min": 0,
@@ -115,8 +115,8 @@
             "off_hr": 22,
             "off_min": 0
         }
-    ],
-    "eveningtv": [
+    ,
+    "eveningtv": 
         {
             "on_hr": 19,
             "on_min": 30,
@@ -153,7 +153,7 @@
                 }
             ]
         }
-    ],
+    ,
     "motionSensorLights": [
         {
             "lightID": 1,
