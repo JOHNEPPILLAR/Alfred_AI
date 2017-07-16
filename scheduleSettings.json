@@ -1,57 +1,48 @@
 {
-    "morning": 
+    "morning":
         {
             "on_hr": 5,
             "on_min": 30,
             "lights": [
                 {
-                    "lightID": "1",
+                    "lightID": 1,
                     "onoff": "on",
-                    "brightness": "135",
-                    "rgb": [
-                        200,
-                        251,
-                        254
-                    ],
-                    "x": "0.2640",
-                    "y": "0.3297"
+                    "brightness": 135,
+                    "x": 0.2640,
+                    "y": 0.3297,
+                    "type":  "color"
                 },
                 {
-                    "lightID": "2",
+                    "lightID": 2,
                     "onoff": "off",
-                    "brightness": "65",
-                    "rgb": [
-                        200,
-                        251,
-                        254
-                    ],
-                    "x": "0.2640",
-                    "y": "0.3297"
+                    "brightness": 65,
+                    "x": 0.2640,
+                    "y": 0.3297,
+                    "type": "color"
                 },
                 {
-                    "lightID": "3",
+                    "lightID": 3,
                     "onoff": "off",
-                    "brightness": "65",
-                    "rgb": [
-                        200,
-                        251,
-                        254
-                    ],
-                    "x": "0.2640",
-                    "y": "0.3297"
+                    "brightness": 65,
+                    "x": 0.2640,
+                    "y": 0.3297,
+                    "type": "color"
                 },
                 {
-                    "lightID": "12",
+                    "lightID": 12,
                     "onoff": "on",
-                    "brightness": "135",
-                    "type": "Dimmable light"
+                    "brightness": 135,
+                    "x": 0,
+                    "y": 0,
+                    "type": "white"
                 },
                 {
-                    "lightID": "5",
+                    "lightID": 5,
                     "onoff": "on",
                     "brightness": "135",
-                    "name": "Kitchen side light",
-                    "type": "Dimmable light"
+                    "x": 0,
+                    "y": 0,
+                    "type": "white"
                 }
             ],
             "off_hr": 8,
@@ -66,57 +57,49 @@
                 {
                     "lightID": 1,
                     "onoff": "on",
-                    "brightness": "120",
-                    "rgb": [
-                        255,
-                        252,
-                        201
-                    ],
-                    "x": "0.3633",
-                    "y": "0.3851"
+                    "brightness": 120,
+                    "x": 0.3633,
+                    "y": 0.3851,
+                    "type" : "color"
                 },
                 {
                     "lightID": 2,
                     "onoff": "off",
-                    "brightness": "120",
-                    "rgb": [
-                        255,
-                        252,
-                        201
-                    ],
-                    "x": "0.3633",
-                    "y": "0.3851"
+                    "brightness": 120,
+                    "x": 0.3633,
+                    "y": 0.3851,
+                    "type": "color"
                 },
                 {
                     "lightID": 3,
                     "onoff": "off",
-                    "brightness": "120",
-                    "rgb": [
-                        255,
-                        252,
-                        201
-                    ],
-                    "x": "0.3633",
-                    "y": "0.3851"
+                    "brightness": 120,
+                    "x": 0.3633,
+                    "y": 0.3851,
+                    "type": "color"
                 },
                 {
                     "lightID": 12,
                     "onoff": "on",
-                    "brightness": "120",
-                    "type": "Dimmable light"
+                    "brightness": 120,
+                    "x": 0,
+                    "y": 0,
+                    "type": "white"
                 },
                 {
                     "lightID": 5,
                     "onoff": "off",
-                    "brightness": "120",
-                    "type": "Dimmable light"
+                    "brightness": 120,
+                    "x": 0,
+                    "y": 0,
+                    "type": "white"
                 }
             ],
             "off_hr": 22,
             "off_min": 0
         }
     ,
-    "eveningtv": 
+    "eveningtv":
         {
             "on_hr": 19,
             "on_min": 30,
@@ -124,32 +107,26 @@
                 {
                     "lightID": 2,
                     "onoff": "on",
-                    "brightness": "50",
-                    "rgb": [
-                        255,
-                        252,
-                        201
-                    ],
-                    "x": "0.3633",
-                    "y": "0.3851"
+                    "brightness": 50,
+                    "x": 0.3633,
+                    "y": 0.3851,
+                    "type": "color"
                 },
                 {
                     "lightID": 3,
                     "onoff": "on",
-                    "brightness": "50",
-                    "rgb": [
-                        255,
-                        252,
-                        201
-                    ],
-                    "x": "0.3633",
-                    "y": "0.3851"
+                    "brightness": 50,
+                    "x": 0.3633,
+                    "y": 0.3851,
+                    "type": "white"
                 },
                 {
                     "lightID": 12,
                     "onoff": "on",
-                    "brightness": "50",
-                    "type": "Dimmable light"
+                    "brightness": 50,
+                    "x": 0,
+                    "y": 0,
+                    "type": "white"
                 }
             ]
         }
@@ -157,14 +134,10 @@
     "motionSensorLights": [
         {
             "lightID": 1,
-            "brightness": "120",
-            "rgb": [
-                255,
-                252,
-                201
-            ],
-            "x": "0.3633",
-            "y": "0.3851"
-        }    
+            "brightness": 120,
+            "x": 0.3633,
+            "y": 0.3851,
+            "type": "color"
+        }
     ]
 }

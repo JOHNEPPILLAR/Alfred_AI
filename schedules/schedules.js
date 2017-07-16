@@ -62,7 +62,7 @@ function setUpLights() {
     scheduleSettings.morning.lights.forEach(function(value) {
         if(value.onoff == 'on') {
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
-                if (typeof value.x == 'undefined' || value.x == null) {
+                if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
@@ -74,7 +74,6 @@ function setUpLights() {
             timers.push(tmpTimer);
             logger.info('Morning schedule: ' + alfredHelper.getLightName(value.lightID) + ' to be turned on at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
             tmpTimer = null;
-            tmpRGB = null;
         };
     });
 
@@ -111,7 +110,7 @@ function setUpLights() {
         scheduleSettings.evening.lights.forEach(function(value) {
             if (value.onoff == 'on') {
                 tmpTimer = new schedule.scheduleJob(tmpRule, function() {
-                    if (typeof value.x == 'undefined' || value.x == null) {
+                    if (value.type == "white") {
                         lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                     } else {
                         lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
@@ -155,7 +154,7 @@ function setUpLights() {
     scheduleSettings.eveningtv.lights.forEach(function(value) {
         if(value.onoff == 'on') {
             tmpTimer = new schedule.scheduleJob(tmpRule, function() {
-                if (typeof value.x == 'undefined' || value.x == null) {
+                if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
@@ -172,13 +171,6 @@ function setUpLights() {
     });
     return true;
 };
-
-
-
-
-
-
-
 
 
 

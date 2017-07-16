@@ -31,13 +31,13 @@ function sunSet (req, res, next) {
 
         var sunSet = new Date(apiData.body.sys.sunset);
         sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening[0].offset_hr); // Adjust hr
-        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening[0].offset_min); // Adjust min 
+        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening.offset_hr); // Adjust hr
+        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening.offset_min); // Adjust min 
 
         var rtnJSON = {
             sunSet : dateFormat(sunSet, "HH:MM"),
-            offSetHR : scheduleSettings.evening[0].offset_hr,
-            offSetMin : scheduleSettings.evening[0].offset_min            
+            offSetHR : scheduleSettings.evening.offset_hr,
+            offSetMin : scheduleSettings.evening.offset_min            
         };
         alfredHelper.sendResponse(res, 'sucess', rtnJSON); // Send response back to caller
     })
