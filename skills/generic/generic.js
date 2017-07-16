@@ -131,6 +131,27 @@ function settings (req, res, next) {
 
     var scheduleSettings = JSON.parse(require('fs').readFileSync('scheduleSettings.json', 'utf8'));
 
+    // Update morning lights and add light names
+    var i = 0;
+    scheduleSettings.morning.lights.forEach(function(value) {
+        scheduleSettings.morning.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
+        i++;
+    })
+
+    // Update evening lights and add light names
+    i = 0;
+    scheduleSettings.evening.lights.forEach(function(value) {
+        scheduleSettings.evening.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
+        i++;
+    })
+
+    // Update eveningtv lights and add light names
+    i = 0;
+    scheduleSettings.eveningtv.lights.forEach(function(value) {
+        scheduleSettings.eveningtv.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
+        i++;
+    })
+
     alfredHelper.sendResponse(res, 'sucess', scheduleSettings);
     next();
 };
