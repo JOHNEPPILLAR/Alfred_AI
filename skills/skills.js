@@ -40,6 +40,10 @@ var appSkills = function(server) {
     var scheduleRouter = require('./schedules/schedules.js');
     scheduleRouter.applyRoutes(server, 'schedule');
 
+    // Settings skill
+    var scheduleRouter = require('./settings/settings.js');
+    scheduleRouter.applyRoutes(server, '/settings');
+
 };
 
 module.exports = appSkills;

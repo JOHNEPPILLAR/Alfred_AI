@@ -64,6 +64,8 @@ function help (req, res, next) {
 // Skill: ping
 //=========================================================
 function ping (req, res, next) {
+    logger.info ('Ping API called');
+    
     var responseText = 'sucess.';
                         
     // Send response back to caller
@@ -75,7 +77,9 @@ function ping (req, res, next) {
 //=========================================================
 // Skill: displaylog
 //=========================================================
-function displaylog (req, res, next) {                        
+function displayLog (req, res, next) {                        
+    logger.info ('Display Log API called');
+    
     if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== ''){
         var page = parseInt(req.query.page || 1);
     };
@@ -125,45 +129,12 @@ function displaylog (req, res, next) {
 };
 
 //=========================================================
-// Skill: settings
-//=========================================================
-function settings (req, res, next) {                        
-
-    var scheduleSettings = JSON.parse(require('fs').readFileSync('scheduleSettings.json', 'utf8'));
-
-    // Update morning lights and add light names
-    var i = 0;
-    scheduleSettings.morning.lights.forEach(function(value) {
-        scheduleSettings.morning.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
-        i++;
-    })
-
-    // Update evening lights and add light names
-    i = 0;
-    scheduleSettings.evening.lights.forEach(function(value) {
-        scheduleSettings.evening.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
-        i++;
-    })
-
-    // Update eveningtv lights and add light names
-    i = 0;
-    scheduleSettings.eveningtv.lights.forEach(function(value) {
-        scheduleSettings.eveningtv.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
-        i++;
-    })
-
-    alfredHelper.sendResponse(res, 'sucess', scheduleSettings);
-    next();
-};
-
-//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/', root);
 skill.get('/hello', hello);
 skill.get('/help', help);
 skill.get('/ping', ping);
-skill.get('/displaylog', displaylog);
-skill.get('/settings', settings);
+skill.get('/displaylog', displayLog);
 
 module.exports = skill;
