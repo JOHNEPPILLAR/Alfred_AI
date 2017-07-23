@@ -123,6 +123,44 @@ function turnOnMorningEveningLights (req, res, next){
 };
 
 //=========================================================
+// Skill: Convert xy to RGB
+//=========================================================
+function xyToRGB (req, res, next){
+    logger.info('Convert xy to RGB API called');
+
+    if ((typeof req.query.x !== 'undefined' && req.query.x !== null) &&
+        (typeof req.query.y !== 'undefined' && req.query.y !== null) &&
+        (typeof req.query.brightness !== 'undefined' && req.query.brightness !== null)) {
+        var result = lightshelper.xy_to_rgb(req.query.x, req.query.y, req.query.brightness);
+        alfredHelper.sendResponse(res, 'sucess', result);
+    } else {
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameter x or y was not supplied.');
+        logger.error('xyToRGB: The parameter x or y was not supplied.');
+    };
+    next();
+};
+
+//=========================================================
+// Skill: Convert RGB to xy
+//=========================================================
+function RGBToXY (req, res, next){
+    logger.info('Convert RGB to xy API called');
+
+    if ((typeof req.query.r !== 'undefined' && req.query.r !== null) &&
+        (typeof req.query.g !== 'undefined' && req.query.g !== null) &&
+        (typeof req.query.b !== 'undefined' && req.query.b !== null)) {
+        var result = lightshelper.rgb_to_xy(req.query.r, req.query.b, req.query.b);
+        alfredHelper.sendResponse(res, 'sucess', result);
+    } else {
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameter red, green or blue was not supplied.');
+        logger.error('RGBToXY: The parameter red, green or blue was not supplied.');
+    };
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/registerdevice', registerDevice);
@@ -133,5 +171,7 @@ skill.get('/listlights', listLights);
 skill.get('/tvlights', tvLights);
 skill.get('/alloff', allOff);
 skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
+skill.get('/xytorgb', xyToRGB);
+skill.get('/rgbtoxy', RGBToXY);
 
 module.exports = skill;
