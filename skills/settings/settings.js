@@ -176,11 +176,11 @@ function viewSettings (req, res, next) {
         scheduleSettings.morning.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
 
         // Caculate and add rgb to json
-        rgb = lightshelper.xy_to_rgb(scheduleSettings.evening.lights[i]["x"], scheduleSettings.evening.lights[i]["y"], scheduleSettings.evening.lights[i]["brightness"])
+        rgb = lightshelper.xy_to_rgb(scheduleSettings.evening.lights[i]["x"], scheduleSettings.evening.lights[i]["y"], scheduleSettings.morning.lights[i]["brightness"])
 
-        scheduleSettings.evening.lights[i]["red"] = rgb.red;
-        scheduleSettings.evening.lights[i]["green"] = rgb.green;
-        scheduleSettings.evening.lights[i]["blue"] = rgb.blue;
+        scheduleSettings.morning.lights[i]["red"] = rgb.red;
+        scheduleSettings.morning.lights[i]["green"] = rgb.green;
+        scheduleSettings.morning.lights[i]["blue"] = rgb.blue;
 
         i++;
     })
@@ -210,11 +210,11 @@ function viewSettings (req, res, next) {
         scheduleSettings.eveningtv.lights[i]["lightName"] = alfredHelper.getLightName(value.lightID);
 
         // Caculate and add rgb to json
-        rgb = lightshelper.xy_to_rgb(scheduleSettings.evening.lights[i]["x"], scheduleSettings.evening.lights[i]["y"], scheduleSettings.evening.lights[i]["brightness"])
+        rgb = lightshelper.xy_to_rgb(scheduleSettings.evening.lights[i]["x"], scheduleSettings.evening.lights[i]["y"], scheduleSettings.eveningtv.lights[i]["brightness"])
 
-        scheduleSettings.evening.lights[i]["red"] = rgb.red;
-        scheduleSettings.evening.lights[i]["green"] = rgb.green;
-        scheduleSettings.evening.lights[i]["blue"] = rgb.blue;
+        scheduleSettings.eveningtv.lights[i]["red"] = rgb.red;
+        scheduleSettings.eveningtv.lights[i]["green"] = rgb.green;
+        scheduleSettings.eveningtv.lights[i]["blue"] = rgb.blue;
 
         i++;
     })
