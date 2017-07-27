@@ -96,12 +96,13 @@ function displayLog (req, res, next) {
 
     rl.on('close', function () {
 
+        results.reverse(); // Reverse logfile order
+
         var pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
 
         if (page > pagesCount) { page = pagesCount };
         if (req.query.reverse == 'true') { // For Alfred IOS app view log page
             page = pagesCount;
-            results.reverse(); // Reverse logfile order
         } 
 
         var logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
