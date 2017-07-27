@@ -80,11 +80,12 @@ function ping (req, res, next) {
 function displayLog (req, res, next) {                        
     logger.info ('Display Log API called');
     
+    var page = 1
     if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== ''){
-        var page = parseInt(req.query.page || 1);
+        page = parseInt(req.query.page || 1);
     };
 
-    var itemsOnPage = 20,
+    var itemsOnPage = 50,
         rl = require('readline').createInterface({
             input: require('fs').createReadStream('./Alfred.log')
         }),
@@ -101,10 +102,7 @@ function displayLog (req, res, next) {
         var pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
 
         if (page > pagesCount) { page = pagesCount };
-        if (req.query.reverse == 'true') { // For Alfred IOS app view log page
-            page = pagesCount;
-        } 
-
+        
         var logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
 
         if (page == pagesCount) { 
