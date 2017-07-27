@@ -125,7 +125,7 @@ function restoreSettings (req, res, next) {
                 "brightness": 50,
                 "x": 0.3633,
                 "y": 0.3851,
-                "type": "white"
+                "type": "color"
             },
             {
                 "lightID": 12,
