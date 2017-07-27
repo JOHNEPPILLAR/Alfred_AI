@@ -242,8 +242,8 @@ function saveMorningSettings (req, res, next) {
         // Convert RGB to XY
         xy = lightshelper.rgb_to_xy(scheduleSettings.morning.lights[i]["red"], scheduleSettings.morning.lights[i]["green"], scheduleSettings.morning.lights[i]["blue"])
 
-        scheduleSettings.morning.lights[i]["x"] = xy.x;
-        scheduleSettings.morning.lights[i]["y"] = xy.y;
+        scheduleSettings.morning.lights[i]["x"] = parseFloat(xy.x);
+        scheduleSettings.morning.lights[i]["y"] = parseFloat(xy.y);
 
         // Remove light name & RGB data
         delete scheduleSettings.morning.lights[i]["lightName"];
@@ -283,8 +283,8 @@ function saveEveningSettings (req, res, next) {
         // Convert RGB to XY
         xy = lightshelper.rgb_to_xy(scheduleSettings.evening.lights[i]["red"], scheduleSettings.evening.lights[i]["green"], scheduleSettings.evening.lights[i]["blue"])
 
-        scheduleSettings.evening.lights[i]["x"] = xy.x;
-        scheduleSettings.evening.lights[i]["y"] = xy.y;
+        scheduleSettings.evening.lights[i]["x"] = parseFloat(xy.x);
+        scheduleSettings.evening.lights[i]["y"] = parseFloat(xy.y);
 
         // Remove light name & RGB data
         delete scheduleSettings.evening.lights[i]["lightName"];
