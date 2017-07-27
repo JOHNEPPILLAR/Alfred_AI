@@ -306,11 +306,53 @@ function saveEveningSettings (req, res, next) {
 };
 
 //=========================================================
+// Skill: save evening settings
+//=========================================================
+function saveEveningTVSettings (req, res, next) {  
+    logger.info ('Save evening tv settings API called');
+
+    // Load settings json file
+    var scheduleSettings = JSON.parse(require('fs').readFileSync('scheduleSettings.json', 'utf8'));
+
+    // Update with data from api post
+    scheduleSettings.eveningtv = req.body;
+
+    // Tidy up json by removing light name and RGB
+    var i = 0
+    scheduleSettings.eveningtv.lights.forEach(function(value) {
+        
+        // Convert RGB to XY
+        xy = lightshelper.rgb_to_xy(scheduleSettings.eveningtv.lights[i]["red"], scheduleSettings.eveningtv.lights[i]["green"], scheduleSettings.eveningtv.lights[i]["blue"])
+
+        scheduleSettings.eveningtv.lights[i]["x"] = parseFloat(xy.x);
+        scheduleSettings.eveningtv.lights[i]["y"] = parseFloat(xy.y);
+
+        // Remove light name & RGB data
+        delete scheduleSettings.eveningtv.lights[i]["lightName"];
+        delete scheduleSettings.eveningtv.lights[i]["red"];
+        delete scheduleSettings.eveningtv.lights[i]["green"];
+        delete scheduleSettings.eveningtv.lights[i]["blue"];
+
+        i++;
+    })
+
+    // Write updates to file
+    try {
+        require('fs').writeFileSync('scheduleSettings.json', JSON.stringify(scheduleSettings));
+        alfredHelper.sendResponse(res, 'sucess', 'saved');
+    } catch (err) {
+        logger.error ('saveEveningTVSettings: ' + err);
+        alfredHelper.sendResponse(res, 'error', err);
+    };
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/restore', restoreSettings);
 skill.get('/view', viewSettings);
 skill.post('/savemorning', saveMorningSettings);
 skill.post('/saveevening', saveEveningSettings);
+skill.post('/saveeveningtv', saveEveningTVSettings);
 
 module.exports = skill;
