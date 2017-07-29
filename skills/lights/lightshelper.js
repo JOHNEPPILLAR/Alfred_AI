@@ -210,7 +210,7 @@ exports.listLightGroups = function listLightGroups(res) {
             var i, len = lights.length;
             for (i = 0; i < len; i++) {
                 if (lights[i].type != "Room") {
-                    delete lights.splice(i,1)
+                    lights.splice(i,1)
                 }
             }
 
