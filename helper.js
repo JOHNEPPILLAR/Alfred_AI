@@ -34,6 +34,7 @@ exports.sendResponse = function (res, status, dataObj) {
 // Call a remote API to get data
 //=========================================================
 exports.requestAPIdata = function (apiURL, userAgent) {
+    
     var options = {
         'User-Agent': userAgent,
         method: 'GET',
@@ -43,21 +44,25 @@ exports.requestAPIdata = function (apiURL, userAgent) {
         json: true
     }
     return rp(options);
+
 };
 
 //=========================================================
 // Misc
 //=========================================================
 exports.isEmptyObject = function (obj) {
+    
     for (var key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             return false;
         };
     };
     return true;
+
 };
 
 exports.GetSortOrder = function (prop) {
+    
     return function (a, b) {
         if (a[prop] > b[prop]) {
             return 1;
@@ -66,9 +71,11 @@ exports.GetSortOrder = function (prop) {
         }
         return 0;
     }
+
 }; 
 
 exports.addDays = function (date, amount) {
+    
     var tzOff = date.getTimezoneOffset() * 60 * 1000,
         t = date.getTime(),
         d = new Date(),
@@ -84,9 +91,11 @@ exports.addDays = function (date, amount) {
         d.setTime(t);
     };
     return d;
+
 };
 
 exports.minutesToStop = function (timeofnextbus) {
+    
     var timetostopinMinutes = Math.floor(timeofnextbus / 60);
     switch (timetostopinMinutes) {
         case 0:
@@ -96,22 +105,39 @@ exports.minutesToStop = function (timeofnextbus) {
         default:
             return 'in ' + timetostopinMinutes + ' minutes';
     };
+
 };
 
 exports.zeroFill = function (number, width) {
+   
     width -= number.toString().length;
     if (width > 0) {
         return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
     };
     return number + ""; // always return a string
+
 };
 
 exports.getLightName = function (param) {
+
     var i, len = lightNames.length;
     for (i = 0; i < len; i++) {
-        if (lightNames[i].id == param) {
+        if (lightNames[i].id.toString() == param.toString()) {
             return lightNames[i].name;
         };
     };
     return '[not defined]';
+
+};
+
+exports.getLightGroupName = function (param) {
+    
+    var i, len = lightGroupNames.length;
+    for (i = 0; i < len; i++) {
+        if (lightGroupNames[i].id.toString() == param.toString()) {
+            return lightGroupNames[i].name;
+        };
+    };
+    return '[not defined]';
+    
 };

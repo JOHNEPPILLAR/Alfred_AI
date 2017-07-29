@@ -12,6 +12,7 @@ global.timers               = [];
 global.motionSensorActive   = false;
 global.motionSensorLightsOn = false;
 global.lightNames           = [];
+global.lightGroupNames      = [];
 
 dotenv.load() // Load env vars
 

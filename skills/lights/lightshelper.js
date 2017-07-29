@@ -79,6 +79,48 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
     })
 };
 
+exports.lightGroupOnOff = function(res, lightNumber, lightAction, brightness, x, y){
+    // Validate input params and set state
+    if (typeof brightness == 'undefined' || brightness == null){
+        brightness = 100;
+    };
+
+    var state = lightState.create().off(); // Default off
+    if (lightAction=='on'){
+        if (typeof x == 'undefined' || x == null){
+            state = lightState.create().on().brightness(brightness);
+        } else {
+            state = lightState.create().on().brightness(brightness).xy(x, y);
+        };
+    };
+
+    // Change the light group state
+    Hue.setGroupLightState(lightNumber, state)
+    .then(function(obj){
+        logger.info('Turned ' + lightAction + ' light group: ' + alfredHelper.getLightGroupName(lightNumber));
+        if (obj=true){
+            var returnMessage = 'The light group was turned ' + lightAction + '.',
+                status = 'sucess';
+        }else{
+            var returnMessage = 'There was an error turning the light group ' + lightAction + '.',
+                status = 'error';
+        };
+        if (typeof res !== 'undefined' && res !== null){
+            alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
+        } else {
+            return returnMessage;
+        };
+    })
+    .fail(function(err){
+        if (typeof res !== 'undefined' && res !== null){
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
+        };
+        logger.error('lightGroupOnOff: ' + err);
+    })
+};
+
 exports.dimLight = function(res, lightNumber, percentage){
     var state = lightState.create().on().brightness(percentage);
     // Dim the light
@@ -143,6 +185,35 @@ exports.listLights = function listLights(res) {
     async function getLights(res) {
         try {
             var lights = await Hue.lights()
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'sucess', lights); // Send response back to caller
+            };
+            return lights;
+        } catch(err) {
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+            };
+            logger.info('listLights: ' + err);
+            return err;
+        };
+    };
+};
+
+exports.listLightGroups = function listLightGroups(res) {
+    return getLightGroups(res)
+
+    async function getLightGroups(res) {
+        try {
+            var lights = await Hue.groups()
+
+            // Remove unwanted light groups from json
+            var i, len = lights.length;
+            for (i = 0; i < len; i++) {
+                if (lights[i].type != "Room") {
+                    delete lights[i];
+                }
+            }
+
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'sucess', lights); // Send response back to caller
             };

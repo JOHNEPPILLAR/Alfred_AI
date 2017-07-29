@@ -51,6 +51,41 @@ function lightOnOff(req, res, next){
 };
 
 //=========================================================
+// Skill: light group on/off
+// Params: light_number: Number, light_status: String
+//=========================================================
+function lightGroupOnOff(req, res, next){
+    var paramsOK = false;
+    if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
+        (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
+        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){    
+        paramsOK = true;
+    };
+    if (paramsOK){
+        switch (req.query.light_status.toLowerCase()){
+        case 'on':
+            lightAction = true;
+            break;
+        case 'off':
+            lightAction = false;
+            break;
+        default:
+            paramsOK = false;
+        };
+    } else {
+       paramsOK = false; 
+    };
+    if(paramsOK){
+        lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.rgb);
+    }else{
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+        logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    };
+    next();
+};
+
+//=========================================================
 // Skill: dimlight
 // Params: light_number: Number
 // Params: percentage
@@ -92,6 +127,15 @@ function brightenLight(req, res, next){
 function listLights(req, res, next){
     logger.info('List Lights API called');
     lightshelper.listLights(res);
+    next();
+};
+
+//=========================================================
+// Skill: listLightGroups
+//=========================================================
+function listLightGroups(req, res, next){
+    logger.info('List Light Groups API called');
+    lightshelper.listLightGroups(res);
     next();
 };
 
@@ -165,9 +209,11 @@ function RGBToXY (req, res, next){
 //=========================================================
 skill.get('/registerdevice', registerDevice);
 skill.get('/lightonoff', lightOnOff);
+skill.get('/lightgrouponoff', lightGroupOnOff);
 skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
 skill.get('/listlights', listLights);
+skill.get('/listlightgroups', listLightGroups);
 skill.get('/tvlights', tvLights);
 skill.get('/alloff', allOff);
 skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);

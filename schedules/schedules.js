@@ -18,17 +18,22 @@ exports.setSchedule = function () {
 
     var dailyTimer = new schedule.scheduleJob(rule, function() {
 
-        // Get the light names and id's and persist them
-        lightshelper.listLights()
-        .then(function(obj){
-            obj.lights.forEach(function(value) {
+        Promise.all([lightshelper.listLights(), lightshelper.listLightGroups()])
+        .then(function([first, second]) {
+
+            // Setup light names
+            first.lights.forEach(function(value) {            
                 lightNames.push({ 'id' : value.id, 'name' : value.name});
             });
+
+            // Setup ligh group names
+            second.forEach(function(value) {
+                lightGroupNames.push({ 'id' : value.id, 'name' : value.name});
+            });
+        
             setUpLights();
+
         })
-        .catch(function (err){
-            logger.error('listLights: ' + err);
-        });
     });
 };
   
