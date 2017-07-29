@@ -207,22 +207,19 @@ exports.listLightGroups = function listLightGroups(res) {
             var lights = await Hue.groups()
 
             // Remove unwanted light groups from json
-            var i, len = lights.length;
-            for (i = 0; i < len; i++) {
-                if (lights[i].type != "Room") {
-                    lights.splice(i,1)
-                }
-            }
+            var tidyLights = lights.filter(function(light){
+                return light.type == "Room";
+            });
 
             if (typeof res !== 'undefined' && res !== null) {
-                alfredHelper.sendResponse(res, 'sucess', lights); // Send response back to caller
+                alfredHelper.sendResponse(res, 'sucess', tidyLights); // Send response back to caller
             };
             return lights;
         } catch(err) {
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
             };
-            logger.info('listLights: ' + err);
+            logger.info('listLightGroups: ' + err);
             return err;
         };
     };
