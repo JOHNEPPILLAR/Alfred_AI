@@ -211,6 +211,20 @@ exports.listLightGroups = function listLightGroups(res) {
                 return light.type == "Room";
             });
 
+            // Update eveningtv lights and add light names
+            i = 0;
+            tidyLights.forEach(function(value) {
+
+                // Caculate and add rgb to json
+                rgb = lightshelper.xy_to_rgb(tidyLights[0].action.xy[0], tidyLights[0].action.xy[1], tidyLights[0].action.bri)
+
+                tidyLights[0].action["red"] = rgb.red;
+                tidyLights[0].action["green"] = rgb.green;
+                tidyLights[0].action["blue"] = rgb.blue;
+
+                i++;
+            })
+
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'sucess', tidyLights); // Send response back to caller
             };
