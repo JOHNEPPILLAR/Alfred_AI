@@ -216,7 +216,15 @@ exports.listLightGroups = function listLightGroups(res) {
             tidyLights.forEach(function(value) {
 
                 // Caculate and add rgb to json
-                rgb = lightshelper.xy_to_rgb(tidyLights[i].action.xy[0], tidyLights[i].action.xy[1], tidyLights[i].action.bri)
+                if (typeof tidyLights[i].action.xy !== 'undefined' && tidyLights[i].action.xy !== null ) {
+                    var rgb = lightshelper.xy_to_rgb(tidyLights[i].action.xy[0], tidyLights[i].action.xy[1], tidyLights[i].action.bri)
+                } else {
+                    var rgb = {
+                        red : 0,
+                        green : 0,
+                        blue: 0
+                    };
+                };
 
                 tidyLights[i].action["red"] = rgb.red || 0;
                 tidyLights[i].action["green"] = rgb.green || 0;
