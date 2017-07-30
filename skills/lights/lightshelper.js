@@ -218,9 +218,9 @@ exports.listLightGroups = function listLightGroups(res) {
                 // Caculate and add rgb to json
                 rgb = lightshelper.xy_to_rgb(tidyLights[0].action.xy[0], tidyLights[0].action.xy[1], tidyLights[0].action.bri)
 
-                tidyLights[0].action["red"] = rgb.red;
-                tidyLights[0].action["green"] = rgb.green;
-                tidyLights[0].action["blue"] = rgb.blue;
+                tidyLights[0].action["red"] = rgb.red || 0;
+                tidyLights[0].action["green"] = rgb.green || 0;
+                tidyLights[0].action["blue"] = rgb.blue || 0;
 
                 i++;
             })
