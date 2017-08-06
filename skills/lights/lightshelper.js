@@ -213,25 +213,29 @@ exports.listLightGroups = function listLightGroups(res) {
 
             // Update eveningtv lights and add light names
             i = 0;
-            tidyLights.forEach(function(value) {
+            
+            if (tidyLights.length > 0) {
 
-                // Caculate and add rgb to json
-                if (typeof tidyLights[i].action.xy !== 'undefined' && tidyLights[i].action.xy !== null ) {
-                    var rgb = lightshelper.xy_to_rgb(tidyLights[i].action.xy[0], tidyLights[i].action.xy[1], tidyLights[i].action.bri)
-                } else {
-                    var rgb = {
-                        red : 0,
-                        green : 0,
-                        blue: 0
+                tidyLights.forEach(function(value) {
+
+                    // Caculate and add rgb to json
+                    if (typeof tidyLights[i].action.xy !== 'undefined' && tidyLights[i].action.xy !== null ) {
+                        var rgb = lightshelper.xy_to_rgb(tidyLights[i].action.xy[0], tidyLights[i].action.xy[1], tidyLights[i].action.bri)
+                    } else {
+                        var rgb = {
+                            red : 0,
+                            green : 0,
+                            blue: 0
+                        };
                     };
-                };
 
-                tidyLights[i].action["red"] = rgb.red || 0;
-                tidyLights[i].action["green"] = rgb.green || 0;
-                tidyLights[i].action["blue"] = rgb.blue || 0;
+                    tidyLights[i].action["red"] = rgb.red || 0;
+                    tidyLights[i].action["green"] = rgb.green || 0;
+                    tidyLights[i].action["blue"] = rgb.blue || 0;
 
-                i++;
-            })
+                    i++;
+                })
+            };
 
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'sucess', tidyLights); // Send response back to caller

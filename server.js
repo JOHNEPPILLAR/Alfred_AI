@@ -19,7 +19,7 @@ dotenv.load() // Load env vars
 alfredHelper.setLogger(logger); // Configure the logger
 
 // Restify server Init
-const server = restify.createServer({
+global.server = restify.createServer({
     name    : process.env.APINAME,
     version : process.env.VERSION,
 });

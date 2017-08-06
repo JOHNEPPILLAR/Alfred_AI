@@ -22,18 +22,28 @@ exports.setSchedule = function () {
         .then(function([first, second]) {
 
             // Setup light names
-            first.lights.forEach(function(value) {            
-                lightNames.push({ 'id' : value.id, 'name' : value.name});
-            });
+            if (first.length > 0) {
+                first.lights.forEach(function(value) {            
+                    lightNames.push({ 'id' : value.id, 'name' : value.name});
+                });
+            };
 
             // Setup ligh group names
-            second.forEach(function(value) {
-                lightGroupNames.push({ 'id' : value.id, 'name' : value.name});
-            });
+            if (second.length > 0) {
+                second.forEach(function(value) {
+                    lightGroupNames.push({ 'id' : value.id, 'name' : value.name});
+                });
+            };
         
             setUpLights();
 
         })
+         .catch(function (err) {
+
+            // Send response back to caller
+            alfredHelper.sendResponse(res, 'error', err.message);
+            logger.error('schedule setup: ' + err);
+        });
     });
 };
   
