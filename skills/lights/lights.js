@@ -122,6 +122,24 @@ function brightenLight(req, res, next){
 };
 
 //=========================================================
+// Skill: brightenLightGroup
+// Params: light_number: Number
+//=========================================================
+function brightenLightGroup(req, res, next){
+    logger.info('Brighten Light Group API called');
+    if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
+        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)){
+        // Brighten the light
+        lightshelper.brightenLightGroup(res, req.query.light_number, req.query.percentage);
+    }else{
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number or percentage was not supplied.');
+        logger.error('brightenLightGroup: The parameter light_number or percentage was not supplied.');
+    };
+    next();
+};
+
+//=========================================================
 // Skill: listLights
 //=========================================================
 function listLights(req, res, next){
@@ -212,6 +230,7 @@ skill.get('/lightonoff', lightOnOff);
 skill.get('/lightgrouponoff', lightGroupOnOff);
 skill.get('/dimlight', dimLight);
 skill.get('/brightenlight', brightenLight);
+skill.get('/brightenlightgroup', brightenLightGroup);
 skill.get('/listlights', listLights);
 skill.get('/listlightgroups', listLightGroups);
 skill.get('/tvlights', tvLights);

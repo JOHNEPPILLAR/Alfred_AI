@@ -179,6 +179,35 @@ exports.brightenLight = function(res, lightNumber, percentage){
     });
 };
 
+exports.brightenLightGroup = function(res, lightNumber, percentage){
+    var state = lightState.create().brightness(percentage);
+    // Brightern the light
+    Hue.setGroupLightState(lightNumber, state)
+    .then(function(obj){
+        if (obj=true){
+            var returnMessage = 'The ' + alfredHelper.getLightName(lightNumber) + ' was brightened.',
+                status = 'sucess';
+        }else{
+            var returnMessage = 'There was an error increasing the brightness for ' + alfredHelper.getLightName(lightNumber) + '.',
+                status = 'error';
+                logger.error('brightenLight: ' + returnMessage);
+        };
+        if (typeof res !== 'undefined' && res !== null){
+            alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
+        } else {
+            return returnMessage;
+        };
+    })
+    .fail(function(err){
+        if (typeof res !== 'undefined' && res !== null){
+            alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+        } else {
+            return err;
+        };
+        logger.error('brightenLight: ' + err);
+    });
+};
+
 exports.listLights = function listLights(res) {
     return getLights(res)
 
