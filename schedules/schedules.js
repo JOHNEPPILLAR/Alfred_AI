@@ -22,7 +22,9 @@ exports.setSchedule = function () {
         .then(function([first, second]) {
 
             // Setup light names
-            if (first.length > 0) {
+            logger.info (JSON.stringify(first.lights))
+
+            if (first.lights.length > 0) {
                 first.lights.forEach(function(value) {            
                     lightNames.push({ 'id' : value.id, 'name' : value.name});
                 });
