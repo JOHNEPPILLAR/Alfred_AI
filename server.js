@@ -25,7 +25,7 @@ global.server = restify.createServer({
 });
 
 //=========================================================
-// Middleware
+// API Middleware
 //=========================================================
 server.use(restify.plugins.jsonBodyParser({ mapParams: true }));
 server.use(restify.plugins.acceptParser(server.acceptable));
@@ -37,7 +37,7 @@ server.on('uncaughtException',function(request, response, route, error) {
 });
 
 //=========================================================
-// Start server and listen to messqges
+// Start API server and listen to messqges
 //=========================================================
 server.listen(process.env.PORT, function() {
    logger.info('%s listening to %s', server.name, server.url);
@@ -62,6 +62,6 @@ scheduleHelper.setSchedule();
 //scheduleHelper.setMotionSensor();
 
 //=========================================================
-// Configure skills
+// Configure API end points
 //=========================================================
 var defaultRouter = require("./skills/skills.js")(server);

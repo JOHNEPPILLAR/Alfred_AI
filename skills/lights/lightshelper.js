@@ -222,7 +222,7 @@ exports.listLights = function listLights(res) {
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
             };
-            logger.info('listLights: ' + err);
+            logger.error('listLights: ' + err);
             return err;
         };
     };
@@ -274,7 +274,7 @@ exports.listLightGroups = function listLightGroups(res) {
             if (typeof res !== 'undefined' && res !== null) {
                 alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
             };
-            logger.info('listLightGroups: ' + err);
+            logger.error('listLightGroups: ' + err);
             return err;
         };
     };

@@ -41,8 +41,16 @@ var appSkills = function(server) {
     scheduleRouter.applyRoutes(server, 'schedule');
 
     // Settings skill
-    var scheduleRouter = require('./settings/settings.js');
-    scheduleRouter.applyRoutes(server, '/settings');
+    var settingsRouter = require('./settings/settings.js');
+    settingsRouter.applyRoutes(server, '/settings');
+
+    // Sensor
+    var sensorRouter = require('./sensor/sensor.js');
+    sensorRouter.applyRoutes(server, '/sensor');
+
+    // Web cam skill
+    var camRouter = require('./webcam/webcam.js');
+    camRouter.applyRoutes(server, '/webcam');
 
 };
 

@@ -10,7 +10,7 @@ dotenv.load() // Load env vars
 const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
 
 exports.setSchedule = function () {
-
+    
     // Setup daily timer function
     var rule    = new schedule.RecurrenceRule();
     rule.hour   = new Date().getHours();
@@ -18,31 +18,39 @@ exports.setSchedule = function () {
 
     var dailyTimer = new schedule.scheduleJob(rule, function() {
 
+        logger.info('Setting up light/room names');
+        
         Promise.all([lightshelper.listLights(), lightshelper.listLightGroups()])
         .then(function([first, second]) {
 
             // Setup light names
-            if (first.lights.length > 0) {
+            if (first instanceof Error) {
+
+                logger.error('schedule setup: ' + data);
+
+            } else {
+
                 first.lights.forEach(function(value) {            
                     lightNames.push({ 'id' : value.id, 'name' : value.name});
                 });
+
             };
 
             // Setup ligh group names
-            if (second.length > 0) {
+            if (second instanceof Error) {
+
                 second.forEach(function(value) {
                     lightGroupNames.push({ 'id' : value.id, 'name' : value.name});
                 });
             };
-        
-            setUpLights();
 
+            setUpLightTimers();
+            
         })
-         .catch(function (err) {
+        .catch(function (err) {
 
-            // Send response back to caller
-            alfredHelper.sendResponse(res, 'error', err.message);
             logger.error('schedule setup: ' + err);
+
         });
     });
 };
@@ -50,14 +58,14 @@ exports.setSchedule = function () {
 //=========================================================
 // Set the daily timers
 //=========================================================
-function setUpLights() {
+function setUpLightTimers() {
   
     var scheduleSettings = JSON.parse(require('fs').readFileSync('./scheduleSettings.json', 'utf8')),
         tmpRule,
         tmpTimer,
         tmpXY;
 
-    logger.info('Running daily scheduler');
+    logger.info('Setting up schedules');
 
     //=========================================================
     // Cancel any existing timers
@@ -82,10 +90,8 @@ function setUpLights() {
                 } else {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
                 };
-                if (value.lightID == scheduleSettings.motionSensorLights[0].lightID) {
-                    motionSensorActive = false; // Stop the motion sensor takeing over
-                };
             });
+            motionSensorActive = false; // Stop the motion sensor takeing over
             timers.push(tmpTimer);
             logger.info('Morning schedule: ' + alfredHelper.getLightName(value.lightID) + ' to be turned on at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
             tmpTimer = null;
@@ -118,27 +124,34 @@ function setUpLights() {
         sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
         sunSet.setHours(sunSet.getHours() - scheduleSettings.evening.offset_hr); // Adjust according to the setting
         sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening.offset_min); // Adjust 
-                
+        
         tmpRule        = new schedule.RecurrenceRule(),
         tmpRule.hour   = sunSet.getHours();
         tmpRule.minute = sunSet.getMinutes();
-        scheduleSettings.evening.lights.forEach(function(value) {
-            if (value.onoff == 'on') {
-                tmpTimer = new schedule.scheduleJob(tmpRule, function() {
-                    if (value.type == "white") {
-                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
-                    } else {
-                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
-                    };
-                    if (value.lightID == scheduleSettings.motionSensorLights[0].lightID) {
-                        motionSensorActive = false; // Stop the motion sensor takeing over
-                    };
-                });
-                timers.push(tmpTimer);
-                logger.info('Evening schedule: ' + alfredHelper.getLightName(value.lightID) + ' to be turned on at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
-                tmpTimer = null;
-            };
-        });
+        
+        var eveningTVtime = new Date();
+        eveningTVtime.setHours(scheduleSettings.eveningtv.on_hr)
+        eveningTVtime.setMinutes(scheduleSettings.eveningtv.on_min)
+
+        if (dateFormat(sunSet, "HH:MM") < dateFormat(eveningTVtime, "HH:MM")) {
+
+            scheduleSettings.evening.lights.forEach(function(value) {
+                if (value.onoff == 'on') {
+                    tmpTimer = new schedule.scheduleJob(tmpRule, function() {
+                        if (value.type == "white") {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
+                        } else {
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                        };
+                    });
+                    motionSensorActive = false; // Stop the motion sensor takeing over
+                    timers.push(tmpTimer);
+                    logger.info('Evening schedule: ' + alfredHelper.getLightName(value.lightID) + ' to be turned on at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
+                    tmpTimer = null;
+                };
+            });
+
+        }
     })
     .catch(function(err) {
         logger.error('Evening get data Error: ' + err);
@@ -159,7 +172,7 @@ function setUpLights() {
     logger.info('Evening schedule: All lights off at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
 
     //=========================================================
-    // Set up mevening TV lights on timer
+    // Set up evening TV lights on timer
     //=========================================================
     tmpTimer       = null;
     tmpRule        = new schedule.RecurrenceRule(),
@@ -174,10 +187,8 @@ function setUpLights() {
                 } else {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
                 };
-                if (value.lightID == scheduleSettings.motionSensorLights[0].lightID) {
-                    motionSensorActive = false; // Stop the motion sensor takeing over
-                };        
             });
+            motionSensorActive = false; // Stop the motion sensor takeing over
             timers.push(tmpTimer);
             logger.info('Evening TV schedule: ' + alfredHelper.getLightName(value.lightID) + ' to be turned on at: ' + alfredHelper.zeroFill(tmpRule.hour,2) + ':' + alfredHelper.zeroFill(tmpRule.minute,2));
             tmpTimer = null;
@@ -193,35 +204,19 @@ function setUpLights() {
 exports.setMotionSensor = function () {
     setInterval(intervalFunc, 4000);
 };
-
-function intervalFunc () {
-
-    if (motionSensorActive) {
-        const url = 'http://' + process.env.HueBridgeIP + '/api/' + process.env.HueBridgeUser + '/sensors/13';
-        alfredHelper.requestAPIdata(url)
-        .then(function(apiData){
-            if (apiData.body.state.presence && !motionSensorLightsOn){
-            //if (!apiData.body.state.presence && !motionSensorLightsOn){
-                scheduleSettings.motionSensorLights.forEach(function(value) {
-                    lightshelper.lightOnOff(null, value.lightID, 'on', value.brightness, value.x, value.y);
-                    // call timer 5 mins to turn off light
-
-
-
-
-                });
-                motionSensorLightsOn = true;
-            };
-        })
-        .catch(function (err) {
-            logger.error('Motion sensor error: ' + err);
-        });
-    };
-};
 */
 
 // function
-// if not global var hall light on timer then 
+// if motionSensorActive = true then
 // read motion sensor
 // if detection turn on hall light 
-// figure out when to turn light off
+// then figure out when to turn light off
+
+
+// function
+// if lights are not on and the time is >4pm on weekdays then
+// read motion sensor
+// if light level is low then 
+// turn on living room and hall lights
+// if light level is ok then turn off lights
+
