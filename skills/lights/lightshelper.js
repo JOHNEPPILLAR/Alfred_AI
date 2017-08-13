@@ -426,10 +426,10 @@ exports.rgb_to_xy = function (red, green, blue) {
 
 	if (isNaN(y)) y = 0;	 
 
-    var rgbJSON = {
+    var xyJSON = {
         x : x,
         y : y
     };
 
-	return rgbJSON;
+	return xyJSON;
 }

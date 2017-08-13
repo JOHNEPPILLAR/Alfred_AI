@@ -76,7 +76,15 @@ function lightGroupOnOff(req, res, next){
        paramsOK = false; 
     };
     if(paramsOK){
-        lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.rgb);
+        if (typeof req.query.red !== 'undefined' && req.query.red !== null && 
+            typeof req.query.green !== 'undefined' && req.query.green !== null &&
+            typeof req.query.blue !== 'undefined' && req.query.blue !== null) {
+            
+            var xy = lightshelper.rgb_to_xy(parseInt(req.query.red), parseInt(req.query.green), parseInt(req.query.blue))
+            lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, xy.x, xy.y);
+        } else {
+            lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage);
+        }
     }else{
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
