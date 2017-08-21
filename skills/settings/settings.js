@@ -282,7 +282,7 @@ function delLog (req, res, next) {
 
     // Delete the log file
     var fs = require('fs');
-    var filePath = 'Alfred.log'; 
+    var filePath = './Alfred.log'; 
     fs.unlinkSync(filePath);
 
     // re-setup the log file
