@@ -25,20 +25,17 @@ exports.setSchedule = function () {
 
             // Setup light names
             if (first instanceof Error) {
-
                 logger.error('schedule setup: ' + data);
-
             } else {
-
                 first.lights.forEach(function(value) {            
                     lightNames.push({ 'id' : value.id, 'name' : value.name});
                 });
-
             };
 
             // Setup ligh group names
             if (second instanceof Error) {
-
+                logger.error('schedule setup: ' + data);
+            } else {
                 second.forEach(function(value) {
                     lightGroupNames.push({ 'id' : value.id, 'name' : value.name});
                 });
@@ -48,9 +45,7 @@ exports.setSchedule = function () {
             
         })
         .catch(function (err) {
-
             logger.error('schedule setup: ' + err);
-
         });
     });
 };
@@ -88,7 +83,7 @@ function setUpLightTimers() {
                 if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
-                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
                 };
             });
             motionSensorActive = false; // Stop the motion sensor takeing over
@@ -141,7 +136,7 @@ function setUpLightTimers() {
                         if (value.type == "white") {
                             lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                         } else {
-                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
                         };
                     });
                     motionSensorActive = false; // Stop the motion sensor takeing over
@@ -185,7 +180,7 @@ function setUpLightTimers() {
                 if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
-                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.x, value.y);
+                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
                 };
             });
             motionSensorActive = false; // Stop the motion sensor takeing over

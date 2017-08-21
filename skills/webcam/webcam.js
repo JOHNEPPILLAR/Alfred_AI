@@ -13,18 +13,9 @@ function displayStream (req, res, next){
 
     //var uri = 'rtsp://johnandfran:Rebreather1@192.168.1.185:88/videoMain',
 
-    const Stream = require('videoStream')
-    
-    const options = {
-      name: 'streamName',
-      url: 'rtsp://johnandfran:Rebreather1@192.168.1.185:88/videoMain',
-      port: 5000
-    }
-    
-    stream = new Stream(options)
-    
-    stream.start()
 
+
+    
 
     alfredHelper.sendResponse(res, 'sucess', 'ToDo');
     
