@@ -9,10 +9,12 @@ global.alfredHelper         = require('./helper.js');
 global.logger               = require('winston');
 global.scheduleHelper       = require('./schedules/schedules.js');
 global.timers               = [];
-global.motionSensorActive   = false;
+global.motionSensorActive   = true;
 global.motionSensorLightsOn = false;
 global.lightNames           = [];
 global.lightGroupNames      = [];
+
+sensorHelper = require('./schedules/motionsensor.js');
 
 dotenv.load() // Load env vars
 
@@ -56,10 +58,10 @@ server.use(function (req, res, next) {
 });
 
 //=========================================================
-// Setup light schedules & motion sensor
+// Setup light & motion sensor schedules
 //=========================================================
 scheduleHelper.setSchedule();
-//scheduleHelper.setMotionSensor();
+sensorHelper.setSchedule();
 
 //=========================================================
 // Configure API end points

@@ -29,6 +29,7 @@
     "sanitize-html": "*",
     "ssml-builder": "*",
     "winston": "*",
-    "x-ray": "*"
+    "x-ray": "*",
+    "underscore": "*"
   }
 }

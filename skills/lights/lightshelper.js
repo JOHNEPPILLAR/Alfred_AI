@@ -236,7 +236,7 @@ exports.listLightGroups = function listLightGroups(res) {
             var lights = await Hue.groups()
 
             // Remove unwanted light groups from json
-            var tidyLights = lights.filter(function(light){
+            var tidyLights = lights.filter(function(light) {
                 return light.type == "Room";
             });
 
@@ -344,6 +344,26 @@ exports.scenes = function scenes(res) {
     };
 };
 
+exports.sensor = function sensor(res) {
+    return getSensors(res)
+
+    async function getSensors(res) {
+        try {
+            var sensors = await Hue.sensors()
+
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'sucess', sensors); // Send response back to caller
+            };
+            return sensors;
+        } catch(err) {
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+            };
+            logger.error('scenes: ' + err);
+            return err;
+        };
+    };
+};
 /*
 exports.xy_to_rgb = function (x, y, brightness) {
     

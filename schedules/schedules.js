@@ -192,26 +192,3 @@ function setUpLightTimers() {
     });
     return true;
 };
-
-
-
-/*
-exports.setMotionSensor = function () {
-    setInterval(intervalFunc, 4000);
-};
-*/
-
-// function
-// if motionSensorActive = true then
-// read motion sensor
-// if detection turn on hall light 
-// then figure out when to turn light off
-
-
-// function
-// if lights are not on and the time is >4pm on weekdays then
-// read motion sensor
-// if light level is low then 
-// turn on living room and hall lights
-// if light level is ok then turn off lights
-

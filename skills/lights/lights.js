@@ -196,6 +196,15 @@ function scenes (req, res, next){
 };
 
 //=========================================================
+// Skill: Get sensor info
+//=========================================================
+function sensor (req, res, next){
+    logger.info('Get sensor API called');
+    lightshelper.sensor(res);
+    next();
+};
+
+//=========================================================
 // Skill: Turn On Morning/Evening Lights
 //=========================================================
 function turnOnMorningEveningLights (req, res, next){
@@ -218,6 +227,7 @@ skill.get('/listlightgroups', listLightGroups);
 skill.get('/tvlights', tvLights);
 skill.get('/alloff', allOff);
 skill.get('/scenes', scenes);
+skill.get('/sensor', sensor);
 skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
 
 module.exports = skill;

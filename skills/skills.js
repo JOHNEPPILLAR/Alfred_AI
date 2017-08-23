@@ -44,10 +44,6 @@ var appSkills = function(server) {
     var settingsRouter = require('./settings/settings.js');
     settingsRouter.applyRoutes(server, '/settings');
 
-    // Sensor
-    var sensorRouter = require('./sensor/sensor.js');
-    sensorRouter.applyRoutes(server, '/sensor');
-
     // Web cam skill
     var camRouter = require('./webcam/webcam.js');
     camRouter.applyRoutes(server, '/webcam');
