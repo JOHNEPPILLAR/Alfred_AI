@@ -319,8 +319,7 @@ function willItRain (req, res, next) {
 };
 
 //=========================================================
-// Skill: tomorrow, get tomorrow's forecast for a location, default is London
-// Params: location: String
+// Skill: Set sunset time
 //=========================================================
 function sunSet (req, res, next) {
     
