@@ -77,7 +77,7 @@ function restoreSettings (req, res, next) {
                 ]
             },
             {
-                "lightID": 1,
+                "lightID": 2,
                 "onoff": "on",
                 "brightness": 120,
                 "type": "color",
@@ -87,7 +87,7 @@ function restoreSettings (req, res, next) {
                 ]
             },
             {
-                "lightID": 1,
+                "lightID": 3,
                 "onoff": "on",
                 "brightness": 120,
                 "type": "color",
@@ -103,7 +103,7 @@ function restoreSettings (req, res, next) {
                 "type": "white"
             },
             {
-                "lightID": 12,
+                "lightID": 5,
                 "onoff": "on",
                 "brightness": 120,
                 "type": "white"
