@@ -2,6 +2,7 @@
 // Setup webcam skill
 //=========================================================
 const Skills = require('restify-router').Router;  
+      dotenv = require('dotenv');
       skill  = new Skills()
       
 //=========================================================
@@ -10,14 +11,11 @@ const Skills = require('restify-router').Router;
 function displayStream (req, res, next){
     
     logger.info ('Webcam API called');
-
-    //var uri = 'rtsp://johnandfran:Rebreather1@192.168.1.185:88/videoMain',
-
-
-
+    const streamUrl = process.env.FOSCAM_STREAM_URL;
     
+// TO DO
 
-    alfredHelper.sendResponse(res, 'sucess', 'ToDo');
+    alfredHelper.sendResponse(res, 'sucess', 'streaming');
     
     /*
     alfredHelper.requestAPIdata(url)

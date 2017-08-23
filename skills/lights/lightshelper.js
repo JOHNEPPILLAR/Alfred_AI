@@ -323,6 +323,28 @@ exports.allOff = function(res){
     });
 };
 
+exports.scenes = function scenes(res) {
+    return getLightScenes(res)
+
+    async function getLightScenes(res) {
+        try {
+            var lights = await Hue.scenes()
+
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'sucess', lights); // Send response back to caller
+            };
+            return lights;
+        } catch(err) {
+            if (typeof res !== 'undefined' && res !== null) {
+                alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
+            };
+            logger.error('scenes: ' + err);
+            return err;
+        };
+    };
+};
+
+/*
 exports.xy_to_rgb = function (x, y, brightness) {
     
     // Set to maximum brightness if no custom value was given (Not the slick ECMAScript 6 way for compatibility reasons)
@@ -381,7 +403,8 @@ exports.xy_to_rgb = function (x, y, brightness) {
 
 	return rgbJSON;
 }
-
+*/
+/*
 exports.rgb_to_xy = function (red, green, blue) {
 
     //Apply a gamma correction to the RGB values, which makes the color more vivid and more the like the color displayed on the screen of your device
@@ -409,3 +432,4 @@ exports.rgb_to_xy = function (red, green, blue) {
 
 	return xyJSON;
 }
+*/

@@ -319,11 +319,40 @@ function willItRain (req, res, next) {
 };
 
 //=========================================================
+// Skill: tomorrow, get tomorrow's forecast for a location, default is London
+// Params: location: String
+//=========================================================
+function sunSet (req, res, next) {
+    
+        logger.info ('Sunset API called');
+    
+        const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+        
+        alfredHelper.requestAPIdata(url)
+        .then(function(apiData){
+    
+            sunSet = new Date(apiData.body.sys.sunset);
+            sunSet.setHours(sunSet.getHours() + 12);
+            
+            // Send response back to caller
+            alfredHelper.sendResponse(res, 'sucess', dateFormat(sunSet, "HH:MM"));
+        })
+        .catch(function (err) {
+            // Send response back to caller
+            alfredHelper.sendResponse(res, 'error', err.message);
+            logger.error('sunset: ' + err);
+        });
+    
+        next();
+    };
+    
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/today', weatherForcastForToday);
 skill.get('/tomorrow', weatherForcastForTomorrow);
 skill.get('/willitsnow', willItSnow);
 skill.get('/willitrain', willItRain);
+skill.get('/sunset', sunSet);
 
 module.exports = skill;

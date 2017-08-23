@@ -178,11 +178,20 @@ function tvLights(req, res, next){
 };
 
 //=========================================================
-// Skill: tvLights
+// Skill: Turn off al lights
 //=========================================================
 function allOff (req, res, next){
     logger.info('Turn off all Lights API called');
     lightshelper.allOff(res);
+    next();
+};
+
+//=========================================================
+// Skill: Get scenes
+//=========================================================
+function scenes (req, res, next){
+    logger.info('Get light scenes API called');
+    lightshelper.scenes(res);
     next();
 };
 
@@ -208,6 +217,7 @@ skill.get('/listlights', listLights);
 skill.get('/listlightgroups', listLightGroups);
 skill.get('/tvlights', tvLights);
 skill.get('/alloff', allOff);
+skill.get('/scenes', scenes);
 skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
 
 module.exports = skill;

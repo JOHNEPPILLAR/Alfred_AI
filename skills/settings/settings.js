@@ -19,19 +19,31 @@ function restoreSettings (req, res, next) {
                 "lightID": 1,
                 "onoff": "on",
                 "brightness": 135,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3066,
+                    0.316
+                ]
             },
             {
                 "lightID": 2,
                 "onoff": "off",
                 "brightness": 65,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3066,
+                    0.316
+                ]
             },
             {
                 "lightID": 3,
                 "onoff": "off",
                 "brightness": 65,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3066,
+                    0.316
+                ]
             },
             {
                 "lightID": 12,
@@ -58,19 +70,31 @@ function restoreSettings (req, res, next) {
                 "lightID": 1,
                 "onoff": "on",
                 "brightness": 120,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3553,
+                    0.3677
+                ]
             },
             {
                 "lightID": 1,
                 "onoff": "on",
                 "brightness": 120,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3553,
+                    0.3677
+                ]
             },
             {
                 "lightID": 1,
                 "onoff": "on",
                 "brightness": 120,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.3553,
+                    0.3677
+                ]
             },
             {
                 "lightID": 12,
@@ -95,13 +119,21 @@ function restoreSettings (req, res, next) {
                 "lightID": 2,
                 "onoff": "on",
                 "brightness": 50,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.4274,
+                    0.3926
+                ]
             },
             {
                 "lightID": 3,
                 "onoff": "on",
                 "brightness": 50,
-                "type": "color"
+                "type": "color",
+                "xy": [
+                    0.4274,
+                    0.3926
+                ]
             },
             {
                 "lightID": 12,
