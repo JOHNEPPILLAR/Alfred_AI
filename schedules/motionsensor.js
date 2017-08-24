@@ -24,6 +24,7 @@ function setMotionSensorSchedule() {
 function processMotionSensor() {
     
     // Only check motion sensor if light are not on as part of the core schedule
+    motionSensorActive = true // overrise state whilst testing
     if (motionSensorActive) {
         
         var motion   = false,
