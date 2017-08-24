@@ -14,8 +14,6 @@ global.motionSensorLightsOn = false;
 global.lightNames           = [];
 global.lightGroupNames      = [];
 
-sensorHelper = require('./schedules/motionsensor.js');
-
 dotenv.load() // Load env vars
 
 alfredHelper.setLogger(logger); // Configure the logger
@@ -61,7 +59,6 @@ server.use(function (req, res, next) {
 // Setup light & motion sensor schedules
 //=========================================================
 scheduleHelper.setSchedule();
-sensorHelper.setSchedule();
 
 //=========================================================
 // Configure API end points

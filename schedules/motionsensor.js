@@ -10,7 +10,10 @@ const HueBridgeIP   = process.env.HueBridgeIP,
       HueBridgeUser = process.env.HueBridgeUser,
       Hue           = new HueApi(HueBridgeIP, HueBridgeUser);
 
+motionSensorActive1 = true
+
 exports.setSchedule = function () {
+    logger.info("Setting up motion sensors")
     setMotionSensorSchedule();
 }
 
@@ -22,10 +25,9 @@ function setMotionSensorSchedule() {
 }
 
 function processMotionSensor() {
-    
     // Only check motion sensor if light are not on as part of the core schedule
-    motionSensorActive = true // overrise state whilst testing
-    if (motionSensorActive) {
+    //if (motionSensorActive) {
+    if (motionSensorActive1) {
         
         var motion   = false,
             lowLight = false;
@@ -40,7 +42,6 @@ function processMotionSensor() {
                 };
 
                 if (sensor.id == 14) { // Hall ambient light sensor
-                    //logger.info (sensor.state.lightlevel)
                     if (sensor.state.lightlevel <= sensor.config.tholddark) lowLight = true
                 };             
             });
@@ -50,7 +51,7 @@ function processMotionSensor() {
                     lightshelper.lightOnOff(null, value.lightID, "on", value.brightness);
                 });
 
-                motionSensorActive = false; // Turn off motion sensor as lights are on
+                motionSensorActive1 = false; // Turn off motion sensor as lights are on
 
                 // Schedule to turn off after 10 minutes
                 var rule        = new schedule.RecurrenceRule();
@@ -61,7 +62,7 @@ function processMotionSensor() {
                     scheduleSettings.motionSensorLights.forEach(function(value) {
                         lightshelper.lightOnOff(null, value.lightID, "off", value.brightness);
                     });
-                    motionSensorActive = true; // Re-activate motion sensor s lights are now off
+                    motionSensorActive1 = true; // Re-activate motion sensor s lights are now off
                 });
             };
         })
@@ -72,5 +73,3 @@ function processMotionSensor() {
     }
     setMotionSensorSchedule(); // Recursive call function
 }
-
-

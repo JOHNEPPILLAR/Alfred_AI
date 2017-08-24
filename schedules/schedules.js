@@ -3,8 +3,9 @@ const schedule     = require('node-schedule'),
       dateFormat   = require('dateformat'),
       fs           = require('fs'),
       dotenv       = require('dotenv'),
-      lightshelper = require('../skills/lights/lightshelper.js');
-
+      lightshelper = require('../skills/lights/lightshelper.js'),
+      sensorHelper = require('./motionsensor.js');
+      
 dotenv.load() // Load env vars
 
 const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
@@ -41,6 +42,10 @@ exports.setSchedule = function () {
                 });
             };
 
+            // Activate the motion sensor timers
+            sensorHelper.setSchedule();
+            
+            // Setup the light schedules
             setUpLightTimers();
             
         })
