@@ -79,18 +79,23 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
     })
 };
 
-exports.lightGroupOnOff = function(res, lightNumber, lightAction, brightness, x, y){
+exports.lightGroupOnOff = function(res, lightNumber, lightAction, brightness, x, y, ct){
     // Validate input params and set state
-    if (typeof brightness == 'undefined' || brightness == null){
+    if (typeof brightness == 'undefined' || brightness == null) {
         brightness = 100;
     };
 
     var state = lightState.create().off(); // Default off
     if (lightAction=='on'){
-        if (typeof x == 'undefined' || x == null){
-            state = lightState.create().on().brightness(brightness);
+        if (typeof ct != 'undefined' && ct != null) {
+            state = lightState.create().on().brightness(brightness).ct(ct);
         } else {
-            state = lightState.create().on().brightness(brightness).xy(x, y);
+            if ((typeof x != 'undefined' && x != null) &&
+                (typeof y != 'undefined' && y != null)) {
+                state = lightState.create().on().brightness(brightness).xy(x, y);
+            } else {
+                state = lightState.create().on().brightness(brightness);
+            }
         };
     };
 
