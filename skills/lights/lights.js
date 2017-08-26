@@ -41,7 +41,7 @@ function lightOnOff(req, res, next) {
        paramsOK = false; 
     };
     if(paramsOK) {
-        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req,query.ct);
+        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req.query.ct);
     } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
