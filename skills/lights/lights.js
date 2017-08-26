@@ -9,7 +9,7 @@ const Skills           = require('restify-router').Router;
 //=========================================================
 // Skill: registerDevice
 //=========================================================
-function registerDevice(req, res, next){
+function registerDevice(req, res, next) {
     logger.info('Register Device API called');
     lightshelper.registerDevice(res);
     next();
@@ -19,7 +19,7 @@ function registerDevice(req, res, next){
 // Skill: lights on/off
 // Params: light_number: Number, light_status: String
 //=========================================================
-function lightOnOff(req, res, next){
+function lightOnOff(req, res, next) {
     var paramsOK = false;
     if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
         (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
@@ -27,7 +27,7 @@ function lightOnOff(req, res, next){
         paramsOK = true;
     };
     if (paramsOK){
-        switch (req.query.light_status.toLowerCase()){
+        switch (req.query.light_status.toLowerCase()) {
         case 'on':
             lightAction = true;
             break;
@@ -40,15 +40,9 @@ function lightOnOff(req, res, next){
     } else {
        paramsOK = false; 
     };
-    if(paramsOK){
-        if (typeof req.query.x !== 'undefined' && req.query.x !== null && 
-            typeof req.query.y !== 'undefined' && req.query.y !== null) {
-            
-            lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y);
-        } else {
-            lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage);
-        }
-    }else{
+    if(paramsOK) {
+        lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req,query.ct);
+    } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
         logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
@@ -82,13 +76,8 @@ function lightGroupOnOff(req, res, next){
        paramsOK = false; 
     };
     if(paramsOK){
-//        if (typeof req.query.x !== 'undefined' && req.query.x !== null && 
-//            typeof req.query.y !== 'undefined' && req.query.y !== null) {
-                lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req.query.ct);
-//        } else {
-//            lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage);
-//        }
-    }else{
+        lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req.query.ct);
+    } else {
         // Send response back to caller
         alfredHelper.sendResponse(res, 'error', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
         logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');

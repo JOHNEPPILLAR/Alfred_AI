@@ -38,7 +38,7 @@ exports.registerDevice = function(res){
     });
 };
 
-exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
+exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y, ct){
     // Validate input params and set state
     if (typeof brightness == 'undefined' || brightness == null){
         brightness = 100;
@@ -46,31 +46,38 @@ exports.lightOnOff = function(res, lightNumber, lightAction, brightness, x, y){
 
     var state = lightState.create().off(); // Default off
     if (lightAction=='on'){
-        if (typeof x == 'undefined' || x == null){
-            state = lightState.create().on().brightness(brightness);
+        if (typeof ct != 'undefined' && ct != null) {
+            state = lightState.create().on().brightness(brightness).ct(ct);
         } else {
-            state = lightState.create().on().brightness(brightness).xy(x, y);
+            if ((typeof x != 'undefined' && x != null) &&
+                (typeof y != 'undefined' && y != null)) {
+                state = lightState.create().on().brightness(brightness).xy(x, y);
+            } else {
+                state = lightState.create().on().brightness(brightness);
+
+            };
         };
-    };
+    };        
+
     // Change the light state
     Hue.setLightState(lightNumber, state)
-    .then(function(obj){
+    .then(function(obj) {
         logger.info('Turned ' + lightAction + ' light ' + alfredHelper.getLightName(lightNumber));
-        if (obj=true){
+        if (obj=true) {
             var returnMessage = 'The light was turned ' + lightAction + '.',
                 status = 'sucess';
-        }else{
+        } else {
             var returnMessage = 'There was an error turning the light ' + lightAction + '.',
                 status = 'error';
         };
-        if (typeof res !== 'undefined' && res !== null){
+        if (typeof res !== 'undefined' && res !== null) {
             alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
         } else {
             return returnMessage;
         };
     })
-    .fail(function(err){
-        if (typeof res !== 'undefined' && res !== null){
+    .fail(function(err) {
+        if (typeof res !== 'undefined' && res !== null) {
             alfredHelper.sendResponse(res, 'error', err); // Send response back to caller
         } else {
             return err;
