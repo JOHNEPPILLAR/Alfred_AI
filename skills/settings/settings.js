@@ -224,7 +224,6 @@ function saveMorningSettings (req, res, next) {
         
         // Remove light name
         delete scheduleSettings.morning.lights[i]["lightName"];
-
         i++;
     })
 
@@ -256,7 +255,6 @@ function saveEveningSettings (req, res, next) {
         
         // Remove light name
         delete scheduleSettings.evening.lights[i]["lightName"];
-
         i++;
     })
 
@@ -281,14 +279,14 @@ function saveEveningTVSettings (req, res, next) {
 
     // Update with data from api post
     scheduleSettings.eveningtv = req.body;
-
+    logger.info (req.body)
+    
     // Tidy up json by removing light name and RGB
     var i = 0
     scheduleSettings.eveningtv.lights.forEach(function(value) {
         
         // Remove light name
         delete scheduleSettings.eveningtv.lights[i]["lightName"];
-
         i++;
     })
 

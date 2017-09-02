@@ -30,6 +30,8 @@
     "ssml-builder": "*",
     "winston": "*",
     "x-ray": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "rtsp-ffmpeg": "*",
+    "socketio": "*"
   }
 }

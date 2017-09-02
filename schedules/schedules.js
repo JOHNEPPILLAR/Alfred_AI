@@ -62,8 +62,8 @@ function setUpLightTimers() {
   
     var scheduleSettings = JSON.parse(require('fs').readFileSync('./scheduleSettings.json', 'utf8')),
         tmpRule,
-        tmpTimer,
-        tmpXY;
+        tmpTimer//,
+        //tmpXY;
 
     logger.info('Setting up schedules');
 
@@ -88,7 +88,11 @@ function setUpLightTimers() {
                 if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
-                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
+                    if (value.colormode == "ct") {
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, null, null, value.ct);
+                    } else {
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.xy[0], value.xy[1], null);
+                    };
                 };
             });
             motionSensorActive = false; // Stop the motion sensor takeing over
@@ -141,7 +145,11 @@ function setUpLightTimers() {
                         if (value.type == "white") {
                             lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                         } else {
-                            lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
+                            if (value.colormode == "ct") {
+                                lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, null, null, value.ct);
+                            } else {
+                                lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.xy[0], value.xy[1], null);
+                            };
                         };
                     });
                     motionSensorActive = false; // Stop the motion sensor takeing over
@@ -185,7 +193,11 @@ function setUpLightTimers() {
                 if (value.type == "white") {
                     lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness);
                 } else {
-                    lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.hue, value.sat);
+                    if (value.colormode == "ct") {
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, null, null, value.ct);
+                    } else {
+                        lightshelper.lightOnOff(null, value.lightID, value.onoff, value.brightness, value.xy[0], value.xy[1], null);
+                    };
                 };
             });
             motionSensorActive = false; // Stop the motion sensor takeing over

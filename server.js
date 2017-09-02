@@ -50,9 +50,9 @@ server.use(function (req, res, next) {
     if (req.query.app_key == process.env.app_key) {
         next();
     } else {
-        next(new restify.NotAuthorizedError('There was a problem authenticating you.')); // Invalid app_key, return error
+        logger.error ('Invaid app_key: ' + req.query.app_key)
+        alfredHelper.sendResponse(res, 'error', 'There was a problem authenticating you.');
     }
-    next();
 });
 
 //=========================================================
