@@ -1,6 +1,6 @@
 const HueApi           = require("node-hue-api").HueApi,
       dotenv           = require('dotenv'),
-      schedule     = require('node-schedule'),
+      schedule         = require('node-schedule'),
       lightshelper     = require('../skills/lights/lightshelper.js'),
       scheduleSettings = JSON.parse(require('fs').readFileSync('./scheduleSettings.json', 'utf8'));
 
@@ -56,7 +56,7 @@ function processMotionSensor() {
                 // Schedule to turn off after 10 minutes
                 var rule        = new schedule.RecurrenceRule();
                     rule.hour   = new Date().getHours();
-                    rule.minute = new Date().getMinutes() + 5;
+                    rule.minute = new Date().getMinutes() + 3;
 
                 var motionOffTimer = new schedule.scheduleJob(rule, function() {
                     scheduleSettings.motionSensorLights.forEach(function(value) {
