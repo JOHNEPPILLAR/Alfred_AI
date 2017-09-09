@@ -32,38 +32,44 @@ function processMotionSensor() {
         var motion   = false,
             lowLight = false;
 
-        // Get the sensor data
-        lightshelper.sensor()
-        .then(function(apiData){
+        Promise.all([lightshelper.lightstate(null,13), lightshelper.sensor()])
+        .then(function([first, second]) {
 
-            apiData.sensors.forEach(function(sensor) {            
-                if (sensor.id == 13) { // Hall motion sensor
-                    if (sensor.state.presence) motion = true
-                };
+            var apiData;
+            apiData = first;
+            if (!apiData.state.on){
+            
+                // Hall lights are off so check motion and brightness
+                apiData = second;
+                apiData.sensors.forEach(function(sensor) {            
+                    if (sensor.id == 13) { // Hall motion sensor
+                        if (sensor.state.presence) motion = true
+                    };
 
-                if (sensor.id == 14) { // Hall ambient light sensor
-                    if (sensor.state.lightlevel <= sensor.config.tholddark) lowLight = true
-                };             
-            });
-
-            if (motion && lowLight) {
-                scheduleSettings.motionSensorLights.forEach(function(value) {
-                    lightshelper.lightOnOff(null, value.lightID, "on", value.brightness);
+                    if (sensor.id == 14) { // Hall ambient light sensor
+                        if (sensor.state.lightlevel <= sensor.config.tholddark) lowLight = true
+                    };             
                 });
 
-                motionSensorActive1 = false; // Turn off motion sensor as lights are on
-
-                // Schedule to turn off after 10 minutes
-                var rule        = new schedule.RecurrenceRule();
-                    rule.hour   = new Date().getHours();
-                    rule.minute = new Date().getMinutes() + 3;
-
-                var motionOffTimer = new schedule.scheduleJob(rule, function() {
+                if (motion && lowLight) {
                     scheduleSettings.motionSensorLights.forEach(function(value) {
-                        lightshelper.lightOnOff(null, value.lightID, "off", value.brightness);
+                        lightshelper.lightOnOff(null, value.lightID, "on", value.brightness);
                     });
-                    motionSensorActive1 = true; // Re-activate motion sensor s lights are now off
-                });
+
+                    motionSensorActive1 = false; // Turn off motion sensor as lights are on
+
+                    // Schedule to turn off after 10 minutes
+                    var rule        = new schedule.RecurrenceRule();
+                        rule.hour   = new Date().getHours();
+                        rule.minute = new Date().getMinutes() + 3;
+
+                    var motionOffTimer = new schedule.scheduleJob(rule, function() {
+                        scheduleSettings.motionSensorLights.forEach(function(value) {
+                            lightshelper.lightOnOff(null, value.lightID, "off", value.brightness);
+                        });
+                        motionSensorActive1 = true; // Re-activate motion sensor s lights are now off
+                    });
+                };
             };
         })
         .catch(function (err) {

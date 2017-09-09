@@ -203,6 +203,21 @@ function turnOnMorningEveningLights (req, res, next){
 };
 
 //=========================================================
+// Skill: Get the state of a light
+//=========================================================
+function lightstate (req, res, next){
+    logger.info('Light state API called');
+    if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
+        lightshelper.lightstate(res, req.query.light_number);
+    }else{
+        // Send response back to caller
+        alfredHelper.sendResponse(res, 'error', 'The parameter light_number was not supplied.');
+        logger.error('brightenLightGroup: The parameter light_number was not supplied.');
+    };
+    next();
+};
+
+//=========================================================
 // Add skills to server
 //=========================================================
 skill.get('/registerdevice', registerDevice);
@@ -217,6 +232,7 @@ skill.get('/tvlights', tvLights);
 skill.get('/alloff', allOff);
 skill.get('/scenes', scenes);
 skill.get('/sensor', sensor);
+skill.get('/lightstate', lightstate);
 skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
 
 module.exports = skill;
