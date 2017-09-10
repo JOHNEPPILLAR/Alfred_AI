@@ -1,22 +1,8 @@
 //=========================================================
 // Setup schedule skill
 //=========================================================
-const Skills         = require('restify-router').Router;  
-      skill          = new Skills(),
-      scheduleHelper = require('../../schedules/schedules.js');
-
-//=========================================================
-// Skill: reset schedules
-//=========================================================
-function resetSchedule (req, res, next) {
-    logger.info ('Reset Schedule API called');
-    if (scheduleHelper.setSchedule()) {
-        alfredHelper.sendResponse(res, 'sucess', 'Reset scheduler'); // Send response back to caller
-    } else {
-        alfredHelper.sendResponse(res, 'error', 'Reset scheduler error'); // Send response back to caller
-    };
-    next();
-};
+const Skills = require('restify-router').Router;  
+      skill  = new Skills();
 
 //=========================================================
 // Skill: Get sunset times
@@ -50,7 +36,6 @@ function sunSet (req, res, next) {
 //=========================================================
 // Add skills to server
 //=========================================================
-skill.get('/reset', resetSchedule);
 skill.get('/sunset', sunSet);
 
 module.exports = skill;

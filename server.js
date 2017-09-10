@@ -1,18 +1,15 @@
 //=========================================================
 // Setup server
 //=========================================================
-const restify = require('restify'),
-      dotenv  = require('dotenv');
+const restify         = require('restify'),
+      dotenv          = require('dotenv'),
+      lightNameHelper = require('./lightNames.js');
 
 // Get up global vars
-global.alfredHelper         = require('./helper.js');
-global.logger               = require('winston');
-global.scheduleHelper       = require('./schedules/schedules.js');
-global.timers               = [];
-global.motionSensorActive   = true;
-global.motionSensorLightsOn = false;
-global.lightNames           = [];
-global.lightGroupNames      = [];
+global.alfredHelper    = require('./helper.js');
+global.logger          = require('winston');
+global.lightNames      = [];
+global.lightGroupNames = [];
 
 dotenv.load() // Load env vars
 
@@ -56,9 +53,9 @@ server.use(function (req, res, next) {
 });
 
 //=========================================================
-// Setup light & motion sensor schedules
+// Setup light & light group names
 //=========================================================
-//scheduleHelper.setSchedule();
+lightNameHelper.setupLightNames();
 
 //=========================================================
 // Configure API end points
