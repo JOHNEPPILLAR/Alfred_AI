@@ -58,7 +58,7 @@ server.use(function (req, res, next) {
 //=========================================================
 // Setup light & motion sensor schedules
 //=========================================================
-scheduleHelper.setSchedule();
+//scheduleHelper.setSchedule();
 
 //=========================================================
 // Configure API end points
