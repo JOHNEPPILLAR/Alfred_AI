@@ -21,5 +21,5 @@ nvm use 8.4.0
 clear
 
 echo "Run the server app"
-nodemon server.js
+nodemon Alfred_di.js
 #node server.js
