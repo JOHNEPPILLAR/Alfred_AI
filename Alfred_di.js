@@ -61,7 +61,7 @@ lightNameHelper.setupLightNames();
 //=========================================================
 // Setup webcam stream
 //=========================================================
-//webcam.setupStream(server);
+webcam.setupStream(server);
 
 server.get(/\/?.*/, restify.plugins.serveStatic({
     directory: __dirname,
