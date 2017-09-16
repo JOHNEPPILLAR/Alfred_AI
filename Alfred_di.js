@@ -61,13 +61,13 @@ lightNameHelper.setupLightNames();
 //=========================================================
 // Setup webcam stream
 //=========================================================
-webcam.setupStream(server);
-
-server.get(/\/?.*/, restify.plugins.serveStatic({
-    directory: __dirname,
-    default: 'index.html',
-    match: /^((?!app.js).)*$/   // we should deny access to the application source
-}));
+//webcam.setupStream(server);
+//
+//server.get(/\/?.*/, restify.plugins.serveStatic({
+//    directory: __dirname,
+//    default: 'index.html',
+//    match: /^((?!app.js).)*$/   // we should deny access to the application source
+//}));
 
 //=========================================================
 // Configure API end points
