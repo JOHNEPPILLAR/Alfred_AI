@@ -4,7 +4,7 @@ const schedule     = require('node-schedule'),
       fs           = require('fs'),
       dotenv       = require('dotenv'),
       lightshelper = require('./skills/lights/lightshelper.js');
-      
+    
 dotenv.load() // Load env vars
 
 exports.setupLightNames = function () {

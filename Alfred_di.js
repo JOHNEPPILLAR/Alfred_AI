@@ -3,8 +3,9 @@
 //=========================================================
 const restify         = require('restify'),
       dotenv          = require('dotenv'),
-      lightNameHelper = require('./lightNames.js');
-
+      lightNameHelper = require('./lightNames.js'),
+      webcam          = require('./webcam.js');
+      
 // Get up global vars
 global.alfredHelper    = require('./helper.js');
 global.logger          = require('winston');
@@ -18,7 +19,7 @@ alfredHelper.setLogger(logger); // Configure the logger
 // Restify server Init
 global.server = restify.createServer({
     name    : process.env.APINAME,
-    version : process.env.VERSION,
+    version : process.env.VERSION
 });
 
 //=========================================================
@@ -56,6 +57,17 @@ server.use(function (req, res, next) {
 // Setup light & light group names
 //=========================================================
 lightNameHelper.setupLightNames();
+
+//=========================================================
+// Setup webcam stream
+//=========================================================
+webcam.setupStream(server);
+
+server.get(/\/?.*/, restify.plugins.serveStatic({
+    directory: __dirname,
+    default: 'index.html',
+    match: /^((?!app.js).)*$/   // we should deny access to the application source
+}));
 
 //=========================================================
 // Configure API end points

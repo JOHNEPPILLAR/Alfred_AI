@@ -43,7 +43,7 @@ var appSkills = function(server) {
     // Settings skill
     var settingsRouter = require('./settings/settings.js');
     settingsRouter.applyRoutes(server, '/settings');
-
+   
 };
 
 module.exports = appSkills;
