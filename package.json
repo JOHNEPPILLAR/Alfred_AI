@@ -24,14 +24,14 @@
     "nodemon": "*",
     "request": "*",
     "request-promise": "*",
-    "restify": "*",
+    "restify": "^6.0.0",
     "restify-router": "*",
-    "sanitize-html": "*",
-    "ssml-builder": "*",
-    "winston": "*",
-    "x-ray": "*",
-    "underscore": "*",
     "rtsp-ffmpeg": "*",
-    "socketio": "*"
+    "sanitize-html": "*",
+    "socketio": "*",
+    "ssml-builder": "*",
+    "underscore": "*",
+    "winston": "*",
+    "x-ray": "*"
   }
 }

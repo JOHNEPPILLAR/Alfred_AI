@@ -4,6 +4,7 @@
 const restify         = require('restify'),
       dotenv          = require('dotenv'),
       lightNameHelper = require('./lightNames.js'),
+      fs              = require('fs'),
       webcam          = require('./webcam.js');
       
 // Get up global vars
@@ -18,8 +19,10 @@ alfredHelper.setLogger(logger); // Configure the logger
 
 // Restify server Init
 global.server = restify.createServer({
-    name    : process.env.APINAME,
-    version : process.env.VERSION
+    name       : process.env.APINAME,
+    version    : process.env.VERSION,
+    key        : fs.readFileSync('./server.key'),
+    certificate: fs.readFileSync('./server.cert')
 });
 
 //=========================================================
