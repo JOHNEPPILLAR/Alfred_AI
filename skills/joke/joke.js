@@ -1,36 +1,37 @@
-//=========================================================
-// Setup joke skill
-//=========================================================
-const Skills = require('restify-router').Router;  
-      skill  = new Skills();
+/**
+ * Setup joke skill
+ */
+const Skills = require('restify-router').Router;
 
-//=========================================================
-// Skill: joke
-//=========================================================
-function joke (req, res, next){
-    
-    logger.info ('Joke API called');
+const skill = new Skills();
+const alfredHelper = require('../../helper.js');
 
-    const url = 'http://tambal.azurewebsites.net/joke/random';
-        
-    alfredHelper.requestAPIdata(url)
-    .then(function(apiData){
-        // Get the joke data
-        apiData = apiData.body;
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'sucess', apiData.joke);
+/**
+ * Skill: joke
+ */
+function joke(req, res, next) {
+  logger.info('Joke API called');
+
+  const url = 'http://ron-swanson-quotes.herokuapp.com/v2/quotes';
+
+  alfredHelper.requestAPIdata(url)
+    .then((apiData) => {
+      // Get the joke data
+      apiData = apiData.body;
+      // Send response back to caller
+      alfredHelper.sendResponse(res, 'true', apiData);
     })
-    .catch(function(err){
-        // Send response back to caller
-        alfredHelper.sendResponse(res, 'error', err.message);
-        logger.error('joke: ' + err);
+    .catch((err) => {
+      // Send response back to caller
+      alfredHelper.sendResponse(res, 'false', err.message);
+      logger.error(`joke: ${err}`);
     });
-    next();
-};
+  next();
+}
 
-//=========================================================
-// Add skills to server
-//=========================================================
+/**
+ * Add skills to server
+ */
 skill.get('/joke', joke);
 
 module.exports = skill;

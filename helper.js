@@ -1,143 +1,126 @@
-'use strict';
-const rp         = require('request-promise'),
-      dateFormat = require('dateformat');
+const rp = require('request-promise');
+const dateFormat = require('dateformat');
 
-//=========================================================
-// Setup logging
-//=========================================================
-exports.setLogger = function (logger) {
-
-    logger.remove(logger.transports.Console);
-    logger.add(logger.transports.File, { JSON: true, filename: 'Alfred.log', colorize: true, timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM")}});
-
-    if (process.env.environment == 'dev'){
-        logger.add(logger.transports.Console, {timestamp: function() { return dateFormat(new Date(), "dd mmm yyyy HH:MM")}, colorize: true});
-    };
+/**
+ * Setup logging
+ */
+exports.setLogger = function FnSetLogger(logger) {
+  logger.remove(logger.transports.Console);
+  logger.add(logger.transports.File, {
+    JSON: true, filename: 'Alfred.log', colorize: true, timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); },
+  });
+  logger.add(logger.transports.Console, { timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); }, colorize: true });
 };
 
-//=========================================================
-// Construct and send JSON response back to caller
-//=========================================================
-exports.sendResponse = function (res, status, dataObj) {
+/**
+ * Construct and send JSON response back to caller
+ */
+exports.sendResponse = function FnSendResponse(res, status, dataObj) {
+  // Construct the returning message
+  const returnJSON = {
+    code: status,
+    data: dataObj,
+  };
 
-    // Construct the returning message
-    var returnJSON = {
-        code : status,
-        data : dataObj
-    };
-
-    // Send response back to caller
-    res.send(returnJSON);
+  // Send response back to caller
+  res.send(returnJSON);
 };
 
-//=========================================================
-// Call a remote API to get data
-//=========================================================
-exports.requestAPIdata = function (apiURL, userAgent) {
-    
-    var options = {
-        'User-Agent': userAgent,
-        method: 'GET',
-        uri: apiURL,
-        family: 4,
-        resolveWithFullResponse: true,
-        json: true
+/**
+ * Call a remote API to get data
+ */
+exports.requestAPIdata = function FnRequestAPIdata(apiURL, userAgent) {
+  const options = {
+    'User-Agent': userAgent,
+    method: 'GET',
+    uri: apiURL,
+    family: 4,
+    resolveWithFullResponse: true,
+    json: true,
+  };
+  return rp(options);
+};
+
+/**
+ * Misc
+ */
+exports.isEmptyObject = function FnIsEmptyObject(obj) {
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      return false;
     }
-    return rp(options);
-
+  }
+  return true;
 };
 
-//=========================================================
-// Misc
-//=========================================================
-exports.isEmptyObject = function (obj) {
-    
-    for (var key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            return false;
-        };
-    };
-    return true;
-
-};
-
-exports.GetSortOrder = function (prop) {
-    
-    return function (a, b) {
-        if (a[prop] > b[prop]) {
-            return 1;
-        } else if (a[prop] < b[prop]) {
-            return -1;
-        }
-        return 0;
+exports.GetSortOrder = function FnGetSortOrder(prop) {
+  return function AB(a, b) {
+    if (a[prop] > b[prop]) {
+      return 1;
+    } else if (a[prop] < b[prop]) {
+      return -1;
     }
+    return 0;
+  };
+};
 
-}; 
+exports.addDays = function FnAddDays(date, amount) {
+  const tzOff = date.getTimezoneOffset() * 60 * 1000;
+  let t = date.getTime();
+  const d = new Date();
 
-exports.addDays = function (date, amount) {
-    
-    var tzOff = date.getTimezoneOffset() * 60 * 1000,
-        t = date.getTime(),
-        d = new Date(),
-        tzOff2;
+  t += (1000 * 60 * 60 * 24) * amount;
+  d.setTime(t);
 
-    t += (1000 * 60 * 60 * 24) * amount;
+  const tzOff2 = d.getTimezoneOffset() * 60 * 1000;
+  if (tzOff !== tzOff2) {
+    const diff = tzOff2 - tzOff;
+    t += diff;
     d.setTime(t);
-
-    tzOff2 = d.getTimezoneOffset() * 60 * 1000;
-    if (tzOff != tzOff2) {
-        var diff = tzOff2 - tzOff;
-        t += diff;
-        d.setTime(t);
-    };
-    return d;
-
+  }
+  return d;
 };
 
-exports.minutesToStop = function (timeofnextbus) {
-    
-    var timetostopinMinutes = Math.floor(timeofnextbus / 60);
-    switch (timetostopinMinutes) {
-        case 0:
-            return 'in less than a minute';
-        case 1:
-            return 'in ' + timetostopinMinutes + ' minute';
-        default:
-            return 'in ' + timetostopinMinutes + ' minutes';
-    };
-
+exports.minutesToStop = function FnMinutesToStop(timeofnextbus) {
+  const timetostopinMinutes = Math.floor(timeofnextbus / 60);
+  switch (timetostopinMinutes) {
+    case 0:
+      return 'in less than a minute';
+    case 1:
+      return `in ${timetostopinMinutes} minute`;
+    default:
+      return `in ${timetostopinMinutes} minutes`;
+  }
 };
 
-exports.zeroFill = function (number, width) {
-   
-    width -= number.toString().length;
-    if (width > 0) {
-        return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
-    };
-    return number + ""; // always return a string
-
+exports.zeroFill = function FnZeroFill(number, width) {
+  width -= number.toString().length;
+  if (width > 0) {
+    return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
+  }
+  return `${number}`; // always return a string
 };
 
-exports.getLightName = function (param) {
-
-    var i, len = lightNames.length;
-    for (i = 0; i < len; i++) {
-        if (lightNames[i].id.toString() == param.toString()) {
-            return lightNames[i].name;
-        };
-    };
-    return '[not defined]';
-
+exports.getLightName = function FnGetLightName(param) {
+  let i;
+  const len = lightNames.length;
+  for (i = 0; i < len;) {
+    if (lightNames[i].id.toString() == param.toString()) {
+      return lightNames[i].name;
+    }
+    i += 1;
+  }
+  return '[not defined]';
 };
 
-exports.getLightGroupName = function (param) {
-    
-    var i, len = lightGroupNames.length;
-    for (i = 0; i < len; i++) {
-        if (lightGroupNames[i].id.toString() == param.toString()) {
-            return lightGroupNames[i].name;
-        };
-    };
-    return '[not defined]';
-    
+exports.getLightGroupName = function FnGetLightGroupName(param) {
+  let i;
+  const len = lightGroupNames.length;
+  for (i = 0; i < len;) {
+    if (lightGroupNames[i].id.toString() == param.toString()) {
+      return lightGroupNames[i].name;
+    }
+    i += 1;
+  }
+  return '[not defined]';
 };

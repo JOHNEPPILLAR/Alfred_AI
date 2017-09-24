@@ -1,49 +1,52 @@
-//=========================================================
-// Setup generic skill
-//=========================================================
-const Skills = require('restify-router').Router,
-      _      = require('lodash'),
-      skill  = new Skills();
+/**
+ * Setup generic skill
+ */
+const Skills = require('restify-router').Router;
+const _ = require('lodash');
+const readline = require('readline');
+const fs = require('fs');
+const alfredHelper = require('../../helper.js');
+
+const skill = new Skills();
 
 function sayHello() {
-    var responseText = '',
-        greeting = '',
-        aiNameText = 'My name is Alfred.',
-        aiDesc = 'I am the Pillar house Digital Assistant.'
-        dt = new Date().getHours()
+  let greeting = '';
+  const aiNameText = 'My name is Alfred.';
+  const aiDesc = 'I am the Pillar house Digital Assistant.';
+  const dt = new Date().getHours();
 
-    // Calc which part of day
-    if (dt >= 0 && dt <= 11) {
-        greeting = 'Good Morning.'
-    } else if (dt >= 12 && dt <= 17) {
-        greeting = 'Good Afternoon.'
-    } else {
-        greeting = 'Good Evening.'
-    }
-    return greeting + ' ' + aiNameText + ' ' + aiDesc; // construct json response
-};
+  // Calc which part of day
+  if (dt >= 0 && dt <= 11) {
+    greeting = 'Good Morning.';
+  } else if (dt >= 12 && dt <= 17) {
+    greeting = 'Good Afternoon.';
+  } else {
+    greeting = 'Good Evening.';
+  }
+  return `${greeting} ${aiNameText} ${aiDesc}`; // construct json response
+}
 
-//=========================================================
-// Skill: base root
-//=========================================================
-function root (req, res, next) {
-    alfredHelper.sendResponse(res, 'sucess', sayHello()); // Send response back to caller
-    next();
-};
+/**
+ * Skill: base root
+ */
+function root(req, res, next) {
+  alfredHelper.sendResponse(res, 'true', sayHello()); // Send response back to caller
+  next();
+}
 
-//=========================================================
-// Skill: Hello
-//=========================================================
-function hello (req, res, next) {
-    alfredHelper.sendResponse(res, 'sucess', sayHello()); // Send response back to caller
-    next();
-};
+/**
+ * Skill: Hello
+ */
+function hello(req, res, next) {
+  alfredHelper.sendResponse(res, 'true', sayHello()); // Send response back to caller
+  next();
+}
 
-//=========================================================
-// Skill: Help
-//=========================================================
-function help (req, res, next) {
-    var responseText = 'So you need some help, not a problem.' +
+/**
+ * Skill: Help
+ */
+function help(req, res, next) {
+  const responseText = 'So you need some help, not a problem.' +
                         'You can ask: ' +
                         'Tell me a joke. ' +
                         'Turn on the lights. ' +
@@ -53,83 +56,79 @@ function help (req, res, next) {
                         'When is the next train. ' +
                         'Turn on the TV. ' +
                         'or what is the weather.';
-                        
+
     // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
+  alfredHelper.sendResponse(res, 'true', responseText);
+  next();
+}
 
-    next();
-};
+/**
+ * Skill: ping
+ */
+function ping(req, res, next) {
+  logger.info('Ping API called');
 
-//=========================================================
-// Skill: ping
-//=========================================================
-function ping (req, res, next) {
-    logger.info ('Ping API called');
-    
-    var responseText = 'sucess.';
-                        
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'sucess', responseText);
+  // Send response back to caller
+  alfredHelper.sendResponse(res, 'true', 'sucess');
+  next();
+}
 
-    next();
-};
+/**
+ * Skill: displaylog
+ */
+function displayLog(req, res, next) {
+  logger.info('Display Log API called');
 
-//=========================================================
-// Skill: displaylog
-//=========================================================
-function displayLog (req, res, next) {                        
-    logger.info ('Display Log API called');
-    
-    var page = 1
-    if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== ''){
-        page = parseInt(req.query.page || 1);
+  let page = 1;
+  if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== '') {
+    page = parseInt(req.query.page || 1, 10);
+  }
+
+  const itemsOnPage = 50;
+  const rl = readline.createInterface({
+    input: fs.createReadStream('./Alfred.log'),
+  });
+  const results = [];
+
+  rl.on('line', (line) => {
+    results.push(JSON.parse(line));
+  });
+
+  let nextpage;
+  rl.on('close', () => {
+    results.reverse(); // Reverse logfile order
+
+    const pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
+
+    if (page > pagesCount) { page = pagesCount; }
+
+    const logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
+
+    if (page === pagesCount) {
+      nextpage = pagesCount;
+    } else {
+      nextpage = page + 1;
+    }
+
+    // Construct the returning message
+    const jsonDataObj = {
+      currentpage: page,
+      prevpage: page - 1,
+      nextpage,
+      lastpage: pagesCount,
+      lpm1: pagesCount - 1,
+      pages: _.range(1, pagesCount + 1),
+      logs,
     };
 
-    var itemsOnPage = 50,
-        rl = require('readline').createInterface({
-            input: require('fs').createReadStream('./Alfred.log')
-        }),
-        results = [];
+    alfredHelper.sendResponse(res, 'true', jsonDataObj);
+    next();
+  });
+}
 
-    rl.on('line', function (line) {
-        results.push(JSON.parse(line));
-    });
-
-    rl.on('close', function () {
-
-        results.reverse(); // Reverse logfile order
-
-        var pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
-
-        if (page > pagesCount) { page = pagesCount };
-        
-        var logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
-
-        if (page == pagesCount) { 
-            nextpage = pagesCount;
-        } else { 
-            nextpage = page + 1;
-        };
-
-        // Construct the returning message
-        const jsonDataObj = {
-                currentpage : page,
-                prevpage    : page - 1,
-                nextpage    : nextpage,
-                lastpage    : pagesCount,
-                lpm1        : pagesCount - 1,
-                pages       : _.range(1, pagesCount + 1),
-                logs        : logs
-        };
-
-        alfredHelper.sendResponse(res, 'sucess', jsonDataObj);
-        next();
-    });
-};
-
-//=========================================================
-// Add skills to server
-//=========================================================
+/**
+ * Add skills to server
+ */
 skill.get('/', root);
 skill.get('/hello', hello);
 skill.get('/help', help);

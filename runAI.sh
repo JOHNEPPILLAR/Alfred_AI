@@ -11,8 +11,8 @@ kill -9 $(ps aux | grep '\snode\s' | awk '{print $2}')
 echo "Done."
 
 echo "Now setting node to v8.4.0"
-source ~/.nvm/nvm.sh
-nvm use 8.4.0
+#source ~/.nvm/nvm.sh
+#nvm use 8.4.0
 
 #echo "Removing node modules folder and installing latest"
 #rm -rf node_modules
@@ -21,5 +21,5 @@ nvm use 8.4.0
 clear
 
 echo "Run the server app"
-nodemon Alfred_di.js
+nodemon Alfred_DI.js
 #node server.js
