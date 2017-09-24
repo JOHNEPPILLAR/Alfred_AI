@@ -22,8 +22,9 @@ function registerDevice(req, res, next) {
  * Params: light_number: Number, light_status: String
  */
 function lightOnOff(req, res, next) {
+  logger.info('Light on/off API called');
   let paramsOK = false;
-  
+
   if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
         (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
         (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
@@ -56,7 +57,9 @@ function lightOnOff(req, res, next) {
  * Params: light_number: Number, light_status: String
  */
 function lightGroupOnOff(req, res, next) {
+  logger.info('Light group on/off API called');
   let paramsOK = false;
+
   if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
         (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
         (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
