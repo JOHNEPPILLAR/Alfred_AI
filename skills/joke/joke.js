@@ -2,9 +2,9 @@
  * Setup joke skill
  */
 const Skills = require('restify-router').Router;
+const alfredHelper = require('../../helper.js');
 
 const skill = new Skills();
-const alfredHelper = require('../../helper.js');
 
 /**
  * Skill: joke
