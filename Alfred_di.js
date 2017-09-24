@@ -67,25 +67,25 @@ lightNameHelper.setupLightNames();
  * Configure API end points
  */
 const genericRouter = require('./skills/generic/generic.js');
-const weatherRouter = require('./skills/weather/weather.js');
 const jokeRouter = require('./skills/joke/joke.js');
-const timeRouter = require('./skills/time/time.js');
-const newsRouter = require('./skills/news/news.js');
-const searchRouter = require('./skills/search/search.js');
-const travelRouter = require('./skills/travel/travel.js');
 const lightRouter = require('./skills/lights/lights.js');
-const tvRouter = require('./skills/tv/tv.js');
+const newsRouter = require('./skills/news/news.js');
 const scheduleRouter = require('./skills/schedules/schedules.js');
+const searchRouter = require('./skills/search/search.js');
 const settingsRouter = require('./skills/settings/settings.js');
+const timeRouter = require('./skills/time/time.js');
+const travelRouter = require('./skills/travel/travel.js');
+const tvRouter = require('./skills/tv/tv.js');
+const weatherRouter = require('./skills/weather/weather.js');
 
 genericRouter.applyRoutes(server);
-weatherRouter.applyRoutes(server, '/weather');
 jokeRouter.applyRoutes(server);
-timeRouter.applyRoutes(server);
-newsRouter.applyRoutes(server);
-searchRouter.applyRoutes(server);
-travelRouter.applyRoutes(server, '/travel');
 lightRouter.applyRoutes(server, '/lights');
-tvRouter.applyRoutes(server, '/tv');
-scheduleRouter.applyRoutes(server, 'schedule');
+newsRouter.applyRoutes(server);
+scheduleRouter.applyRoutes(server, '/schedule');
+searchRouter.applyRoutes(server);
 settingsRouter.applyRoutes(server, '/settings');
+timeRouter.applyRoutes(server);
+travelRouter.applyRoutes(server, '/travel');
+tvRouter.applyRoutes(server, '/tv');
+weatherRouter.applyRoutes(server, '/weather');

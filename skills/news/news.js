@@ -38,7 +38,7 @@ async function latest(req, res, next) {
         newsTypeError = true;
         break;
     }
-  };
+  }
 
   // If news source if not lised return error message
   if (newsTypeError) {

@@ -1,41 +1,42 @@
-//=========================================================
-// Setup schedule skill
-//=========================================================
-const Skills = require('restify-router').Router;  
-      skill  = new Skills();
+/**
+ * Setup schedule skill
+ */
+const Skills = require('restify-router').Router;
+const alfredHelper = require('../../helper.js');
+const dateFormat = require('dateformat');
 
-//=========================================================
-// Skill: Get sunset times
-//=========================================================
-function sunSet (req, res, next) {
-    
-    logger.info ('Sunset info API called');
-    const url = 'http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=' + process.env.OPENWEATHERMAPAPIKEY;
+const skill = new Skills();
 
-    alfredHelper.requestAPIdata(url)
-    .then(function(apiData){
+/**
+ * Skill: Get sunset times
+ */
+async function sunSet(req, res, next) {
+  logger.info('Sunset info API called');
+  const url = `http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
 
-        var sunSet = new Date(apiData.body.sys.sunset);
-        sunSet.setHours(sunSet.getHours() + 12); // Add 12 hrs as for some resion the api returnes it as am!
-        sunSet.setHours(sunSet.getHours() - scheduleSettings.evening.offset_hr); // Adjust hr
-        sunSet.setMinutes(sunSet.getMinutes() - scheduleSettings.evening.offset_min); // Adjust min 
+  try {
+    const apiData = await alfredHelper.requestAPIdata(url);
+    const sunSetTime = new Date(apiData.body.sys.sunset);
+    sunSetTime.setHours(sunSetTime.getHours() + 12); // Convert from 12h to 24h format
+    const rtnJSON = {
+      sunSet: dateFormat(sunSetTime, 'HH:MM'),
+    };
+    alfredHelper.sendResponse(res, 'true', rtnJSON); // Send response back to caller
+    next();
+    return rtnJSON;
+  } catch (err) {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    }
+    logger.error(`Schedule sunSet: ${err}`);
+    next();
+    return err;
+  }
+}
 
-        var rtnJSON = {
-            sunSet : dateFormat(sunSet, "HH:MM"),
-            offSetHR : scheduleSettings.evening.offset_hr,
-            offSetMin : scheduleSettings.evening.offset_min            
-        };
-        alfredHelper.sendResponse(res, 'sucess', rtnJSON); // Send response back to caller
-    })
-    .catch(function(err){
-        alfredHelper.sendResponse(res, 'error', err.message); // Send response back to caller
-        logger.error('Schedule get data Error: ' + err);
-    });
-};
-
-//=========================================================
-// Add skills to server
-//=========================================================
+/**
+ * Add skills to server
+ */
 skill.get('/sunset', sunSet);
 
 module.exports = skill;
