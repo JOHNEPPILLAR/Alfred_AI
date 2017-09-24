@@ -82,7 +82,6 @@ exports.lightOnOff = function FnLightOnOff(res, lightNumber, lightAction, bright
 };
 
 exports.lightGroupOnOff = function FnLightGroupOnOff(res, lightNumber, lightAction, brightness, x, y, ct) {
-
   let returnMessage;
   let status;
 
@@ -116,7 +115,7 @@ exports.lightGroupOnOff = function FnLightGroupOnOff(res, lightNumber, lightActi
       }
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, status, returnMessage); // Send response back to caller
-      } 
+      }
       return returnMessage;
     })
     .fail((err) => {
@@ -263,7 +262,7 @@ exports.listLightGroups = function FnListLightGroups(res) {
 exports.allOff = function FnAllOff(res) {
   // Set the lights for watching TV
   const state = lightState.create().off();
-  let promises = [];
+  const promises = [];
 
   // Get a list of all the lights
   Hue.lights()
@@ -296,62 +295,53 @@ exports.allOff = function FnAllOff(res) {
     });
 };
 
-exports.scenes = function FnScenes(res) {
-  async function getLightScenes() {
-    try {
-      const lights = await Hue.scenes();
+exports.scenes = async function FnScenes(res) {
+  try {
+    const lights = await Hue.scenes();
 
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
-      }
-      return lights;
-    } catch (err) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-      }
-      logger.error(`scenes: ${err}`);
-      return err;
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
     }
+    return lights;
+  } catch (err) {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    }
+    logger.error(`scenes: ${err}`);
+    return err;
   }
-  return getLightScenes();
 };
 
-exports.sensor = function FnSensor(res) {
-  async function getSensors() {
-    try {
-      const sensors = await Hue.sensors();
+exports.sensor = async function FnSensor(res) {
+  try {
+    const sensors = await Hue.sensors();
 
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'true', sensors); // Send response back to caller
-      }
-      return sensors;
-    } catch (err) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-      }
-      logger.error(`scenes: ${err}`);
-      return err;
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'true', sensors); // Send response back to caller
     }
+    return sensors;
+  } catch (err) {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    }
+    logger.error(`scenes: ${err}`);
+    return err;
   }
-  return getSensors();
 };
 
-exports.lightstate = function FnLightstate(res, lightNumber) {
-  async function getLightState() {
-    try {
-      const state = await Hue.lightStatus(lightNumber);
+exports.lightstate = async function FnLightstate(res, lightNumber) {
+  try {
+    const state = await Hue.lightStatus(lightNumber);
 
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'true', state); // Send response back to caller
-      }
-      return state;
-    } catch (err) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-      }
-      logger.error(`lightstate: ${err}`);
-      return err;
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'true', state); // Send response back to caller
     }
+    return state;
+  } catch (err) {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    }
+    logger.error(`lightstate: ${err}`);
+    return err;
   }
-  return getLightState();
 };
