@@ -66,6 +66,7 @@ lightNameHelper.setupLightNames();
 /**
  * Configure API end points
  */
+const bedRouter = require('./skills/bed/bed.js');
 const genericRouter = require('./skills/generic/generic.js');
 const jokeRouter = require('./skills/joke/joke.js');
 const lightRouter = require('./skills/lights/lights.js');
@@ -77,7 +78,9 @@ const travelRouter = require('./skills/travel/travel.js');
 const tvRouter = require('./skills/tv/tv.js');
 const weatherRouter = require('./skills/weather/weather.js');
 
+bedRouter.applyRoutes(server, '/bed');
 genericRouter.applyRoutes(server);
+bedRouter.applyRoutes(server);
 jokeRouter.applyRoutes(server);
 lightRouter.applyRoutes(server, '/lights');
 newsRouter.applyRoutes(server);
