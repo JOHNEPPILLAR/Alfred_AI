@@ -13,7 +13,7 @@ const skill = new Skills();
 async function watchFireTv(req, res, next) {
   logger.info('Watch Fire TV API called');
   try {
-    const harmonyClient = harmony(process.env.harmonyip);
+    const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(25026204); // Fire TV ID
     harmonyClient.end();
     alfredHelper.sendResponse(res, 'true', 'Turned on Fire TV');
@@ -33,7 +33,7 @@ async function watchFireTv(req, res, next) {
 async function watchVirginTv(req, res, next) {
   logger.info('Watch Virgin TV API called');
   try {
-    const harmonyClient = harmony(process.env.harmonyip);
+    const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(22797599); // Virgin TV ID
     harmonyClient.end();
     alfredHelper.sendResponse(res, 'true', 'Turned on Virgin TV');
@@ -50,10 +50,10 @@ async function watchVirginTv(req, res, next) {
 /**
  * Skill: play PS4
  */
-function playps4(req, res, next) {
+async function playps4(req, res, next) {
   logger.info('Play PS4 API called');
   try {
-    const harmonyClient = harmony(process.env.harmonyip);
+    const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(23898791); // PS4 ID
     harmonyClient.end();
     alfredHelper.sendResponse(res, 'true', 'Turned on Play station');
@@ -73,7 +73,7 @@ function playps4(req, res, next) {
 async function turnofftv(req, res, next) {
   logger.info('Turn off TV API called');
   try {
-    const harmonyClient = harmony(process.env.harmonyip);
+    const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(-1); // All off ID
     // return harmonyClient.turnOff()
     harmonyClient.end();
@@ -94,7 +94,7 @@ async function turnofftv(req, res, next) {
 async function watchAppleTV(req, res, next) {
   logger.info('Watch Apple TV API called');
   try {
-    const harmonyClient = harmony(process.env.harmonyip);
+    const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(22797639); // Apple TV ID
     // return harmonyClient.turnOff()
     harmonyClient.end();
