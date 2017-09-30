@@ -285,8 +285,7 @@ async function sunSet(req, res, next) {
 
   try {
     const apiData = await alfredHelper.requestAPIdata(url);
-    let sunSet = new Date(apiData.body.sys.sunset);
-    sunSet.setHours(sunSet.getHours() + 12); // Adjust 12h to 24h format
+    const sunSet = new Date(apiData.body.sys.sunset*1000);
 
     // Send response back to caller
     alfredHelper.sendResponse(res, 'true', dateFormat(sunSet, 'HH:MM'));
