@@ -3,9 +3,11 @@
  */
 const HueLights = require('node-hue-api');
 const HueApi = require('node-hue-api').HueApi;
-const scheduleSettings = require('../../scheduleSettings.json');
+// const scheduleSettings = require('../../scheduleSettings.json');
 const dotenv = require('dotenv');
 const alfredHelper = require('../../helper.js');
+const mockLights = require('./mockLights.json');
+const mockLightGroups = require('./mockLightGroups.json');
 
 dotenv.load(); // Load env vars
 
@@ -213,18 +215,26 @@ exports.brightenLightGroup = async function FnBrightenLightGroup(res, lightNumbe
  * Skill: list lights
  */
 exports.listLights = async function FnListLights(res) {
-  try {
-    const lights = await Hue.lights();
+  if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
+      alfredHelper.sendResponse(res, 'true', mockLights); // Send mock response back to caller
     }
-    return lights;
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    return mockLights;
+  }
+  if (process.env.environment !== 'dev') {
+    try {
+      const lights = await Hue.lights();
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
+      }
+      return lights;
+    } catch (err) {
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      }
+      logger.error(`listLights: ${err}`);
+      return err;
     }
-    logger.error(`listLights: ${err}`);
-    return err;
   }
 };
 
@@ -232,22 +242,30 @@ exports.listLights = async function FnListLights(res) {
  * Skill: list light groups
  */
 exports.listLightGroups = async function FnListLightGroups(res) {
-  try {
-    const lights = await Hue.groups();
-
-    // Remove unwanted light groups from json
-    const tidyLights = lights.filter(light => light.type === 'Room');
-
+  if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', tidyLights); // Send response back to caller
+      alfredHelper.sendResponse(res, 'true', mockLightGroups); // Send mock response back to caller
     }
-    return lights;
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    return mockLightGroups;
+  }
+  if (process.env.environment !== 'dev') {
+    try {
+      const lights = await Hue.groups();
+
+      // Remove unwanted light groups from json
+      const tidyLights = lights.filter(light => light.type === 'Room');
+
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, 'true', tidyLights); // Send response back to caller
+      }
+      return lights;
+    } catch (err) {
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      }
+      logger.error(`listLightGroups: ${err}`);
+      return err;
     }
-    logger.error(`listLightGroups: ${err}`);
-    return err;
   }
 };
 
