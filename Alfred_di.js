@@ -12,6 +12,7 @@ const logger = require('winston');
 global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
+global.eightSessionInfo;
 
 dotenv.load(); // Load env vars
 
