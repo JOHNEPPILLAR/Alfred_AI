@@ -199,10 +199,14 @@ exports.getBedData = async function FnGetBedData(res) {
   const url = `https://client-api.8slp.net/v1/devices/${bedID}`;
   try {
     const apiData = await getEightAPI(url);
-    alfredHelper.sendResponse(res, 'true', apiData); // Send response back to caller
-    return apiData.message;
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'true', apiData); // Send response back to caller
+    }
+    return apiData;
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    }
     return err;
   }
 };
