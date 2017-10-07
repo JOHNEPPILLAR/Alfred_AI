@@ -1,5 +1,5 @@
 /**
- * Setup generic skill
+ * Setup includes
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
@@ -19,13 +19,33 @@ async function checkWarmingStatus(side) {
 }
 
 /**
- * Skill: setHeatingLevel
+ * @api {put} /bed/setHeatingLevel Set bed warmer heating level
+ * @apiName setheatinglevel
+ * @apiGroup Bed
+ *
+ * @apiParam {Number} temp Bed warming level from 1 to 10.
+ * @apiParam {String} side Side of Bed [ JP, Fran ].
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTPS/1.1 200 OK
+ *     {
+ *       "code": "true",
+ *       "data": "Device successfully updated."
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "code": "false",
+ *       "data": Error message
+ *     }
+ *
  */
 async function setHeatingLevel(req, res, next) {
   logger.info('Set heating level API called');
   try {
-    const side = req.query.side;
-    let temp = req.query.temp;
+    const { side } = req.body;
+    let { temp } = req.body;
     let tempParamError = true;
     let sideParamError = true;
 
@@ -64,7 +84,7 @@ async function setHeatingLevel(req, res, next) {
     }
 
     if (tempParamError || sideParamError) {
-      alfredHelper.sendResponse(res, 'false', 'Missing temp or side param'); // Send response back to caller
+      alfredHelper.sendResponse(res, false, 'Missing temp or side param'); // Send response back to caller
       next();
     } else {
       temp *= 10;
@@ -72,19 +92,45 @@ async function setHeatingLevel(req, res, next) {
       next();
     }
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
+    logger.error(`setHeatingLevel: ${err}`);
+    next();
+    return err;
   }
 }
+skill.put('/setheatinglevel', setHeatingLevel);
 
 /**
- * Skill: setHeatingTimer
+ * @api {put} /bed/setheatingtimer Set bed warmer heating timer
+ * @apiName setheatingtimer
+ * @apiGroup Bed
+ *
+ * @apiParam {Number} temp Bed warming level from 1 to 10.
+ * @apiParam {String} side Side of Bed [ JP, Fran ].
+ * @apiParam {Number} duration Time in minutes the warmer will be on for.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTPS/1.1 200 OK
+ *     {
+ *       "code": "true",
+ *       "data": "Device successfully updated."
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "code": "false",
+ *       "data": Error message
+ *     }
+ *
  */
 async function setHeatingTimer(req, res, next) {
   logger.info('Set heating timer API called');
   try {
-    const side = req.query.side;
-    let temp = req.query.temp;
-    let duration = req.query.duration;
+    const { side } = req.body;
+    let { temp, duration } = req.body;
     let tempParamError = true;
     let sideParamError = true;
     let durationParamError = true;
@@ -128,40 +174,90 @@ async function setHeatingTimer(req, res, next) {
       }
     }
 
-    if (tempParamError || sideParamError || sideParamError) {
-      alfredHelper.sendResponse(res, 'false', 'Missing temp, side or duration param'); // Send response back to caller
+    if (tempParamError || sideParamError || durationParamError) {
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, false, 'Missing temp, side or duration param'); // Send response back to caller
+      }
       next();
     } else {
       temp *= 10;
-      bedhelper.setHeatingTimer(res, side, temp, duration);
+      await bedhelper.setHeatingTimer(res, side, temp, duration);
       next();
     }
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
+    logger.error(`setHeatingTimer: ${err}`);
+    next();
+    return err;
   }
 }
+skill.put('/setheatingtimer', setHeatingTimer);
 
 /**
- * Skill: getBedData
+ * @api {get} /bed/getbeddata Get bed information
+ * @apiName getbeddata
+ * @apiGroup Bed
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTPS/1.1 200 OK
+ *     {
+ *       "code": "true",
+ *       "data": Eight bed API response
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "code": "false",
+ *       "data": Error message
+ *     }
+ *
  */
 async function getBedData(req, res, next) {
   try {
     logger.info('Get bed data API called');
-    bedhelper.getBedData(res);
+    await bedhelper.getBedData(res);
     next();
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
+    logger.error(`getBedData: ${err}`);
     next();
+    return err;
   }
+  return null;
 }
+skill.get('/getbeddata', getBedData);
 
 /**
- * Skill: turnOffBed
+ * @api {put} /bed/turnoffbed Turn off bed warmer
+ * @apiName turnoffbed
+ * @apiGroup Bed
+ *
+ * @apiParam {String} side Side of Bed [ JP, Fran ].
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTPS/1.1 200 OK
+ *     {
+ *       "code": "true",
+ *       "data": "Device successfully updated."
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "code": "false",
+ *       "data": Error message
+ *     }
+ *
  */
 async function turnOffBed(req, res, next) {
   logger.info('Turn off bed warming API called');
   try {
-    const side = req.query.side;
+    const { side } = req.body;
     let sideParamError = true;
 
     if (typeof side !== 'undefined' && side !== null) {
@@ -179,29 +275,29 @@ async function turnOffBed(req, res, next) {
     }
 
     if (sideParamError) {
-      alfredHelper.sendResponse(res, 'false', 'Missing side param'); // Send response back to caller
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, false, 'Missing side param'); // Send response back to caller
+      }
       next();
     } else {
       const bedOn = await checkWarmingStatus(side);
       if (bedOn) {
-        bedhelper.turnOffBed(res, side);
-      } else {
-        alfredHelper.sendResponse(res, 'false', 'Bed already off'); // Send response back to caller
+        await bedhelper.turnOffBed(res, side);
+      } else if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, true, 'Bed already off'); // Send response back to caller
       }
       next();
     }
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
+    logger.error(`turnOffBed: ${err}`);
+    next();
     return err;
   }
+  return null;
 }
-
-/**
- * Add skills to server
- */
-skill.get('/setheatinglevel', setHeatingLevel);
-skill.get('/setheatingtimer', setHeatingTimer);
-skill.get('/getbeddata', getBedData);
-skill.get('/turnoffbed', turnOffBed);
+skill.put('/turnoffbed', turnOffBed);
 
 module.exports = skill;

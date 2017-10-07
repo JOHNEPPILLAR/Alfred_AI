@@ -1,9 +1,8 @@
 /**
- * Setup lights skills
+ * Setup includes
  */
 const HueLights = require('node-hue-api');
-const HueApi = require('node-hue-api').HueApi;
-// const scheduleSettings = require('../../scheduleSettings.json');
+const { HueApi } = require('node-hue-api');
 const dotenv = require('dotenv');
 const alfredHelper = require('../../helper.js');
 const mockLights = require('./mockLights.json');
@@ -11,9 +10,8 @@ const mockLightGroups = require('./mockLightGroups.json');
 
 dotenv.load(); // Load env vars
 
-const lightState = HueLights.lightState;
-const HueBridgeIP = process.env.HueBridgeIP;
-const HueBridgeUser = process.env.HueBridgeUser;
+const { lightState } = HueLights;
+const { HueBridgeIP, HueBridgeUser } = process.env;
 const Hue = new HueApi(HueBridgeIP, HueBridgeUser);
 
 /**
@@ -24,12 +22,12 @@ exports.registerDevice = async function FnRegisterDevice(res) {
   try {
     const config = await Hue.config();
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', config); // Send response back to caller
+      alfredHelper.sendResponse(res, true, config); // Send response back to caller
     }
     return config;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, false, err); // Send response back to caller
     }
     logger.error(`registerDevice: ${err}`);
     return err;
@@ -60,10 +58,10 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
   try {
     const lights = await Hue.setLightState(lightNumber, state);
     if (lights) {
-      returnState = 'true';
+      returnState = true;
       returnMessage = `The light was turned ${lightAction}.`;
     } else {
-      returnState = 'false';
+      returnState = false;
       returnMessage = `There was an error turning the light ${lightAction}.`;
     }
     if (typeof res !== 'undefined' && res !== null) {
@@ -72,7 +70,7 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`lightOnOff: ${err}`);
     return err;
@@ -105,10 +103,10 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
   try {
     const lights = await Hue.setGroupLightState(lightNumber, state);
     if (lights) {
-      returnState = 'true';
+      returnState = true;
       returnMessage = `The light group was turned ${lightAction}.`;
     } else {
-      returnState = 'false';
+      returnState = false;
       returnMessage = `There was an error turning the light group ${lightAction}.`;
     }
     if (typeof res !== 'undefined' && res !== null) {
@@ -117,96 +115,9 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
     return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`lightGroupOnOff: ${err}`);
-    return err;
-  }
-};
-
-/**
- * Skill: dim lights
- */
-exports.dimLight = async function FnDimLight(res, lightNumber, percentage) {
-  const state = lightState.create().on().brightness(percentage);
-  let returnMessage;
-  let returnState;
-  try {
-    const lights = await Hue.setLightState(lightNumber, state);
-    if (lights) {
-      returnState = 'true';
-      returnMessage = `The ${alfredHelper.getLightName(lightNumber)} was dimmed.`;
-    } else {
-      returnState = 'false';
-      returnMessage = `Unable to dim ${alfredHelper.getLightName(lightNumber)}.`;
-    }
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
-    }
-    return returnMessage;
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-    }
-    logger.error(`dimLight: ${err}`);
-    return err;
-  }
-};
-
-/**
- * Skill: brighten light
- */
-exports.brightenLight = async function FnBrightenLight(res, lightNumber, percentage) {
-  const state = lightState.create().on().brightness(percentage);
-  let returnMessage;
-  let returnState;
-  try {
-    const lights = await Hue.setLightState(lightNumber, state);
-    if (lights) {
-      returnState = 'true';
-      returnMessage = `The ${alfredHelper.getLightName(lightNumber)} was brightened.`;
-    } else {
-      returnState = 'false';
-      returnMessage = `Unable to brighten ${alfredHelper.getLightName(lightNumber)}.`;
-    }
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
-    }
-    return returnMessage;
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-    }
-    logger.error(`brightenLight: ${err}`);
-    return err;
-  }
-};
-
-/**
- * Skill: brighten light group
- */
-exports.brightenLightGroup = async function FnBrightenLightGroup(res, lightNumber, percentage) {
-  const state = lightState.create().brightness(percentage);
-  let returnMessage;
-  let returnState;
-  try {
-    const lights = await Hue.setGroupLightState(lightNumber, state);
-    if (lights) {
-      returnState = 'true';
-      returnMessage = `The ${alfredHelper.getLightGroupName(lightNumber)} was brightened.`;
-    } else {
-      returnState = 'false';
-      returnMessage = `Unable to brighten ${alfredHelper.getLightGroupName(lightNumber)}.`;
-    }
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
-    }
-    return returnMessage;
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
-    }
-    logger.error(`brightenLightGroup: ${err}`);
     return err;
   }
 };
@@ -217,7 +128,7 @@ exports.brightenLightGroup = async function FnBrightenLightGroup(res, lightNumbe
 exports.listLights = async function FnListLights(res) {
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', mockLights); // Send mock response back to caller
+      alfredHelper.sendResponse(res, true, mockLights); // Send mock response back to caller
     }
     return mockLights;
   }
@@ -225,12 +136,12 @@ exports.listLights = async function FnListLights(res) {
     try {
       const lights = await Hue.lights();
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
+        alfredHelper.sendResponse(res, true, lights); // Send response back to caller
       }
       return lights;
     } catch (err) {
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+        alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
       logger.error(`listLights: ${err}`);
       return err;
@@ -244,7 +155,7 @@ exports.listLights = async function FnListLights(res) {
 exports.listLightGroups = async function FnListLightGroups(res) {
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', mockLightGroups); // Send mock response back to caller
+      alfredHelper.sendResponse(res, true, mockLightGroups); // Send mock response back to caller
     }
     return mockLightGroups;
   }
@@ -256,12 +167,12 @@ exports.listLightGroups = async function FnListLightGroups(res) {
       const tidyLights = lights.filter(light => light.type === 'Room');
 
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'true', tidyLights); // Send response back to caller
+        alfredHelper.sendResponse(res, true, tidyLights); // Send response back to caller
       }
       return lights;
     } catch (err) {
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+        alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
       logger.error(`listLightGroups: ${err}`);
       return err;
@@ -280,9 +191,9 @@ exports.allOff = async function FnAllOff(res) {
     lights.lights.forEach((value) => {
       Hue.setLightState(value.id, state);
     });
-    alfredHelper.sendResponse(res, 'true', 'Turned off all lights.'); // Send response back to caller
+    alfredHelper.sendResponse(res, true, 'Turned off all lights.'); // Send response back to caller
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', 'There was a problem turning off all the lights.');
+    alfredHelper.sendResponse(res, null, 'There was a problem turning off all the lights.');
     logger.error(`allOff Error: ${err}`);
     return err;
   }
@@ -296,12 +207,12 @@ exports.scenes = async function FnScenes(res) {
     const lights = await Hue.scenes();
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', lights); // Send response back to caller
+      alfredHelper.sendResponse(res, true, lights); // Send response back to caller
     }
     return lights;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`scenes: ${err}`);
     return err;
@@ -316,12 +227,12 @@ exports.sensor = async function FnSensor(res) {
     const sensors = await Hue.sensors();
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', sensors); // Send response back to caller
+      alfredHelper.sendResponse(res, true, sensors); // Send response back to caller
     }
     return sensors;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`scenes: ${err}`);
     return err;
@@ -336,12 +247,12 @@ exports.lightstate = async function FnLightstate(res, lightNumber) {
     const state = await Hue.lightStatus(lightNumber);
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', state); // Send response back to caller
+      alfredHelper.sendResponse(res, true, state); // Send response back to caller
     }
     return state;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`lightstate: ${err}`);
     return err;

@@ -5,11 +5,15 @@ const dateFormat = require('dateformat');
  * Setup logging
  */
 exports.setLogger = function FnSetLogger(logger) {
-  logger.remove(logger.transports.Console);
-  logger.add(logger.transports.File, {
-    JSON: true, filename: 'Alfred.log', colorize: true, timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); },
-  });
-  logger.add(logger.transports.Console, { timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); }, colorize: true });
+  try {
+    logger.remove(logger.transports.Console);
+    logger.add(logger.transports.File, {
+      JSON: true, filename: 'Alfred.log', colorize: true, timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); },
+    });
+    logger.add(logger.transports.Console, { timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); }, colorize: true });
+  } catch (err) {
+    logger.error(`setLogger: ${err}`);
+  }
 };
 
 /**
@@ -17,13 +21,38 @@ exports.setLogger = function FnSetLogger(logger) {
  */
 exports.sendResponse = function FnSendResponse(res, status, dataObj) {
   // Construct the returning message
+  let rtnStatus = 'true';
+  let httpHeaderCode = 200;
+
+  switch (status) {
+    case null: // Internal server error
+      httpHeaderCode = 500;
+      rtnStatus = 'false';
+      dataObj = {
+        name: dataObj.name,
+        message: dataObj.message,
+      };
+      break;
+    case false: // Invalid params
+      httpHeaderCode = 400;
+      rtnStatus = 'false';
+      break;
+    case 401: // Not authorised, invalid app_key
+      httpHeaderCode = 401;
+      rtnStatus = 'false';
+      break;
+    default:
+      httpHeaderCode = 200;
+  }
+
+  if (!status) { rtnStatus = 'false'; }
   const returnJSON = {
-    code: status,
+    sucess: rtnStatus,
     data: dataObj,
   };
 
   // Send response back to caller
-  res.send(returnJSON);
+  res.send(httpHeaderCode, returnJSON);
 };
 
 /**

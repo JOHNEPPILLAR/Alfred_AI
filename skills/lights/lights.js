@@ -1,5 +1,5 @@
 /**
- * Setup lights skills
+ * Setup includes
  */
 const Skills = require('restify-router').Router;
 const scheduleSettings = require('../../scheduleSettings.json');
@@ -9,29 +9,68 @@ const alfredHelper = require('../../helper.js');
 const skill = new Skills();
 
 /**
- * Skill: registerDevice
+ * @api {get} /lights/registerdevice Register API server with HUE bridge
+ * @apiName registerdevice
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function registerDevice(req, res, next) {
+async function registerDevice(req, res, next) {
   logger.info('Register Device API called');
-  lightshelper.registerDevice(res);
+  await lightshelper.registerDevice(res);
   next();
 }
+skill.get('/registerdevice', registerDevice);
 
 /**
- * Skill: lights on/off
- * Params: light_number: Number, light_status: String
+ * @api {put} /lights/lightonoff Turn lights on or off
+ * @apiName lightonoff
+ * @apiGroup Lights
+ *
+ * @apiParam {Number} light_number Hue bridge light number
+ * @apiParam {String} light_status [ on, off ]
+ * @apiParam {Number} percentage Brighness [ 0..255 ]
+ * @apiParam {Number} x Hue xy color [ 0..1 ]
+ * @apiParam {Number} y Hue xy color [ 0..1 ]
+ * @apiParam {Number} ct Hue ct color [153..500 ]
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "The light was turned on."
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function lightOnOff(req, res, next) {
+async function lightOnOff(req, res, next) {
   logger.info('Light on/off API called');
   let paramsOK = false;
 
-  if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
-        (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
-        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
+  if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
+        (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null) ||
+        (typeof req.body.percentage !== 'undefined' && req.body.percentage !== null)) {
     paramsOK = true;
   }
   if (paramsOK) {
-    switch (req.query.light_status.toLowerCase()) {
+    switch (req.body.light_status.toLowerCase()) {
       case 'on':
         paramsOK = true;
         break;
@@ -43,30 +82,71 @@ function lightOnOff(req, res, next) {
     }
   }
   if (paramsOK) {
-    lightshelper.lightOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req.query.ct);
+    let {
+      brightness, x, y, ct,
+    } = req.body;
+    if (brightness < 0) { brightness = 0; }
+    if (brightness > 255) { brightness = 255; }
+    if (typeof x !== 'undefined' && x !== null) {
+      if (x < 0) { x = 0; }
+      if (x > 1) { x = 1; }
+    }
+    if (typeof y !== 'undefined' && y !== null) {
+      if (y < 0) { y = 0; }
+      if (y > 1) { y = 1; }
+    }
+    if (typeof ct !== 'undefined' && ct !== null) {
+      if (ct < 153) { ct = 153; }
+      if (ct > 500) { ct = 500; }
+    }
+    await lightshelper.lightOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
   } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    }
     logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
   next();
 }
+skill.put('/lightonoff', lightOnOff);
 
 /**
- * Skill: light group on/off
- * Params: light_number: Number, light_status: String
+ * @api {put} /lights/lightgrouponoff Turn light group on or off
+ * @apiName lightonoff
+ * @apiGroup Lights
+ *
+ * @apiParam {Number} light_number Hue bridge light group number
+ * @apiParam {String} light_status [ on, off ]
+ * @apiParam {Number} percentage Brighness [ 0..255 ]
+ * @apiParam {Number} x Hue xy color [ 0..1 ]
+ * @apiParam {Number} y Hue xy color [ 0..1 ]
+ * @apiParam {Number} ct Hue ct color [153..500 ]
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "The light group was turned on."
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function lightGroupOnOff(req, res, next) {
+async function lightGroupOnOff(req, res, next) {
   logger.info('Light group on/off API called');
   let paramsOK = false;
 
-  if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) ||
-        (typeof req.query.light_status !== 'undefined' && req.query.light_status !== null) ||
-        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
+  if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
+        (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null) ||
+        (typeof req.body.percentage !== 'undefined' && req.body.percentage !== null)) {
     paramsOK = true;
   }
   if (paramsOK) {
-    switch (req.query.light_status.toLowerCase()) {
+    switch (req.body.light_status.toLowerCase()) {
       case 'on':
         paramsOK = true;
         break;
@@ -78,153 +158,197 @@ function lightGroupOnOff(req, res, next) {
     }
   }
   if (paramsOK) {
-    lightshelper.lightGroupOnOff(res, req.query.light_number, req.query.light_status.toLowerCase(), req.query.percentage, req.query.x, req.query.y, req.query.ct);
+    let {
+      brightness, x, y, ct,
+    } = req.body;
+    if (brightness < 0) { brightness = 0; }
+    if (brightness > 255) { brightness = 255; }
+    if (typeof x !== 'undefined' && x !== null) {
+      if (x < 0) { x = 0; }
+      if (x > 1) { x = 1; }
+    }
+    if (typeof y !== 'undefined' && y !== null) {
+      if (y < 0) { y = 0; }
+      if (y > 1) { y = 1; }
+    }
+    if (typeof ct !== 'undefined' && ct !== null) {
+      if (ct < 153) { ct = 153; }
+      if (ct > 500) { ct = 500; }
+    }
+    await lightshelper.lightGroupOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
   } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    }
     logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
   next();
 }
+skill.put('/lightgrouponoff', lightGroupOnOff);
 
 /**
- * Skill: dimlight
- * Params: light_number: Number
- * Params: percentage
+ * @api {get} /lights/listlights Lists all of the lights
+ * @apiName listlights
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function dimLight(req, res, next) {
-  logger.info('Dim Light API called');
-  if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
-        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
-    lightshelper.dimLight(res, req.query.light_number, req.query.percentage);
-  } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameter light_number or percentage was not supplied.');
-    logger.error('dimLight: The parameter light_number or percentage was not supplied.');
-  }
-  next();
-}
-
-/**
- * Skill: brightenLight
- * Params: light_number: Number
- */
-function brightenLight(req, res, next) {
-  logger.info('Brighten Light API called');
-  if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
-        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
-    // Brighten the light
-    lightshelper.brightenLight(res, req.query.light_number, req.query.percentage);
-  } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameter light_number or percentage was not supplied.');
-    logger.error('brightenLight: The parameter light_number or percentage was not supplied.');
-  }
-  next();
-}
-
-/**
- * Skill: brightenLightGroup
- * Params: light_number: Number
- */
-function brightenLightGroup(req, res, next) {
-  logger.info('Brighten Light Group API called');
-  if ((typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) &&
-        (typeof req.query.percentage !== 'undefined' && req.query.percentage !== null)) {
-    // Brighten the light
-    lightshelper.brightenLightGroup(res, req.query.light_number, req.query.percentage);
-  } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameter light_number or percentage was not supplied.');
-    logger.error('brightenLightGroup: The parameter light_number or percentage was not supplied.');
-  }
-  next();
-}
-
-/**
- * Skill: listLights
- */
-function listLights(req, res, next) {
+async function listLights(req, res, next) {
   logger.info('List Lights API called');
-  lightshelper.listLights(res);
+  await lightshelper.listLights(res);
   next();
 }
+skill.get('/listlights', listLights);
 
 /**
- * Skill: listLightGroups
+ * @api {get} /lights/listlightgroups Lists all of the light groups
+ * @apiName listlightgroups
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function listLightGroups(req, res, next) {
+async function listLightGroups(req, res, next) {
   logger.info('List Light Groups API called');
-  lightshelper.listLightGroups(res);
+  await lightshelper.listLightGroups(res);
   next();
 }
+skill.get('/listlightgroups', listLightGroups);
 
 /**
- * Skill: Turn off all lights
+ * @api {get} /lights/alloff Turns off all lights
+ * @apiName alloff
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function allOff(req, res, next) {
+async function allOff(req, res, next) {
   logger.info('Turn off all Lights API called');
-  lightshelper.allOff(res);
+  await lightshelper.allOff(res);
   next();
 }
+skill.get('/alloff', allOff);
 
 /**
- * Skill: Get scenes
+ * @api {get} /lights/scenes List all light scenes
+ * @apiName scenes
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function scenes(req, res, next) {
+async function scenes(req, res, next) {
   logger.info('Get light scenes API called');
-  lightshelper.scenes(res);
+  await lightshelper.scenes(res);
   next();
 }
+skill.get('/scenes', scenes);
 
 /**
- * Skill: Get sensor info
+ * @api {get} /lights/sensor List all sensors connected to the HUE bridge
+ * @apiName sensor
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function sensor(req, res, next) {
+async function sensor(req, res, next) {
   logger.info('Get sensor API called');
-  lightshelper.sensor(res);
+  await lightshelper.sensor(res);
   next();
 }
+skill.get('/sensor', sensor);
 
 /**
- * Skill: Turn On Morning/Evening Lights
+ * @api {get} /lights/lightstate Get the state of a light
+ * @apiName lightstate
+ * @apiGroup Lights
+ *
+ * @apiParam {Number} light_number Hue bridge light number
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
-function turnOnMorningEveningLights(req, res, next) {
-  logger.info('Turn on Morning/Evening lights API called');
-  lightshelper.turnOnMorningEveningLights(res);
-  next();
-}
-
-/**
- * Skill: Get the state of a light
- */
-function lightstate(req, res, next) {
+async function lightstate(req, res, next) {
   logger.info('Light state API called');
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
     lightshelper.lightstate(res, req.query.light_number);
   } else {
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'false', 'The parameter light_number was not supplied.');
-    logger.error('brightenLightGroup: The parameter light_number was not supplied.');
+    if (typeof res !== 'undefined' && res !== null) {
+      await alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
+    }
+    logger.error('lightstate: The parameter light_number was not supplied.');
   }
   next();
 }
-
-/**
- * Add skills to server
- */
-skill.get('/registerdevice', registerDevice);
-skill.get('/lightonoff', lightOnOff);
-skill.get('/lightgrouponoff', lightGroupOnOff);
-skill.get('/dimlight', dimLight);
-skill.get('/brightenlight', brightenLight);
-skill.get('/brightenlightgroup', brightenLightGroup);
-skill.get('/listlights', listLights);
-skill.get('/listlightgroups', listLightGroups);
-skill.get('/alloff', allOff);
-skill.get('/scenes', scenes);
-skill.get('/sensor', sensor);
 skill.get('/lightstate', lightstate);
-skill.get('/turnOnMorningEveningLights', turnOnMorningEveningLights);
 
 module.exports = skill;

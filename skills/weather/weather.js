@@ -1,5 +1,5 @@
 /**
- * Setup schedule skill
+ * Setup includes
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
@@ -9,8 +9,34 @@ const dateFormat = require('dateformat');
 const skill = new Skills();
 
 /**
- * Skill: base root, get today's weather for a location, default is London
- * Params: location: String
+ * @api {get} /weather/today Get todays weather
+ * @apiName today
+ * @apiGroup Weather
+ *
+ * @apiParam {String} location Location i.e. London
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: {
+ *      "locationname": "London",
+ *      "Summary": "shower rain",
+ *      "CurrentTemp": 13.09,
+ *      "MaxTemp": 14,
+ *      "MinTemp": 12,
+ *      "PercentOvercast": 75,
+ *      "RainVolume": 0,
+ *      "SnowVolume": 0
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function weatherForcastForToday(req, res, next) {
   logger.info('Today\'s Weather API called');
@@ -61,21 +87,63 @@ async function weatherForcastForToday(req, res, next) {
       SnowVolume,
     };
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'true', jsonDataObj);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+    }
     next();
+    return jsonDataObj;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`todaysWeatherFor: ${err}`);
     next();
+    return err;
   }
 }
+skill.get('/today', weatherForcastForToday);
 
 /**
- * Skill: tomorrow, get tomorrow's forecast for a location, default is London
- * Params: location: String
+ * @api {get} /weather/tomorrow Get tomorrow's weather
+ * @apiName tomorrow
+ * @apiGroup Weather
+ *
+ * @apiParam {String} location Location i.e. London
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: {
+ *      "location": "London",
+ *       "tomorrow_morning": {
+ *           "Time": "2017-10-08 06:00:00",
+ *           "Summary": "broken clouds",
+ *           "Temp": 11.56,
+ *           "MaxTemp": 11.56,
+ *           "MinTemp": 11.56,
+ *           "PercentOvercast": 76,
+ *           "RainVolume": 0,
+ *           "SnowVolume": 0
+ *       },
+ *       "tomorrow_evening": {
+ *           "Time": "2017-10-08 18:00:00",
+ *           "Summary": "broken clouds",
+ *           "Temp": 14.07,
+ *           "MaxTemp": 14.07,
+ *           "MinTemp": 14.07,
+ *           "PercentOvercast": 56,
+ *           "SnowVolume": 0
+ *       }
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function weatherForcastForTomorrow(req, res, next) {
   logger.info('Tomorrow\'s Weather API called');
@@ -88,7 +156,7 @@ async function weatherForcastForTomorrow(req, res, next) {
     location = 'london,uk';
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/forecast?units=metric&q=${location}&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
+  const url = `httpps://api.openweathermap.org/data/2.5/forecast?units=metric&q=${location}&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
 
   try {
     const apiData = await alfredHelper.requestAPIdata(url);
@@ -165,21 +233,46 @@ async function weatherForcastForTomorrow(req, res, next) {
         SnowVolume: eveningSnowVolume,
       },
     };
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'true', jsonDataObj);
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+    }
     next();
+    return jsonDataObj;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`weatherForcastForTomorrow: ${err}`);
     next();
+    return err;
   }
 }
+skill.get('/tomorrow', weatherForcastForTomorrow);
 
 /**
- * Skill: willItSnow, will it snow in the next 5 days for a location, default is London
- * Params: location: String
+ * @api {get} /weather/willitsnow Will it snow
+ * @apiName willitsnow
+ * @apiGroup Weather
+ *
+ * @apiParam {String} location Location i.e. London
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: {
+ *       "going_to_snow": false,
+ *       "snow_days": []
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function willItSnow(req, res, next) {
   logger.info('Will it snow API called');
@@ -213,21 +306,49 @@ async function willItSnow(req, res, next) {
       snow_days: daysSnowing,
     };
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'true', jsonDataObj);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+    }
     next();
+    return jsonDataObj;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`willItSnow: ${err}`);
     next();
+    return err;
   }
 }
+skill.get('/willitsnow', willItSnow);
 
 /**
- * Skill: willItRain, will it rain in the next 5 days for a location, default is London
- * Params: location: String
+ * @api {get} /weather/willitrain Will it rain
+ * @apiName willitrain
+ * @apiGroup Weather
+ *
+ * @apiParam {String} location Location i.e. London
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: {
+ *       "location": "london,uk",
+ *       "going_to_rain": true,
+ *       "rain_days": [
+ *           "2017-10-07 12:00:00",
+ *           "2017-10-07 15:00:00",
+ *       ]
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function willItRain(req, res, next) {
   logger.info('Will it rain API called');
@@ -263,20 +384,40 @@ async function willItRain(req, res, next) {
       rain_days: daysRaining,
     };
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'true', jsonDataObj);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+    }
     next();
+    return jsonDataObj;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`willItRain: ${err}`);
     next();
+    return err;
   }
 }
+skill.get('/willitrain', willItRain);
 
 /**
- * Skill: Get sunset time
+ * @api {get} /weather/sunset What time is sunset in London
+ * @apiName sunset
+ * @apiGroup Weather
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "18:23"
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function sunSet(req, res, next) {
   logger.info('Sunset API called');
@@ -285,27 +426,22 @@ async function sunSet(req, res, next) {
 
   try {
     const apiData = await alfredHelper.requestAPIdata(url);
-    const sunSet = new Date(apiData.body.sys.sunset*1000);
+    const sunSetTime = new Date(apiData.body.sys.sunset * 1000);
 
-    // Send response back to caller
-    alfredHelper.sendResponse(res, 'true', dateFormat(sunSet, 'HH:MM'));
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM')); // Send response back to caller
+    }
     next();
+    return dateFormat(sunSetTime, 'HH:MM');
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     logger.error(`sunSet: ${err}`);
     next();
+    return err;
   }
 }
-
-/**
- * Add skills to server
- */
-skill.get('/today', weatherForcastForToday);
-skill.get('/tomorrow', weatherForcastForTomorrow);
-skill.get('/willitsnow', willItSnow);
-skill.get('/willitrain', willItRain);
 skill.get('/sunset', sunSet);
 
 module.exports = skill;

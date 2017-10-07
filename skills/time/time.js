@@ -1,5 +1,5 @@
 /**
- * Setup schedule skill
+ * Setup includes
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
@@ -15,7 +15,25 @@ const options = {
 const geocoder = NodeGeocoder(options);
 
 /**
- * Skill: whatisthetime
+ * @api {get} /time/whatisthetime Delete log file contents
+ * @apiName whatisthetime
+ * @apiGroup Time
+ *
+ * @apiParam {String} location Location i.e. London
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: 'cleared'
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal server error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function whatisthetime(req, res, next) {
   logger.info('Time API called');
@@ -35,20 +53,20 @@ async function whatisthetime(req, res, next) {
     const url = `http://api.geonames.org/timezoneJSON?lat=${lat}&lng=${lng}&username=${process.env.geonames}`;
     const apiData = await alfredHelper.requestAPIdata(url);
     const returnMessage = `The time in ${location} is currently ${dateFormat(apiData.body.time, 'h:MM TT')}`;
-    alfredHelper.sendResponse(res, 'true', returnMessage);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, returnMessage);
+    }
     next();
+    return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, false, err); // Send response back to caller
     }
     logger.error(`whatisthetime: ${err}`);
     next();
+    return err;
   }
 }
-
-/**
- * Add skills to server
- */
 skill.get('/whatisthetime', whatisthetime);
 
 module.exports = skill;

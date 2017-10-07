@@ -1,158 +1,157 @@
-
-    [
-        {
-            "id": "5",
-            "name": "Bedroom",
-            "lights": [
-                "4",
-                "6"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Bedroom",
-            "action": {
-                "on": false,
-                "bri": 254,
-                "alert": "none"
-            }
+[
+    {
+        "id": "5",
+        "name": "Bedroom",
+        "lights": [
+            "4",
+            "6"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
         },
-        {
-            "id": "6",
-            "name": "Middle Hallway",
-            "lights": [
-                "1"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Hallway",
-            "action": {
-                "on": false,
-                "bri": 254,
-                "hue": 14956,
-                "sat": 140,
-                "effect": "none",
-                "xy": [
-                    0.4571,
-                    0.4097
-                ],
-                "ct": 366,
-                "alert": "none",
-                "colormode": "ct"
-            }
-        },
-        {
-            "id": "7",
-            "name": "Downstairs Hall",
-            "lights": [
-                "13",
-                "14",
-                "17",
-                "18"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Hallway",
-            "action": {
-                "on": false,
-                "bri": 25,
-                "ct": 366,
-                "alert": "none",
-                "colormode": "ct"
-            }
-        },
-        {
-            "id": "8",
-            "name": "Living Area",
-            "lights": [
-                "2",
-                "3",
-                "12"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Living room",
-            "action": {
-                "on": false,
-                "bri": 254,
-                "hue": 34075,
-                "sat": 251,
-                "effect": "none",
-                "xy": [
-                    0.3144,
-                    0.3302
-                ],
-                "ct": 156,
-                "alert": "none",
-                "colormode": "hs"
-            }
-        },
-        {
-            "id": "9",
-            "name": "Kitchen",
-            "lights": [
-                "5",
-                "7",
-                "8",
-                "9",
-                "10",
-                "11"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Kitchen",
-            "action": {
-                "on": false,
-                "bri": 254,
-                "hue": 39392,
-                "sat": 13,
-                "effect": "none",
-                "xy": [
-                    0.3691,
-                    0.3719
-                ],
-                "ct": 231,
-                "alert": "none",
-                "colormode": "xy"
-            }
-        },
-        {
-            "id": "10",
-            "name": "Hall Landing",
-            "lights": [
-                "15",
-                "16"
-            ],
-            "type": "Room",
-            "state": {
-                "all_on": false,
-                "any_on": false
-            },
-            "recycle": false,
-            "class": "Hallway",
-            "action": {
-                "on": false,
-                "bri": 254,
-                "alert": "none"
-            }
+        "recycle": false,
+        "class": "Bedroom",
+        "action": {
+            "on": false,
+            "bri": 254,
+            "alert": "none"
         }
-    ]
+    },
+    {
+        "id": "6",
+        "name": "Middle Hallway",
+        "lights": [
+            "1"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
+        },
+        "recycle": false,
+        "class": "Hallway",
+        "action": {
+            "on": false,
+            "bri": 254,
+            "hue": 14956,
+            "sat": 140,
+            "effect": "none",
+            "xy": [
+                0.4571,
+                0.4097
+            ],
+            "ct": 366,
+            "alert": "none",
+            "colormode": "ct"
+        }
+    },
+    {
+        "id": "7",
+        "name": "Downstairs Hall",
+        "lights": [
+            "13",
+            "14",
+            "17",
+            "18"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
+        },
+        "recycle": false,
+        "class": "Hallway",
+        "action": {
+            "on": false,
+            "bri": 25,
+            "ct": 366,
+            "alert": "none",
+            "colormode": "ct"
+        }
+    },
+    {
+        "id": "8",
+        "name": "Living Area",
+        "lights": [
+            "2",
+            "3",
+            "12"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
+        },
+        "recycle": false,
+        "class": "Living room",
+        "action": {
+            "on": false,
+            "bri": 254,
+            "hue": 34075,
+            "sat": 251,
+            "effect": "none",
+            "xy": [
+                0.3144,
+                0.3302
+            ],
+            "ct": 156,
+            "alert": "none",
+            "colormode": "hs"
+        }
+    },
+    {
+        "id": "9",
+        "name": "Kitchen",
+        "lights": [
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
+        },
+        "recycle": false,
+        "class": "Kitchen",
+        "action": {
+            "on": false,
+            "bri": 254,
+            "hue": 39392,
+            "sat": 13,
+            "effect": "none",
+            "xy": [
+                0.3691,
+                0.3719
+            ],
+            "ct": 231,
+            "alert": "none",
+            "colormode": "xy"
+        }
+    },
+    {
+        "id": "10",
+        "name": "Hall Landing",
+        "lights": [
+            "15",
+            "16"
+        ],
+        "type": "Room",
+        "state": {
+            "all_on": false,
+            "any_on": false
+        },
+        "recycle": false,
+        "class": "Hallway",
+        "action": {
+            "on": false,
+            "bri": 254,
+            "alert": "none"
+        }
+    }
+]

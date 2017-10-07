@@ -1,5 +1,5 @@
 /**
- * Setup bed skills
+ * Setup includes
  */
 const alfredHelper = require('../../helper.js');
 const rp = require('request-promise');
@@ -161,10 +161,14 @@ exports.setHeatingLevel = async function FnSetHeatingLevel(res, side, temp) {
       body = { rightTargetHeatingLevel: temp };
     }
     const apiData = await putEightAPI(url, body);
-    alfredHelper.sendResponse(res, 'true', apiData.message); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, apiData.message); // Send response back to caller
+    }
     return apiData.message;
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
     return err;
   }
 };
@@ -183,10 +187,14 @@ exports.setHeatingTimer = async function FnSetHeatingTimer(res, side, temp, dura
       body = { rightTargetHeatingLevel: temp, rightHeatingDuration: duration };
     }
     const apiData = await putEightAPI(url, body);
-    alfredHelper.sendResponse(res, 'true', apiData.message); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, apiData.message); // Send response back to caller
+    }
     return apiData.message;
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
     return err;
   }
 };
@@ -200,12 +208,12 @@ exports.getBedData = async function FnGetBedData(res) {
   try {
     const apiData = await getEightAPI(url);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'true', apiData); // Send response back to caller
+      alfredHelper.sendResponse(res, true, apiData); // Send response back to caller
     }
     return apiData;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
     return err;
   }
@@ -225,10 +233,14 @@ exports.turnOffBed = async function FnTurnOffBed(res, side) {
       body = { rightHeatingDuration: 0 };
     }
     const apiData = await putEightAPI(url, body);
-    alfredHelper.sendResponse(res, 'true', apiData.message); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, apiData.message); // Send response back to caller
+    }
     return apiData.message;
   } catch (err) {
-    alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    }
     return err;
   }
 };

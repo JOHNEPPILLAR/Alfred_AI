@@ -36,8 +36,8 @@ server.use(restify.plugins.acceptParser(server.acceptable));
 server.use(restify.plugins.queryParser({ mapParams: true }));
 server.use(restify.plugins.fullResponse());
 server.on('uncaughtException', (request, response, route, error) => {
-  logger.error(error.message);
-  alfredHelper.sendResponse(response, 'error', error.message);
+  logger.error(`${route}: ${error.message}`);
+  alfredHelper.sendResponse(response, null, error);
 });
 
 /**
@@ -48,14 +48,14 @@ server.listen(process.env.PORT, () => {
 });
 
 /**
- * Check for valid app_key param, if not then return error
+ * Check for valid app_key param send in header, if not then return error
  */
 server.use((req, res, next) => {
-  if (req.query.app_key === process.env.app_key) {
+  if (req.headers.app_key === process.env.app_key) {
     next();
   } else {
-    logger.error(`Invaid app_key: ${req.query.app_key}`);
-    alfredHelper.sendResponse(res, 'false', 'There was a problem authenticating you.');
+    logger.error(`Invaid app_key: ${req.headers.app_key}`);
+    alfredHelper.sendResponse(res, 401, 'There was a problem authenticating you.');
   }
 });
 

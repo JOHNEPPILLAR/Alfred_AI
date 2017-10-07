@@ -1,5 +1,5 @@
 /**
- * Setup schedule skill
+ * Setup includes
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
@@ -13,8 +13,25 @@ const skill = new Skills();
 const entities = new Entities();
 
 /**
- * Skill: googlesearch
- * Params: search_term: String
+ * @api {get} /search Display Google search results
+ * @apiName search
+ * @apiGroup Search
+ *
+ * @apiParam {String} search_term search term
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: google search results
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal server error
+ *   {
+ *     data: Error message
+ *   }
+ *
  */
 async function googlesearch(req, res, next) {
   logger.info('Search API called');
@@ -39,7 +56,7 @@ async function googlesearch(req, res, next) {
       const apiData = await alfredHelper.requestAPIdata(url);
 
       // Get the search results data
-      const body = apiData.body;
+      const { body } = apiData;
 
       // result variable init
       let found = 0;
@@ -173,26 +190,22 @@ async function googlesearch(req, res, next) {
       }
 
       // Send response back to caller
-      alfredHelper.sendResponse(res, 'true', returnData);
+      alfredHelper.sendResponse(res, true, returnData);
     } catch (err) {
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', err); // Send response back to caller
+        alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
       logger.error(`googlesearch: ${err}`);
       next();
     }
   } else {
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, 'false', 'No search term param'); // Send response back to caller
+      alfredHelper.sendResponse(res, false, 'No search term param'); // Send response back to caller
     }
-    logger.error('googlesearch: No search term param');
+    logger.info('googlesearch: No search term param');
     next();
   }
 }
-
-/**
- * Add skills to server
- */
 skill.get('/search', googlesearch);
 
 module.exports = skill;
