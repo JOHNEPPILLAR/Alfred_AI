@@ -41,7 +41,7 @@ skill.get('/registerdevice', registerDevice);
  *
  * @apiParam {Number} light_number Hue bridge light number
  * @apiParam {String} light_status [ on, off ]
- * @apiParam {Number} percentage Brighness [ 0..255 ]
+ * @apiParam {Number} brightness Brighness [ 0..255 ]
  * @apiParam {Number} x Hue xy color [ 0..1 ]
  * @apiParam {Number} y Hue xy color [ 0..1 ]
  * @apiParam {Number} ct Hue ct color [153..500 ]
@@ -66,7 +66,7 @@ async function lightOnOff(req, res, next) {
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
         (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null) ||
-        (typeof req.body.percentage !== 'undefined' && req.body.percentage !== null)) {
+        (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null)) {
     paramsOK = true;
   }
   if (paramsOK) {
