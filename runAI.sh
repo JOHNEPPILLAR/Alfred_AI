@@ -10,7 +10,7 @@ kill -9 $(ps aux | grep '\snode\s' | awk '{print $2}')
 
 echo "Done."
 
-echo "Now setting node to v8.4.0"
+#echo "Now setting node to v8.4.0"
 #source ~/.nvm/nvm.sh
 #nvm use 8.4.0
 
@@ -20,6 +20,10 @@ echo "Now setting node to v8.4.0"
 
 clear
 
-echo "Run the server app"
+#echo "Run the server app"
 nodemon Alfred_DI.js
-#node server.js
+
+#echo "Build the docker image"
+#docker build -t alfred-di .
+#echo "Run docker image"
+#docker run -p 3978:3978 alfred-di
