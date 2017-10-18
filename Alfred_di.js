@@ -7,6 +7,7 @@ const lightNameHelper = require('./lightNames.js');
 const fs = require('fs');
 const alfredHelper = require('./helper.js');
 const logger = require('winston');
+const memwatch = require('memwatch-next');
 
 // Get up global vars
 global.logger = logger;
@@ -27,6 +28,13 @@ const server = restify.createServer({
 });
 
 global.server = server;
+
+/**
+ * Capture memory leaks
+ */
+memwatch.on('leak', (info) => {
+  logger.error('Memory leak detected:\n', info);
+});
 
 /**
  * API Middleware

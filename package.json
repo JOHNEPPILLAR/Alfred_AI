@@ -32,7 +32,8 @@
     "ssml-builder": "*",
     "underscore": "*",
     "winston": "*",
-    "x-ray": "*"
+    "x-ray": "*",
+    "memwatch-next": "*"
   },
   "devDependencies": {
     "eslint": "^4.8.0",

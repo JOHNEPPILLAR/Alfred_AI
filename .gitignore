@@ -7,5 +7,7 @@ package-lock.json
 server.cert
 server.key
 Dockerfile
+alfred-di.tar
+
 
 

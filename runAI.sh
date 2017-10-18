@@ -27,3 +27,4 @@ nodemon Alfred_DI.js
 #docker build -t alfred-di .
 #echo "Run docker image"
 #docker run -p 3978:3978 alfred-di
+#docker save alfred-di > alfred-di.tar
