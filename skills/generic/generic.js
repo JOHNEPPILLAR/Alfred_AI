@@ -246,7 +246,7 @@ skill.get('/displaylog', displayLog);
 function unlinkpm2(req, res, next) {
   try {
     // pm2 link delete
-    exec('pm2 link delete', (err, stdout, stderr) => {
+    exec('pm2 delete', (err, stdout, stderr) => {
       if (err) {
         logger.error('node could not execute the command');
         return;
