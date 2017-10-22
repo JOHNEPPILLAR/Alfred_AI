@@ -22,9 +22,3 @@ clear
 
 #echo "Run the server app"
 nodemon Alfred_DI.js
-
-#echo "Build the docker image"
-#docker build -t alfred-di .
-#echo "Run docker image"
-#docker run -p 3978:3978 alfred-di
-#docker save alfred-di > alfred-di.tar

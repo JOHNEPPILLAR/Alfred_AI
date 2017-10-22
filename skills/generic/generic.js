@@ -6,6 +6,7 @@ const _ = require('lodash');
 const readline = require('readline');
 const fs = require('fs');
 const alfredHelper = require('../../helper.js');
+const { exec } = require('child_process');
 
 const skill = new Skills();
 
@@ -222,5 +223,45 @@ function displayLog(req, res, next) {
   }
 }
 skill.get('/displaylog', displayLog);
+
+/**
+ * @api {get} /unlinkpm2 Un-link from PM2
+ * @apiName unlinkpm2
+ * @apiGroup Generic
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: unlinked
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 400 Bad Request
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+function unlinkpm2(req, res, next) {
+  try {
+    // pm2 link delete
+    exec('pm2 link delete', (err, stdout, stderr) => {
+      if (err) {
+        logger.error('node could not execute the command');
+        return;
+      }
+      // the *entire* stdout and stderr (buffered)
+      logger.info(`stdout: ${stdout}`);
+      logger.error(`stderr: ${stderr}`);
+    });
+    alfredHelper.sendResponse(res, true, 'unlinked'); // Send response back to caller
+    next();
+  } catch (err) {
+    alfredHelper.sendResponse(res, false, 'failed'); // Send response back to caller
+    next();
+  }
+}
+skill.get('/unlinkpm2', unlinkpm2);
 
 module.exports = skill;
