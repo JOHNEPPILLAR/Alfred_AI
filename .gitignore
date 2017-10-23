@@ -6,7 +6,7 @@ scheduleSettings.json
 package-lock.json
 server.cert
 server.key
-dockerstart
+Dockerfile
 
 
 
