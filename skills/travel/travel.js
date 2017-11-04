@@ -229,23 +229,12 @@ async function nexttrain(req, res, next) {
   const transportapiKey = process.env.transportapiKey;
   let trainroute = req.query.train_destination;
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
-  let raw = false;
+  let returnJSON;
   let disruptions = false;
-  let textResponse;
-
-  if (typeof req.query.raw !== 'undefined' && req.query.raw !== null) {
-    switch (req.query.raw) {
-      case 'true':
-        raw = true;
-        break;
-      case 'false':
-        raw = false;
-        break;
-      default:
-        raw = false;
-        break;
-    }
-  }
+  let firstTrainTime;
+  let firstTrainNotes;
+  let secondTrainTime;
+  let secondTrainNotes;
 
   if (typeof trainroute !== 'undefined' && trainroute !== null) {
     trainroute = trainroute.toUpperCase();
@@ -269,13 +258,12 @@ async function nexttrain(req, res, next) {
       let apiData = await alfredHelper.requestAPIdata(url);
       apiData = apiData.body;
       if (alfredHelper.isEmptyObject(apiData)) {
-        alfredHelper.sendResponse(res, 'false', 'No data was returned from the train API call');
+        alfredHelper.sendResponse(res, false, 'No data was returned from the train API call');
         logger.info('nexttrain: No data was returned from the train API call.');
         next();
       } else {
         const trainsWorking = apiData.departures.all;
         if (alfredHelper.isEmptyObject(trainsWorking)) {
-          textResponse = 'Sorry, there are no trains today! There is a bus replacement serverice in operation';
           disruptions = true;
         } else {
           let trainData = apiData.departures.all;
@@ -285,38 +273,47 @@ async function nexttrain(req, res, next) {
           trainData = trainData.sort(alfredHelper.GetSortOrder('best_arrival_estimate_mins'));
           switch (numberOfElements) {
             case 2:
-              textResponse = '';
               if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
                 disruptions = true;
-                textResponse = `The next train due ${alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60)} to ${trainData[0].destination_name} has been cancelled. `;
+                firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+                firstTrainNotes = 'Cancelled';
               } else {
-                textResponse = `${textResponse}The first train to ${trainData[0].destination_name} will arrive ${alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60)} and is currently ${trainData[0].status.toLowerCase()}.`;
+                firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+                firstTrainNotes = trainData[0].status.toLowerCase();
               }
               if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
-                disruptions = true;
-                textResponse = `${textResponse} The second train due ${alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60)} to ${trainData[1].destination_name} has been cancelled. `;
+                secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+                secondTrainNotes = 'Cancelled';
               } else {
-                textResponse = `${textResponse} The second train to ${trainData[1].destination_name} will arrive ${alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60)} and is currently ${trainData[1].status.toLowerCase()}.`;
+                secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+                secondTrainNotes = trainData[1].status.toLowerCase();
               }
               break;
             default:
-              textResponse = `The next train is to ${trainData[0].destination_name} and will arrive ${alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60)}. It is currently ${trainData[0].status.toLowerCase()}.`;
+              firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+              firstTrainNotes = trainData[0].status.toLowerCase();
           }
         }
-        if (raw) { // Overright output for Alexa Skill
-          textResponse = { disruptions, message: textResponse };
-        }
+
+        returnJSON = {
+          disruptions,
+          firstTrainTime,
+          firstTrainNotes,
+          secondTrainTime,
+          secondTrainNotes,
+        };
+
         if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, true, textResponse); // Send response back to caller
+          alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
         }
         next();
-        return textResponse;
+        return returnJSON;
       }
     } catch (err) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
-      logger.error(`nextbus: ${err}`);
+      logger.error(`nexttrain: ${err}`);
       next();
       return err;
     }

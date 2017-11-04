@@ -110,16 +110,11 @@ exports.addDays = function FnAddDays(date, amount) {
   return d;
 };
 
-exports.minutesToStop = function FnMinutesToStop(timeofnextbus) {
-  const timetostopinMinutes = Math.floor(timeofnextbus / 60);
-  switch (timetostopinMinutes) {
-    case 0:
-      return 'in less than a minute';
-    case 1:
-      return `in ${timetostopinMinutes} minute`;
-    default:
-      return `in ${timetostopinMinutes} minutes`;
-  }
+exports.minutesToStop = function FnMinutesToStop(seconds) {
+  const timetostopinMinutes = Math.floor(seconds / 60);
+  let timeNow = new Date();
+  timeNow.setMinutes(timeNow.getMinutes() + timetostopinMinutes);
+  return dateFormat(timeNow, 'h:MM TT');
 };
 
 exports.zeroFill = function FnZeroFill(number, width) {
