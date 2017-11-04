@@ -231,11 +231,13 @@ async function nexttrain(req, res, next) {
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
   let returnJSON;
   let disruptions = false;
+  let firstDestination;
   let firstTrainTime;
   let firstTrainNotes;
+  let secondDestination;
   let secondTrainTime;
   let secondTrainNotes;
-
+  
   if (typeof trainroute !== 'undefined' && trainroute !== null) {
     trainroute = trainroute.toUpperCase();
     switch (trainroute.toUpperCase()) {
@@ -275,21 +277,26 @@ async function nexttrain(req, res, next) {
             case 2:
               if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
                 disruptions = true;
+                firstDestination = trainData[0].destination_name;
                 firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
                 firstTrainNotes = 'Cancelled';
               } else {
+                firstDestination = trainData[0].destination_name;
                 firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
                 firstTrainNotes = trainData[0].status.toLowerCase();
               }
               if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
+                secondDestination = trainData[1].destination_name;
                 secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
                 secondTrainNotes = 'Cancelled';
               } else {
+                secondDestination = trainData[1].destination_name;
                 secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
                 secondTrainNotes = trainData[1].status.toLowerCase();
               }
               break;
             default:
+              firstDestination = trainData[0].destination_name;
               firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
               firstTrainNotes = trainData[0].status.toLowerCase();
           }
@@ -297,8 +304,10 @@ async function nexttrain(req, res, next) {
 
         returnJSON = {
           disruptions,
+          firstDestination,
           firstTrainTime,
           firstTrainNotes,
+          secondDestination,
           secondTrainTime,
           secondTrainNotes,
         };
