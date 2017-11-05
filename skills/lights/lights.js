@@ -338,7 +338,7 @@ skill.get('/sensor', sensor);
  *
  */
 async function lightstate(req, res, next) {
-  if (typeof req.query.scheduler === 'undefined' || req.query.scheduler == null) {
+  if (req.query.scheduler !== 'true') {
     logger.info('Light state API called');
   }
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
