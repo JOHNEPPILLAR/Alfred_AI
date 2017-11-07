@@ -339,8 +339,10 @@ async function getCommute(req, res, next) {
   const { user } = req.query;
   let trainDestination;
   let tubeLine;
+  let backupTubeLine
   let trainJSON;
   let tubeJSON;
+  let backupTubeJSON;
   let returnJSON;
 
   if (typeof user !== 'undefined' && user !== null) {
@@ -348,10 +350,12 @@ async function getCommute(req, res, next) {
       case 'FRAN':
         trainDestination = { query: { train_destination: 'CST' } };
         tubeLine = { query: { route: 'district' } };
+        backupTubeLine = { query: { route: 'hammersmith-city' } };
         break;
       case 'JP':
         trainDestination = { query: { train_destination: 'CHX' } };
         tubeLine = { query: { route: 'bakerloo' } };
+        backupTubeLine = { query: { route: 'jubilee' } };
         break;
       default:
         if (typeof res !== 'undefined' && res !== null) {
@@ -368,9 +372,13 @@ async function getCommute(req, res, next) {
     // Get tube status
     tubeJSON = await bustubestatus(tubeLine, null, next);
 
+    // Get backup tube route
+    backupTubeJSON = await bustubestatus(backupTubeLine, null, next);
+    
     returnJSON = {
       train: trainJSON,
       tube: tubeJSON,
+      backup: backupTubeJSON
     };
 
 
