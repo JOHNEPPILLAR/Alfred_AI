@@ -7,98 +7,6 @@ const alfredHelper = require('../../helper.js');
 const skill = new Skills();
 
 /**
- * @api {get} /travel/nextbus Get next bus information
- * @apiName nextbus
- * @apiGroup Travel
- *
- * @apiParam {String} bus_route Bus route i.e. 380
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *     sucess: 'true'
- *     data: "The next 380 to Blackheath Village will arrive in ........"
- *   }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 500 Internal error
- *   {
- *     data: Error message
- *   }
- *
- */
-async function nextbus(req, res, next) {
-  logger.info('Next Bus API called');
-
-  const tflapiKey = process.env.tflapikey;
-  const busroute = req.query.bus_route;
-  let url;
-  let textResponse;
-
-  if (typeof busroute !== 'undefined' && busroute !== null) {
-    switch (busroute) {
-      case '380':
-        url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
-        break;
-      default:
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, false, 'Bus route not supported'); // Send response back to caller
-        }
-        logger.info('nextbus: Bus route not supported');
-        next();
-        return 'Bus route not supported';
-    }
-  } else {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
-    }
-    logger.info('nextbus: Missing route param');
-    next();
-    return 'nextbus: Missing route param';
-  }
-
-  try {
-    // Get the bus data
-    let apiData = await alfredHelper.requestAPIdata(url);
-    apiData = apiData.body;
-    if (alfredHelper.isEmptyObject(apiData)) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', 'No data was returned from the call to the TFL API');
-      }
-      logger.info('nextbus: No data was returned from the TFL API call');
-      next();
-    } else {
-      let numberOfElements = apiData.length;
-      if (numberOfElements > 2) { numberOfElements = 2; }
-      const busData = apiData.sort(alfredHelper.GetSortOrder('timeToStation'));
-
-      switch (numberOfElements) {
-        case 2:
-          textResponse = `The next ${busData[0].lineName} to ${busData[0].towards} will arrive ${alfredHelper.minutesToStop(busData[0].timeToStation)
-          }. The second bus to arrive will be ${alfredHelper.minutesToStop(busData[1].timeToStation)}`;
-          break;
-        default:
-          textResponse = `The next ${busData[0].lineName} to ${busData[0].towards} will arrive ${alfredHelper.minutesToStop(busData[0].timeToStation)}`;
-          break;
-      }
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, textResponse); // Send response back to caller
-      }
-      next();
-      return textResponse;
-    }
-  } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, err); // Send response back to caller
-    }
-    logger.error(`nextbus: ${err}`);
-    return err;
-  }
-  return null;
-}
-skill.get('/nextbus', nextbus);
-
-/**
  * @api {get} /travel/bustubestatus Get bus or tube status
  * @apiName bustubestatus
  * @apiGroup Travel
@@ -108,11 +16,12 @@ skill.get('/nextbus', nextbus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
- *     data: {
- *       "disruptions": false,
- *       "message": "There are no disruptions currently reported on the 380 bus"
- *     }
+ *   "sucess": "true",
+ *   "data": {
+ *       "mode": "bus",
+ *       "line": "486",
+ *       "disruptions": "false"
+ *   }
  *   }
  *
  * @apiErrorExample {json} Error-Response:
@@ -123,7 +32,9 @@ skill.get('/nextbus', nextbus);
  *
  */
 async function bustubestatus(req, res, next) {
-  logger.info('Bus & Tube Status API called');
+  if (typeof res !== 'undefined' && res !== null) {
+    logger.info('Bus & Tube Status API called');
+  }
 
   const { route } = req.query;
   let disruptions = 'false';
@@ -176,6 +87,127 @@ async function bustubestatus(req, res, next) {
 }
 skill.get('/bustubestatus', bustubestatus);
 
+
+/**
+ * @api {get} /travel/nextbus Get next bus information
+ * @apiName nextbus
+ * @apiGroup Travel
+ *
+ * @apiParam {String} route Bus route i.e. 380
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *   "sucess": "true",
+ *   "data": {
+ *       "mode": "bus",
+ *       "line": "486",
+ *       "destination": "North Greenwich",
+ *       "firstTime": "7:51 PM",
+ *       "secondTime": "8:03 PM",
+ *       "disruptions": "false"
+ *   }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function nextbus(req, res, next) {
+  if (typeof res !== 'undefined' && res !== null) {
+    logger.info('Next Bus API called');
+  }
+
+  const tflapiKey = process.env.tflapikey;
+  const busroute = req.query.route;
+  let url;
+  let returnJSON;
+
+  if (typeof busroute !== 'undefined' && busroute !== null) {
+    switch (busroute) {
+      case '380':
+        url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
+        break;
+      case '486':
+        url = `https://api.tfl.gov.uk/StopPoint/490001058H/Arrivals?mode=bus&line=486&${tflapiKey}`;
+        break;
+      default:
+        if (typeof res !== 'undefined' && res !== null) {
+          alfredHelper.sendResponse(res, false, 'Bus route not supported'); // Send response back to caller
+          next();
+        }
+        logger.info('nextbus: Bus route not supported');
+        return null;
+        break;
+    }
+  } else {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
+      next();
+    }
+    logger.info('nextbus: Missing route param');
+  }
+
+  try {
+    // Get the bus data
+    const params = { query: { route: busroute } };
+    const distruptionsJSON = await bustubestatus(params, null, next);
+
+    let apiData = await alfredHelper.requestAPIdata(url);
+    apiData = apiData.body;
+    if (alfredHelper.isEmptyObject(apiData)) {
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, 'false', 'No data was returned from the call to the TFL API');
+      }
+      logger.info('nextbus: No data was returned from the TFL API call');
+      next();
+    } else {
+      let numberOfElements = apiData.length;
+      if (numberOfElements > 2) { numberOfElements = 2; }
+      const busData = apiData.sort(alfredHelper.GetSortOrder('timeToStation'));
+
+      switch (numberOfElements) {
+        case 2:
+          returnJSON = {
+            mode: 'bus',
+            line: busData[0].lineName,
+            destination: busData[0].towards,
+            firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
+            secondTime: alfredHelper.minutesToStop(busData[1].timeToStation),
+            disruptions: distruptionsJSON.disruptions,
+          };
+          break;
+        default:
+          returnJSON = {
+            mode: 'bus',
+            line: busData[0].lineName,
+            destination: busData[0].towards,
+            firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
+            disruptions: distruptionsJSON.disruptions,
+          };
+          break;
+      }
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+        next();
+      }
+      return returnJSON;
+    }
+  } catch (err) {
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, err); // Send response back to caller
+      next();
+    }
+    logger.error(`nextbus: ${err}`);
+    return err;
+  }
+  return null;
+}
+skill.get('/nextbus', nextbus);
+
 /**
  * @api {get} /travel/nexttrain Get next train information
  * @apiName nexttrain
@@ -186,9 +218,18 @@ skill.get('/bustubestatus', bustubestatus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
- *     data: "The first train to London Cannon Street will arrive in ......"
+ *   "sucess": "true",
+ *   "data": {
+ *       "mode": "train",
+ *       "disruptions": "false",
+ *       "firstDestination": "London Charing Cross",
+ *       "firstTime": "8:16 PM",
+ *       "firstNotes": "early",
+ *       "secondDestination": "London Charing Cross",
+ *       "secondTime": "8:46 PM",
+ *       "secondNotes": "on time"
  *   }
+ *  }
  *
  * @apiErrorExample {json} Error-Response:
  *   HTTPS/1.1 500 Internal error
@@ -198,19 +239,21 @@ skill.get('/bustubestatus', bustubestatus);
  *
  */
 async function nexttrain(req, res, next) {
-  logger.info('Next Train API called');
+  if (typeof res !== 'undefined' && res !== null) {
+    logger.info('Next Train API called');
+  }
 
   const { transportapiKey } = process.env;
-  let trainroute = req.query.train_destination;
+  let trainroute = req.query.route;
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
   let returnJSON;
   let disruptions = 'false';
   let firstDestination;
-  let firstTrainTime;
-  let firstTrainNotes;
+  let firstTime;
+  let firstNotes;
   let secondDestination;
-  let secondTrainTime;
-  let secondTrainNotes;
+  let secondTime;
+  let secondNotes;
 
   if (typeof trainroute !== 'undefined' && trainroute !== null) {
     trainroute = trainroute.toUpperCase();
@@ -252,38 +295,39 @@ async function nexttrain(req, res, next) {
               if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
                 disruptions = 'true';
                 firstDestination = trainData[0].destination_name;
-                firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-                firstTrainNotes = 'Cancelled';
+                firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+                firstNotes = 'Cancelled';
               } else {
                 firstDestination = trainData[0].destination_name;
-                firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-                firstTrainNotes = trainData[0].status.toLowerCase();
+                firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+                firstNotes = trainData[0].status.toLowerCase();
               }
               if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
                 secondDestination = trainData[1].destination_name;
-                secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-                secondTrainNotes = 'Cancelled';
+                secondTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+                secondNotes = 'Cancelled';
               } else {
                 secondDestination = trainData[1].destination_name;
-                secondTrainTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-                secondTrainNotes = trainData[1].status.toLowerCase();
+                secondTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+                secondNotes = trainData[1].status.toLowerCase();
               }
               break;
             default:
               firstDestination = trainData[0].destination_name;
-              firstTrainTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-              firstTrainNotes = trainData[0].status.toLowerCase();
+              firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+              firstNotes = trainData[0].status.toLowerCase();
           }
         }
 
         returnJSON = {
+          mode: 'train',
           disruptions,
           firstDestination,
-          firstTrainTime,
-          firstTrainNotes,
+          firstTime,
+          firstNotes,
           secondDestination,
-          secondTrainTime,
-          secondTrainNotes,
+          secondTime,
+          secondNotes,
         };
 
         if (typeof res !== 'undefined' && res !== null) {
@@ -323,8 +367,36 @@ skill.get('/nexttrain', nexttrain);
  *   HTTPS/1.1 200 OK
  *   {
  *     sucess: 'true'
- *     data: "The first train to London Cannon Street will arrive in ......"
- *   }
+ *     data: {
+ *       "part1": {
+ *           "mode": "train",
+ *           "disruptions": "false",
+ *           "firstDestination": "London Charing Cross",
+ *           "firstTime": "7:47 PM",
+ *           "firstNotes": "late",
+ *           "secondDestination": "London Charing Cross",
+ *           "secondTime": "8:16 PM",
+ *           "secondNotes": "on time"
+ *       },
+ *       "part2": {
+ *           "mode": "tube",
+ *           "line": "Bakerloo",
+ *           "disruptions": "false"
+ *       },
+ *       "part3": {
+ *           "mode": "bus",
+ *           "line": "486",
+ *           "destination": "North Greenwich",
+ *           "firstTime": "7:52 PM",
+ *           "secondTime": "8:03 PM",
+ *           "disruptions": "false"
+ *       },
+ *       "part4": {
+ *           "mode": "tube",
+ *           "line": "Jubilee",
+ *           "disruptions": "false"
+ *       }
+ *    }
  *
  * @apiErrorExample {json} Error-Response:
  *   HTTPS/1.1 500 Internal error
@@ -337,25 +409,35 @@ async function getCommute(req, res, next) {
   logger.info('Get commute API called');
 
   const { user } = req.query;
-  let trainDestination;
-  let tubeLine;
-  let backupTubeLine
-  let trainJSON;
-  let tubeJSON;
-  let backupTubeJSON;
+  let part1;
+  let part2;
+  let part3;
+  let part4;
+  let part1JSON;
+  let part2JSON;
+  let part3JSON;
+  let part4JSON;
   let returnJSON;
 
   if (typeof user !== 'undefined' && user !== null) {
     switch (user.toUpperCase()) {
       case 'FRAN':
-        trainDestination = { query: { train_destination: 'CST' } };
-        tubeLine = { query: { route: 'district' } };
-        backupTubeLine = { query: { route: 'hammersmith-city' } };
+        part1 = { query: { route: 'CST' } };
+        part1JSON = await nexttrain(part1, null, next);
+        part2 = { query: { route: 'district' } };
+        part2JSON = await bustubestatus(part2, null, next);
+        part3 = { query: { route: 'hammersmith-city' } };
+        part3JSON = await bustubestatus(part3, null, next);
         break;
       case 'JP':
-        trainDestination = { query: { train_destination: 'CHX' } };
-        tubeLine = { query: { route: 'bakerloo' } };
-        backupTubeLine = { query: { route: 'jubilee' } };
+        part1 = { query: { route: 'CHX' } };
+        part1JSON = await nexttrain(part1, null, next);
+        part2 = { query: { route: 'bakerloo' } };
+        part2JSON = await bustubestatus(part2, null, next);
+        part3 = { query: { route: '486' } };
+        part3JSON = await nextbus(part3, null, next);
+        part4 = { query: { route: 'jubilee' } };
+        part4JSON = await bustubestatus(part4, null, next);
         break;
       default:
         if (typeof res !== 'undefined' && res !== null) {
@@ -366,19 +448,11 @@ async function getCommute(req, res, next) {
         return 'User not supported';
     }
 
-    // Get next train
-    trainJSON = await nexttrain(trainDestination, null, next);
-
-    // Get tube status
-    tubeJSON = await bustubestatus(tubeLine, null, next);
-
-    // Get backup tube route
-    backupTubeJSON = await bustubestatus(backupTubeLine, null, next);
-    
     returnJSON = {
-      train: trainJSON,
-      tube: tubeJSON,
-      backup: backupTubeJSON
+      part1: part1JSON,
+      part2: part2JSON,
+      part3: part3JSON,
+      part4: part4JSON,
     };
 
 
@@ -387,14 +461,13 @@ async function getCommute(req, res, next) {
     }
     next();
     return returnJSON;
-  } else {
-    logger.error('getCommute: No user was supplied.');
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'No user was supplied.');
-      next();
-    }
-    return 'No user was supplied';
   }
+  logger.error('getCommute: No user was supplied.');
+  if (typeof res !== 'undefined' && res !== null) {
+    alfredHelper.sendResponse(res, false, 'No user was supplied.');
+    next();
+  }
+  return 'No user was supplied';
 }
 skill.get('/getcommute', getCommute);
 
