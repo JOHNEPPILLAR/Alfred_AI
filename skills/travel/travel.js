@@ -424,6 +424,8 @@ async function getCommute(req, res, next) {
         part2JSON = await bustubestatus(part2, null, next);
         part3 = { query: { route: 'hammersmith-city' } };
         part3JSON = await bustubestatus(part3, null, next);
+        part4 = { query: { route: 'circle' } };
+        part4JSON = await bustubestatus(part4, null, next);
         break;
       case 'JP':
         part1 = { query: { route: 'CHX' } };
