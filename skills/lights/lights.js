@@ -2,7 +2,6 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const scheduleSettings = require('../../scheduleSettings.json');
 const lightshelper = require('./lightshelper.js');
 const alfredHelper = require('../../helper.js');
 

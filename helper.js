@@ -10,7 +10,9 @@ exports.setLogger = function FnSetLogger(logger) {
     logger.add(logger.transports.File, {
       JSON: true, filename: 'Alfred.log', colorize: true, timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); },
     });
-    logger.add(logger.transports.Console, { timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); }, colorize: true });
+    if (process.env.environment === 'dev') {
+      logger.add(logger.transports.Console, { timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); }, colorize: true });
+    }
   } catch (err) {
     logger.error(`setLogger: ${err}`);
   }
