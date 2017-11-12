@@ -128,6 +128,9 @@ async function nextbus(req, res, next) {
 
   if (typeof busroute !== 'undefined' && busroute !== null) {
     switch (busroute) {
+      case '9':
+        url = `https://api.tfl.gov.uk/StopPoint/490013766H/Arrivals?mode=bus&line=9&${tflapiKey}`;
+        break;
       case '380':
         url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
         break;
@@ -418,13 +421,13 @@ async function getCommute(req, res, next) {
   if (typeof user !== 'undefined' && user !== null) {
     switch (user.toUpperCase()) {
       case 'FRAN':
-        part1 = { query: { route: 'CST' } };
+        part1 = { query: { route: 'CHX' } };
         part1JSON = await nexttrain(part1, null, next);
-        part2 = { query: { route: 'district' } };
-        part2JSON = await bustubestatus(part2, null, next);
-        part3 = { query: { route: 'hammersmith-city' } };
-        part3JSON = await bustubestatus(part3, null, next);
-        part4 = { query: { route: 'circle' } };
+        part2 = { query: { route: '9' } };
+        part2JSON = await nextbus(part2, null, next);
+        part3 = { query: { route: 'CST' } };
+        part3JSON = await nexttrain(part3, null, next);
+        part4 = { query: { route: 'district' } };
         part4JSON = await bustubestatus(part4, null, next);
         break;
       case 'JP':
