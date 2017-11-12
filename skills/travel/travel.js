@@ -168,9 +168,10 @@ async function nextbus(req, res, next) {
       logger.info('nextbus: No data was returned from the TFL API call');
       next();
     } else {
-      let numberOfElements = apiData.length;
+      let busData = apiData.filter(a => a.lineId === busroute);
+      busData = busData.sort(alfredHelper.GetSortOrder('timeToStation'));
+      let numberOfElements = busData.length;
       if (numberOfElements > 2) { numberOfElements = 2; }
-      const busData = apiData.sort(alfredHelper.GetSortOrder('timeToStation'));
 
       switch (numberOfElements) {
         case 2:
@@ -288,10 +289,10 @@ async function nexttrain(req, res, next) {
           disruptions = 'true';
         } else {
           let trainData = apiData.departures.all;
-          let numberOfElements = trainData.length;
-          if (numberOfElements > 2) { numberOfElements = 2; }
           trainData = trainData.filter(a => a.platform === '1');
           trainData = trainData.sort(alfredHelper.GetSortOrder('best_arrival_estimate_mins'));
+          let numberOfElements = trainData.length;
+          if (numberOfElements > 2) { numberOfElements = 2; }
           switch (numberOfElements) {
             case 2:
               if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
