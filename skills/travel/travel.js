@@ -252,10 +252,10 @@ async function nexttrain(req, res, next) {
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
   let returnJSON;
   let disruptions = 'false';
-  let destination;
-  let firstTime;
+  let destination = '';
+  let firstTime = 'N/A';
   let firstNotes;
-  let secondTime;
+  let secondTime = 'N/A';
   let secondNotes;
 
   if (typeof trainroute !== 'undefined' && trainroute !== null) {
