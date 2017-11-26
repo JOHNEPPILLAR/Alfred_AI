@@ -129,10 +129,10 @@ exports.zeroFill = function FnZeroFill(number, width) {
 
 exports.getLightName = function FnGetLightName(param) {
   let i;
-  const len = lightNames.length;
+  const len = global.lightNames.length;
   for (i = 0; i < len;) {
-    if (lightNames[i].id.toString() == param.toString()) {
-      return lightNames[i].name;
+    if (global.lightNames[i].id.toString() === param.toString()) {
+      return global.lightNames[i].name;
     }
     i += 1;
   }
@@ -141,10 +141,10 @@ exports.getLightName = function FnGetLightName(param) {
 
 exports.getLightGroupName = function FnGetLightGroupName(param) {
   let i;
-  const len = lightGroupNames.length;
+  const len = global.lightGroupNames.length;
   for (i = 0; i < len;) {
-    if (lightGroupNames[i].id.toString() == param.toString()) {
-      return lightGroupNames[i].name;
+    if (global.lightGroupNames[i].id.toString() === param.toString()) {
+      return global.lightGroupNames[i].name;
     }
     i += 1;
   }

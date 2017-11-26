@@ -14,7 +14,6 @@ global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
 global.eightSessionInfo = null;
-global.lastFnCall = null;
 
 dotenv.load(); // Load env vars
 
@@ -35,7 +34,6 @@ global.server = server;
  */
 memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
-  logger.error(`Last function called was: ${lastFnCall}`);
 });
 
 /* For realtime mem leak watching

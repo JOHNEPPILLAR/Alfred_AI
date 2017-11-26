@@ -39,7 +39,7 @@ const skill = new Skills();
  *
  */
 async function weatherForcastForToday(req, res, next) {
-  logger.info('Today\'s Weather API called');
+  global.logger.info('Today\'s Weather API called');
 
   // Get the location
   let location = '';
@@ -96,7 +96,7 @@ async function weatherForcastForToday(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`todaysWeatherFor: ${err}`);
+    global.logger.error(`todaysWeatherFor: ${err}`);
     next();
     return err;
   }
@@ -146,7 +146,7 @@ skill.get('/today', weatherForcastForToday);
  *
  */
 async function weatherForcastForTomorrow(req, res, next) {
-  logger.info('Tomorrow\'s Weather API called');
+  global.logger.info('Tomorrow\'s Weather API called');
 
   // Get the location
   let location = '';
@@ -243,7 +243,7 @@ async function weatherForcastForTomorrow(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`weatherForcastForTomorrow: ${err}`);
+    global.logger.error(`weatherForcastForTomorrow: ${err}`);
     next();
     return err;
   }
@@ -275,7 +275,7 @@ skill.get('/tomorrow', weatherForcastForTomorrow);
  *
  */
 async function willItSnow(req, res, next) {
-  logger.info('Will it snow API called');
+  global.logger.info('Will it snow API called');
 
   // Get the location
   let location = 'london,uk';
@@ -315,7 +315,7 @@ async function willItSnow(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`willItSnow: ${err}`);
+    global.logger.error(`willItSnow: ${err}`);
     next();
     return err;
   }
@@ -351,7 +351,7 @@ skill.get('/willitsnow', willItSnow);
  *
  */
 async function willItRain(req, res, next) {
-  logger.info('Will it rain API called');
+  global.logger.info('Will it rain API called');
 
   // Get the location
   let location = 'london,uk';
@@ -393,7 +393,7 @@ async function willItRain(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`willItRain: ${err}`);
+    global.logger.error(`willItRain: ${err}`);
     next();
     return err;
   }
@@ -420,7 +420,7 @@ skill.get('/willitrain', willItRain);
  *
  */
 async function sunSet(req, res, next) {
-  logger.info('Sunset API called');
+  global.logger.info('Sunset API called');
 
   const url = `http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
 
@@ -437,7 +437,7 @@ async function sunSet(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`sunSet: ${err}`);
+    global.logger.error(`sunSet: ${err}`);
     next();
     return err;
   }

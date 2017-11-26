@@ -36,7 +36,7 @@ const geocoder = NodeGeocoder(options);
  *
  */
 async function whatisthetime(req, res, next) {
-  logger.info('Time API called');
+  global.logger.info('Time API called');
 
   // Get the location
   let location = '';
@@ -62,7 +62,7 @@ async function whatisthetime(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
     }
-    logger.error(`whatisthetime: ${err}`);
+    global.logger.error(`whatisthetime: ${err}`);
     next();
     return err;
   }

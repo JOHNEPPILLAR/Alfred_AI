@@ -12,30 +12,30 @@ exports.setupLightNames = function FnSetupLightNames() {
   rule.minute = new Date().getMinutes() + 1;
 
   const dailyTimer = new schedule.scheduleJob(rule, (() => {
-    logger.info('Setting up light/light group names');
+    global.logger.info('Setting up light/light group names');
 
     Promise.all([lightshelper.listLights(), lightshelper.listLightGroups()])
       .then(([listLights, listLightGroups]) => {
         // Setup light names
         if (listLights instanceof Error) {
-          logger.error(`schedule setup: ${listLights}`);
+          global.logger.error(`schedule setup: ${listLights}`);
         } else {
           listLights.lights.forEach((value) => {
-            lightNames.push({ id: value.id, name: value.name });
+            global.lightNames.push({ id: value.id, name: value.name });
           });
         }
 
         // Setup ligh group names
         if (listLightGroups instanceof Error) {
-          logger.error(`schedule setup: ${listLightGroups}`);
+          global.logger.error(`schedule setup: ${listLightGroups}`);
         } else {
           listLightGroups.forEach((value) => {
-            lightGroupNames.push({ id: value.id, name: value.name });
+            global.lightGroupNames.push({ id: value.id, name: value.name });
           });
         }
       })
       .catch((err) => {
-        logger.error(`Setup light names: ${err}`);
+        global.logger.error(`Setup light names: ${err}`);
       });
   }));
 };

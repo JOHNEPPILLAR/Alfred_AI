@@ -29,7 +29,7 @@ exports.registerDevice = async function FnRegisterDevice(res) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
     }
-    logger.error(`registerDevice: ${err}`);
+    global.logger.error(`registerDevice: ${err}`);
     return err;
   }
 };
@@ -72,7 +72,7 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`lightOnOff: ${err}`);
+    global.logger.error(`lightOnOff: ${err}`);
     return err;
   }
 };
@@ -117,7 +117,7 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`lightGroupOnOff: ${err}`);
+    global.logger.error(`lightGroupOnOff: ${err}`);
     return err;
   }
 };
@@ -143,7 +143,7 @@ exports.listLights = async function FnListLights(res) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
-      logger.error(`listLights: ${err}`);
+      global.logger.error(`listLights: ${err}`);
       return err;
     }
   }
@@ -174,7 +174,7 @@ exports.listLightGroups = async function FnListLightGroups(res) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
-      logger.error(`listLightGroups: ${err}`);
+      global.logger.error(`listLightGroups: ${err}`);
       return err;
     }
   }
@@ -194,7 +194,7 @@ exports.allOff = async function FnAllOff(res) {
     alfredHelper.sendResponse(res, true, 'Turned off all lights.'); // Send response back to caller
   } catch (err) {
     alfredHelper.sendResponse(res, null, 'There was a problem turning off all the lights.');
-    logger.error(`allOff Error: ${err}`);
+    global.logger.error(`allOff Error: ${err}`);
     return err;
   }
 };
@@ -214,7 +214,7 @@ exports.scenes = async function FnScenes(res) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`scenes: ${err}`);
+    global.logger.error(`scenes: ${err}`);
     return err;
   }
 };
@@ -234,7 +234,7 @@ exports.sensor = async function FnSensor(res) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`scenes: ${err}`);
+    global.logger.error(`scenes: ${err}`);
     return err;
   }
 };
@@ -254,7 +254,7 @@ exports.lightstate = async function FnLightstate(res, lightNumber) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`lightstate: ${err}`);
+    global.logger.error(`lightstate: ${err}`);
     return err;
   }
 };

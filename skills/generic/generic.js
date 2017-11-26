@@ -115,7 +115,7 @@ skill.get('/help', help);
  *
  */
 function ping(req, res, next) {
-  logger.info('Ping API called');
+  global.logger.info('Ping API called');
   alfredHelper.sendResponse(res, true, 'pong'); // Send response back to caller
   next();
 }
@@ -159,7 +159,7 @@ skill.get('/ping', ping);
  *
  */
 function displayLog(req, res, next) {
-  logger.info('Display Log API called');
+  global.logger.info('Display Log API called');
   try {
     let page = 1;
     if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== '') {
@@ -218,7 +218,7 @@ function displayLog(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`displayLog: ${err}`);
+    global.logger.error(`displayLog: ${err}`);
     next();
   }
 }
@@ -248,12 +248,12 @@ function unlinkpm2(req, res, next) {
     // pm2 link delete
     exec('pm2 delete', (err, stdout, stderr) => {
       if (err) {
-        logger.error('node could not execute the command');
+        global.logger.error('node could not execute the command');
         return;
       }
       // the *entire* stdout and stderr (buffered)
-      logger.info(`stdout: ${stdout}`);
-      logger.error(`stderr: ${stderr}`);
+      global.logger.info(`stdout: ${stdout}`);
+      global.logger.error(`stderr: ${stderr}`);
     });
     alfredHelper.sendResponse(res, true, 'unlinked'); // Send response back to caller
     next();

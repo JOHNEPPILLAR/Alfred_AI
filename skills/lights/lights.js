@@ -27,7 +27,7 @@ const skill = new Skills();
  *
  */
 async function registerDevice(req, res, next) {
-  logger.info('Register Device API called');
+  global.logger.info('Register Device API called');
   await lightshelper.registerDevice(res);
   next();
 }
@@ -60,8 +60,7 @@ skill.get('/registerdevice', registerDevice);
  *
  */
 async function lightOnOff(req, res, next) {
-  lastFnCall = 'lightOnOff';
-  logger.info('Light on/off API called');
+  global.logger.info('Light on/off API called');
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
@@ -104,7 +103,7 @@ async function lightOnOff(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
     }
-    logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    global.logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
   next();
 }
@@ -137,8 +136,7 @@ skill.put('/lightonoff', lightOnOff);
  *
  */
 async function lightGroupOnOff(req, res, next) {
-  lastFnCall = 'lightGroupOnOff';
-  logger.info('Light group on/off API called');
+  global.logger.info('Light group on/off API called');
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
@@ -181,7 +179,7 @@ async function lightGroupOnOff(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
     }
-    logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    global.logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
   next();
 }
@@ -207,8 +205,7 @@ skill.put('/lightgrouponoff', lightGroupOnOff);
  *
  */
 async function listLights(req, res, next) {
-  lastFnCall = 'listLights';
-  logger.info('List Lights API called');
+  global.logger.info('List Lights API called');
   await lightshelper.listLights(res);
   next();
 }
@@ -234,8 +231,7 @@ skill.get('/listlights', listLights);
  *
  */
 async function listLightGroups(req, res, next) {
-  lastFnCall = 'listLightGroups';
-  logger.info('List Light Groups API called');
+  global.logger.info('List Light Groups API called');
   await lightshelper.listLightGroups(res);
   next();
 }
@@ -261,8 +257,7 @@ skill.get('/listlightgroups', listLightGroups);
  *
  */
 async function allOff(req, res, next) {
-  lastFnCall = 'allOff';
-  logger.info('Turn off all Lights API called');
+  global.logger.info('Turn off all Lights API called');
   await lightshelper.allOff(res);
   next();
 }
@@ -288,8 +283,7 @@ skill.get('/alloff', allOff);
  *
  */
 async function scenes(req, res, next) {
-  lastFnCall = 'scenes';
-  logger.info('Get light scenes API called');
+  global.logger.info('Get light scenes API called');
   await lightshelper.scenes(res);
   next();
 }
@@ -315,7 +309,6 @@ skill.get('/scenes', scenes);
  *
  */
 async function sensor(req, res, next) {
-  lastFnCall = 'sensor';
   await lightshelper.sensor(res);
   next();
 }
@@ -343,14 +336,13 @@ skill.get('/sensor', sensor);
  *
  */
 async function lightstate(req, res, next) {
-  lastFnCall = 'lightstate';
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
     lightshelper.lightstate(res, req.query.light_number);
   } else {
     if (typeof res !== 'undefined' && res !== null) {
       await alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
     }
-    logger.error('lightstate: The parameter light_number was not supplied.');
+    global.logger.error('lightstate: The parameter light_number was not supplied.');
   }
   next();
 }

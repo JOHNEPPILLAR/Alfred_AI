@@ -34,7 +34,7 @@ const entities = new Entities();
  *
  */
 async function googlesearch(req, res, next) {
-  logger.info('Search API called');
+  global.logger.info('Search API called');
   let returnData;
 
   // Get the search term
@@ -195,14 +195,14 @@ async function googlesearch(req, res, next) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
       }
-      logger.error(`googlesearch: ${err}`);
+      global.logger.error(`googlesearch: ${err}`);
       next();
     }
   } else {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'No search term param'); // Send response back to caller
     }
-    logger.info('googlesearch: No search term param');
+    global.logger.info('googlesearch: No search term param');
     next();
   }
 }

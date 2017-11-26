@@ -37,7 +37,7 @@ const skill = new Skills();
  *
  */
 async function news(req, res, next) {
-  logger.info('NEWS API called');
+  global.logger.info('NEWS API called');
   try {
     // Get the source
     let newsType = 'bbc-news';
@@ -70,7 +70,7 @@ async function news(req, res, next) {
     // If news source if not lised return error message
     if (newsTypeError) {
       alfredHelper.sendResponse(res, false, 'Unsupported type of news.'); // Send response back to caller
-      logger.info('news: Unsupported type of news.');
+      global.logger.info('news: Unsupported type of news.');
       next();
       return false;
     }
@@ -86,7 +86,7 @@ async function news(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`news: ${err}`);
+    global.logger.error(`news: ${err}`);
     next();
     return err;
   }

@@ -42,7 +42,7 @@ async function checkWarmingStatus(side) {
  *
  */
 async function setHeatingLevel(req, res, next) {
-  logger.info('Set heating level API called');
+  global.logger.info('Set heating level API called');
   try {
     const { side } = req.body;
     let { temp } = req.body;
@@ -95,7 +95,7 @@ async function setHeatingLevel(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`setHeatingLevel: ${err}`);
+    global.logger.error(`setHeatingLevel: ${err}`);
     next();
     return err;
   }
@@ -127,7 +127,7 @@ skill.put('/setheatinglevel', setHeatingLevel);
  *
  */
 async function setHeatingTimer(req, res, next) {
-  logger.info('Set heating timer API called');
+  global.logger.info('Set heating timer API called');
   try {
     const { side } = req.body;
     let { temp, duration } = req.body;
@@ -188,7 +188,7 @@ async function setHeatingTimer(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`setHeatingTimer: ${err}`);
+    global.logger.error(`setHeatingTimer: ${err}`);
     next();
     return err;
   }
@@ -217,14 +217,14 @@ skill.put('/setheatingtimer', setHeatingTimer);
  */
 async function getBedData(req, res, next) {
   try {
-    logger.info('Get bed data API called');
+    global.logger.info('Get bed data API called');
     await bedhelper.getBedData(res);
     next();
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`getBedData: ${err}`);
+    global.logger.error(`getBedData: ${err}`);
     next();
     return err;
   }
@@ -255,7 +255,7 @@ skill.get('/getbeddata', getBedData);
  *
  */
 async function turnOffBed(req, res, next) {
-  logger.info('Turn off bed warming API called');
+  global.logger.info('Turn off bed warming API called');
   try {
     const { side } = req.body;
     let sideParamError = true;
@@ -292,7 +292,7 @@ async function turnOffBed(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`turnOffBed: ${err}`);
+    global.logger.error(`turnOffBed: ${err}`);
     next();
     return err;
   }

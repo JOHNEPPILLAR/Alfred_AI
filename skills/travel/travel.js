@@ -33,7 +33,7 @@ const skill = new Skills();
  */
 async function bustubestatus(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Bus & Tube Status API called');
+    global.logger.info('Bus & Tube Status API called');
   }
 
   const { route } = req.query;
@@ -50,7 +50,7 @@ async function bustubestatus(req, res, next) {
           alfredHelper.sendResponse(res, false, 'No data was returned from the TFL API call');
           next();
         }
-        logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
+        global.logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
       } else {
         if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
           disruptions = 'false';
@@ -73,11 +73,11 @@ async function bustubestatus(req, res, next) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
         next();
       }
-      logger.error(`bustubestatus: ${err}`);
+      global.logger.error(`bustubestatus: ${err}`);
       return err;
     }
   } else {
-    logger.info('bustubestatus: Missing route param');
+    global.logger.info('bustubestatus: Missing route param');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
       next();
@@ -118,7 +118,7 @@ skill.get('/bustubestatus', bustubestatus);
  */
 async function nextbus(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Next Bus API called');
+    global.logger.info('Next Bus API called');
   }
 
   const tflapiKey = process.env.tflapikey;
@@ -142,16 +142,15 @@ async function nextbus(req, res, next) {
           alfredHelper.sendResponse(res, false, 'Bus route not supported'); // Send response back to caller
           next();
         }
-        logger.info('nextbus: Bus route not supported');
+        global.logger.info('nextbus: Bus route not supported');
         return null;
-        break;
     }
   } else {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
       next();
     }
-    logger.info('nextbus: Missing route param');
+    global.logger.info('nextbus: Missing route param');
   }
 
   try {
@@ -165,7 +164,7 @@ async function nextbus(req, res, next) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, 'false', 'No data was returned from the call to the TFL API');
       }
-      logger.info('nextbus: No data was returned from the TFL API call');
+      global.logger.info('nextbus: No data was returned from the TFL API call');
       next();
     } else {
       let busData = apiData.filter(a => a.lineId === busroute);
@@ -205,7 +204,7 @@ async function nextbus(req, res, next) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
       next();
     }
-    logger.error(`nextbus: ${err}`);
+    global.logger.error(`nextbus: ${err}`);
     return err;
   }
   return null;
@@ -244,7 +243,7 @@ skill.get('/nextbus', nextbus);
  */
 async function nexttrain(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Next Train API called');
+    global.logger.info('Next Train API called');
   }
 
   const { transportapiKey } = process.env;
@@ -271,7 +270,7 @@ async function nexttrain(req, res, next) {
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, false, 'Train route not supported');
         }
-        logger.info('Nexttrain: Train destination not supported.');
+        global.logger.info('Nexttrain: Train destination not supported.');
         next();
         return 'Train route not supported';
     }
@@ -281,7 +280,7 @@ async function nexttrain(req, res, next) {
       apiData = apiData.body;
       if (alfredHelper.isEmptyObject(apiData)) {
         alfredHelper.sendResponse(res, false, 'No data was returned from the train API call');
-        logger.info('nexttrain: No data was returned from the train API call.');
+        global.logger.info('nexttrain: No data was returned from the train API call.');
         next();
       } else {
         const trainsWorking = apiData.departures.all;
@@ -341,11 +340,11 @@ async function nexttrain(req, res, next) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
         next();
       }
-      logger.error(`nexttrain: ${err}`);
+      global.logger.error(`nexttrain: ${err}`);
       return err;
     }
   } else {
-    logger.error('nexttrain: No train route was supplied.');
+    global.logger.error('nexttrain: No train route was supplied.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'No train route was supplied.');
       next();
@@ -406,7 +405,7 @@ skill.get('/nexttrain', nexttrain);
  *
  */
 async function getCommute(req, res, next) {
-  logger.info('Get commute API called');
+  global.logger.info('Get commute API called');
 
   const { user } = req.query;
   let part1;
@@ -445,7 +444,7 @@ async function getCommute(req, res, next) {
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, false, 'User not supported');
         }
-        logger.info('getCommute: User not supported.');
+        global.logger.info('getCommute: User not supported.');
         next();
         return 'User not supported';
     }
@@ -464,7 +463,7 @@ async function getCommute(req, res, next) {
     next();
     return returnJSON;
   }
-  logger.error('getCommute: No user was supplied.');
+  global.logger.error('getCommute: No user was supplied.');
   if (typeof res !== 'undefined' && res !== null) {
     alfredHelper.sendResponse(res, false, 'No user was supplied.');
     next();

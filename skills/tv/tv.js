@@ -27,7 +27,7 @@ const skill = new Skills();
  *
  */
 async function watchFireTv(req, res, next) {
-  logger.info('Watch Fire TV API called');
+  global.logger.info('Watch Fire TV API called');
   try {
     const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(25026204); // Fire TV ID
@@ -41,7 +41,7 @@ async function watchFireTv(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`watchFireTv: ${err}`);
+    global.logger.error(`watchFireTv: ${err}`);
     next();
     return err;
   }
@@ -68,7 +68,7 @@ skill.get('/watchfiretv', watchFireTv);
  *
  */
 async function watchVirginTv(req, res, next) {
-  logger.info('Watch Virgin TV API called');
+  global.logger.info('Watch Virgin TV API called');
   try {
     const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(22797599); // Virgin TV ID
@@ -82,7 +82,7 @@ async function watchVirginTv(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`watchVirginTv: ${err}`);
+    global.logger.error(`watchVirginTv: ${err}`);
     next();
     return err;
   }
@@ -109,7 +109,7 @@ skill.get('/watchvirgintv', watchVirginTv);
  *
  */
 async function playps4(req, res, next) {
-  logger.info('Play PS4 API called');
+  global.logger.info('Play PS4 API called');
   try {
     const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(23898791); // PS4 ID
@@ -123,7 +123,7 @@ async function playps4(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`playps4: ${err}`);
+    global.logger.error(`playps4: ${err}`);
     next();
     return err;
   }
@@ -150,7 +150,7 @@ skill.get('/playps4', playps4);
  *
  */
 async function turnofftv(req, res, next) {
-  logger.info('Turn off TV API called');
+  global.logger.info('Turn off TV API called');
   try {
     const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(-1); // All off ID
@@ -164,7 +164,7 @@ async function turnofftv(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`turnofftv: ${err}`);
+    global.logger.error(`turnofftv: ${err}`);
     next();
     return err;
   }
@@ -191,7 +191,7 @@ skill.get('/turnoff', turnofftv);
  *
  */
 async function watchAppleTV(req, res, next) {
-  logger.info('Watch Apple TV API called');
+  global.logger.info('Watch Apple TV API called');
   try {
     const harmonyClient = await harmony(process.env.harmonyip);
     harmonyClient.startActivity(22797639); // Apple TV ID
@@ -205,7 +205,7 @@ async function watchAppleTV(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`watchAppleTV: ${err}`);
+    global.logger.error(`watchAppleTV: ${err}`);
     next();
     return err;
   }

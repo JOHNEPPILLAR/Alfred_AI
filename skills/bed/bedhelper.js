@@ -36,7 +36,7 @@ function getEightAPI(url) {
       'Accept-Encoding': 'gzip, deflate',
       'Accept': '*/*',
       'app-Version': '1.10.0',
-      'Session-Token': eightSessionInfo.token,
+      'Session-Token': global.eightSessionInfo.token,
     },
   };
   return rp(options);
@@ -59,7 +59,7 @@ function putEightAPI(url, body) {
       'Accept-Encoding': 'gzip, deflate',
       'Accept': '*/*',
       'app-Version': '1.10.0',
-      'Session-Token': eightSessionInfo.token,
+      'Session-Token': global.eightSessionInfo.token,
     },
   };
   return rp(options);
@@ -91,7 +91,7 @@ function getEightAPI(url) {
       'Accept-Encoding': 'gzip, deflate',
       'Accept': '*/*',
       'app-Version': '1.10.0',
-      'Session-Token': eightSessionInfo.token,
+      'Session-Token': global.eightSessionInfo.token,
     },
   };
   return rp(options);
@@ -114,7 +114,7 @@ function putEightAPI(url, body) {
       'Accept-Encoding': 'gzip, deflate',
       'Accept': '*/*',
       'app-Version': '1.10.0',
-      'Session-Token': eightSessionInfo.token,
+      'Session-Token': global.eightSessionInfo.token,
     },
   };
   return rp(options);
@@ -126,8 +126,8 @@ async function checkEightToken() {
   let validToken = false;
   let tokenExpirary = dateFormat(new Date(), 'dd:mm:yyyy:HH:MM:ss');
 
-  if (typeof eightSessionInfo !== 'undefined' && eightSessionInfo !== null) {
-    tokenExpirary = dateFormat(eightSessionInfo.expirationDate, 'dd:mm:yyyy:HH:MM:ss');
+  if (typeof eightSessionInfo !== 'undefined' && global.eightSessionInfo !== null) {
+    tokenExpirary = dateFormat(global.eightSessionInfo.expirationDate, 'dd:mm:yyyy:HH:MM:ss');
   }
 
   if (currentDateTime < tokenExpirary) { validToken = true; }
@@ -137,7 +137,7 @@ async function checkEightToken() {
       const body = { email: process.env.eightemail, password: process.env.eightpassword };
       const url = 'https://client-api.8slp.net/v1/login';
       const apiData = await postEightAPI(url, body);
-      eightSessionInfo = apiData.session;
+      global.eightSessionInfo = apiData.session;
       return true;
     } catch (err) {
       return false;

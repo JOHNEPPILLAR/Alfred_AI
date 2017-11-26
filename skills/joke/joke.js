@@ -26,10 +26,10 @@ const skill = new Skills();
  *
  */
 async function joke(req, res, next) {
-  logger.info('Joke API called');
+  global.logger.info('Joke API called');
   const url = 'http://ron-swanson-quotes.herokuapp.com/v2/quotes';
   try {
-    const apiData = await alfredHelper.requestAPIdata(url);
+    let apiData = await alfredHelper.requestAPIdata(url);
     apiData = apiData.body;
     alfredHelper.sendResponse(res, true, apiData); // Send response back to caller
     next();
@@ -38,7 +38,7 @@ async function joke(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     }
-    logger.error(`joke: ${err}`);
+    global.logger.error(`joke: ${err}`);
     next();
     return err;
   }
