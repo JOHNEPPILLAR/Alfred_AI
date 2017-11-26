@@ -13,7 +13,8 @@ const memwatch = require('memwatch-next');
 global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
-global.eightSessionInfo;
+global.eightSessionInfo = null;
+global.lastFnCall = null;
 
 dotenv.load(); // Load env vars
 
@@ -30,11 +31,19 @@ const server = restify.createServer({
 global.server = server;
 
 /**
- * Capture memory leaks
+ * Capture any memory leaks
  */
 memwatch.on('leak', (info) => {
-  logger.error('Memory leak detected:\n', info);
+  logger.error('Memory leak detected: ', info);
+  logger.error(`Last function called was: ${lastFnCall}`);
 });
+
+/* For realtime mem leak watching
+if (process.env.environment === 'dev') {
+  const easyMonitor = require('easy-monitor');
+  easyMonitor('alfred');
+}
+*/
 
 /**
  * API Middleware

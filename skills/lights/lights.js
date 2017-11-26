@@ -60,6 +60,7 @@ skill.get('/registerdevice', registerDevice);
  *
  */
 async function lightOnOff(req, res, next) {
+  lastFnCall = 'lightOnOff';
   logger.info('Light on/off API called');
   let paramsOK = false;
 
@@ -136,6 +137,7 @@ skill.put('/lightonoff', lightOnOff);
  *
  */
 async function lightGroupOnOff(req, res, next) {
+  lastFnCall = 'lightGroupOnOff';
   logger.info('Light group on/off API called');
   let paramsOK = false;
 
@@ -205,6 +207,7 @@ skill.put('/lightgrouponoff', lightGroupOnOff);
  *
  */
 async function listLights(req, res, next) {
+  lastFnCall = 'listLights';
   logger.info('List Lights API called');
   await lightshelper.listLights(res);
   next();
@@ -231,6 +234,7 @@ skill.get('/listlights', listLights);
  *
  */
 async function listLightGroups(req, res, next) {
+  lastFnCall = 'listLightGroups';
   logger.info('List Light Groups API called');
   await lightshelper.listLightGroups(res);
   next();
@@ -257,6 +261,7 @@ skill.get('/listlightgroups', listLightGroups);
  *
  */
 async function allOff(req, res, next) {
+  lastFnCall = 'allOff';
   logger.info('Turn off all Lights API called');
   await lightshelper.allOff(res);
   next();
@@ -283,6 +288,7 @@ skill.get('/alloff', allOff);
  *
  */
 async function scenes(req, res, next) {
+  lastFnCall = 'scenes';
   logger.info('Get light scenes API called');
   await lightshelper.scenes(res);
   next();
@@ -309,6 +315,7 @@ skill.get('/scenes', scenes);
  *
  */
 async function sensor(req, res, next) {
+  lastFnCall = 'sensor';
   await lightshelper.sensor(res);
   next();
 }
@@ -336,6 +343,7 @@ skill.get('/sensor', sensor);
  *
  */
 async function lightstate(req, res, next) {
+  lastFnCall = 'lightstate';
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
     lightshelper.lightstate(res, req.query.light_number);
   } else {
