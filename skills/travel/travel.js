@@ -161,11 +161,20 @@ async function nextbus(req, res, next) {
     let apiData = await alfredHelper.requestAPIdata(url);
     apiData = apiData.body;
     if (alfredHelper.isEmptyObject(apiData)) {
+      returnJSON = {
+        mode: 'bus',
+        line: busroute,
+        destination: '',
+        firstTime: 'N/A',
+        secondTime: 'N/A',
+        disruptions: 'true',
+        error: 'No data was returned from the call to the TFL API',
+      };
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, 'false', 'No data was returned from the call to the TFL API');
+        alfredHelper.sendResponse(res, false, returnJSON);
+        next();
       }
       global.logger.info('nextbus: No data was returned from the TFL API call');
-      next();
     } else {
       let busData = apiData.filter(a => a.lineId === busroute);
       busData = busData.sort(alfredHelper.GetSortOrder('timeToStation'));
@@ -189,6 +198,7 @@ async function nextbus(req, res, next) {
             line: busData[0].lineName,
             destination: busData[0].towards,
             firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
+            secondTime: 'N/A',
             disruptions: distruptionsJSON.disruptions,
           };
           break;
@@ -197,8 +207,8 @@ async function nextbus(req, res, next) {
         alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
         next();
       }
-      return returnJSON;
     }
+    return returnJSON;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
