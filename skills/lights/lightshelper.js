@@ -8,6 +8,8 @@ const alfredHelper = require('../../helper.js');
 const mockLights = require('./mockLights.json');
 const mockLightGroups = require('./mockLightGroups.json');
 
+//require('heapdump');
+
 dotenv.load(); // Load env vars
 
 const { lightState } = HueLights;
@@ -38,10 +40,6 @@ exports.registerDevice = async function FnRegisterDevice(res) {
  * Skill: lights on/off
  */
 exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, brightness, x, y, ct) {
-
-//  global.memwatch.gc();
-//  var hd = new global.memwatch.HeapDiff();
-
   let returnMessage;
   let returnState;
 
@@ -70,11 +68,7 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
-    }
-
-//    var hde = hd.end();
-//    global.logger.info(JSON.stringify(hde, null, 2));
-  
+    }  
     return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
@@ -89,6 +83,12 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
  * Skill: light group on/off
  */
 exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lightAction, brightness, x, y, ct) {
+
+  //global.gc();
+  //var heapUsed = process.memoryUsage().heapUsed;
+  //global.logger.info("Program is using " + heapUsed + " bytes of Heap.")
+  //process.kill(process.pid, 'SIGUSR2');
+
   let returnMessage;
   let returnState;
 

@@ -17,4 +17,5 @@ echo "Done."
 clear
 
 #echo "Run the server app"
-nodemon Alfred_DI.js
+#nodemon Alfred_DI.js
+node --expose-gc Alfred_di.js
