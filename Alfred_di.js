@@ -14,6 +14,7 @@ global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
 global.eightSessionInfo = null;
+global.memwatch = memwatch;
 
 dotenv.load(); // Load env vars
 
@@ -32,16 +33,9 @@ global.server = server;
 /**
  * Capture any memory leaks
  */
-memwatch.on('leak', (info) => {
+global.memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
 });
-
-/* For realtime mem leak watching
-if (process.env.environment === 'dev') {
-  const easyMonitor = require('easy-monitor');
-  easyMonitor('alfred');
-}
-*/
 
 /**
  * API Middleware
