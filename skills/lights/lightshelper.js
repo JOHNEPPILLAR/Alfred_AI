@@ -39,8 +39,8 @@ exports.registerDevice = async function FnRegisterDevice(res) {
  */
 exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, brightness, x, y, ct) {
 
-  memwatch.gc();
-  var hd = new memwatch.HeapDiff();
+//  global.memwatch.gc();
+//  var hd = new global.memwatch.HeapDiff();
 
   let returnMessage;
   let returnState;
@@ -72,8 +72,8 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
     }
 
-    var hde = hd.end();
-    global.logger.info(JSON.stringify(hde, null, 2));
+//    var hde = hd.end();
+//    global.logger.info(JSON.stringify(hde, null, 2));
   
     return returnMessage;
   } catch (err) {
