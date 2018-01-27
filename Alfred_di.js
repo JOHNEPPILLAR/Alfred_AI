@@ -37,6 +37,20 @@ global.memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
 });
 
+/*
+ global.memwatch.on('stats', (d) => {
+  logger.info('postgc:', msFromStart(), d.current_base);
+ });
+setInterval(() => {
+  logger.info('Heap: ', process.memoryUsage().heapUsed);
+}, 10000);
+*/
+
+server.pre((request, response, next) => {
+  logger.info(`Request body: ${request.body}`);
+  next();
+});
+
 /**
  * API Middleware
  */
