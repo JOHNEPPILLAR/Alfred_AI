@@ -47,7 +47,9 @@ setInterval(() => {
 */
 
 server.pre((request, response, next) => {
-  logger.info(`Request body: ${request.body}`);
+  if (request.method !== 'GET') {
+    logger.info(`Request body: ${request.body}`);
+  }
   next();
 });
 
