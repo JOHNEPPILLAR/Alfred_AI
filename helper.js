@@ -25,12 +25,13 @@ exports.sendResponse = function FnSendResponse(res, status, dataObj) {
   // Construct the returning message
   let rtnStatus = 'true';
   let httpHeaderCode = 200;
+  let rtnData = dataObj;
 
   switch (status) {
     case null: // Internal server error
       httpHeaderCode = 500;
       rtnStatus = 'false';
-      dataObj = {
+      rtnData = {
         name: dataObj.name,
         message: dataObj.message,
       };
@@ -50,8 +51,9 @@ exports.sendResponse = function FnSendResponse(res, status, dataObj) {
   if (!status) { rtnStatus = 'false'; }
   const returnJSON = {
     sucess: rtnStatus,
-    data: dataObj,
+    data: rtnData,
   };
+  rtnData = null; // DeAllocate rtnData object
 
   // Send response back to caller
   res.send(httpHeaderCode, returnJSON);
@@ -69,7 +71,9 @@ exports.requestAPIdata = function FnRequestAPIdata(apiURL, userAgent) {
     resolveWithFullResponse: true,
     json: true,
   };
-  return rp(options);
+  return rp(options).on('error', (err) => {
+    global.logger.error(err);
+  }).end();
 };
 
 /**

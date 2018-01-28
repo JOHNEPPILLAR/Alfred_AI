@@ -99,13 +99,14 @@ async function lightOnOff(req, res, next) {
       if (ct > 500) { ct = 500; }
     }
     await lightshelper.lightOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
+    next();
   } else {
+    global.logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+      next();
     }
-    global.logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
-  next();
 }
 skill.put('/lightonoff', lightOnOff);
 
@@ -175,13 +176,14 @@ async function lightGroupOnOff(req, res, next) {
       if (ct > 500) { ct = 500; }
     }
     await lightshelper.lightGroupOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
+    next();
   } else {
+    global.logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+      next();
     }
-    global.logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
   }
-  next();
 }
 skill.put('/lightgrouponoff', lightGroupOnOff);
 
@@ -338,13 +340,14 @@ skill.get('/sensor', sensor);
 async function lightstate(req, res, next) {
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
     lightshelper.lightstate(res, req.query.light_number);
+    next();
   } else {
+    global.logger.error('lightstate: The parameter light_number was not supplied.');
     if (typeof res !== 'undefined' && res !== null) {
       await alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
+      next();
     }
-    global.logger.error('lightstate: The parameter light_number was not supplied.');
   }
-  next();
 }
 skill.get('/lightstate', lightstate);
 

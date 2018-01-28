@@ -8,8 +8,6 @@ const alfredHelper = require('../../helper.js');
 const mockLights = require('./mockLights.json');
 const mockLightGroups = require('./mockLightGroups.json');
 
-//require('heapdump');
-
 dotenv.load(); // Load env vars
 
 const { lightState } = HueLights;
@@ -44,7 +42,7 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
   let returnState;
 
   // Validate input params and set state
-  if (typeof brightness === 'undefined' || brightness == null) { brightness = 100; }
+  // if (typeof brightness === 'undefined' || brightness == null) { brightness = 100; }
 
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
@@ -57,8 +55,11 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
       state = lightState.create().on().brightness(brightness);
     }
   }
+
   try {
     const lights = await Hue.setLightState(lightNumber, state);
+    state = null; // DeAllocate state object
+
     if (lights) {
       returnState = true;
       returnMessage = `The light was turned ${lightAction}.`;
@@ -68,7 +69,7 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
-    }  
+    }
     return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
@@ -83,19 +84,11 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
  * Skill: light group on/off
  */
 exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lightAction, brightness, x, y, ct) {
-
-  //global.gc();
-  //var heapUsed = process.memoryUsage().heapUsed;
-  //global.logger.info("Program is using " + heapUsed + " bytes of Heap.")
-  //process.kill(process.pid, 'SIGUSR2');
-
   let returnMessage;
   let returnState;
 
   // Validate input params and set state
-  if (typeof brightness === 'undefined' || brightness == null) {
-    brightness = 100;
-  }
+  // if (typeof brightness === 'undefined' || brightness == null) { brightness = 100; }
 
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
@@ -108,8 +101,11 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
       state = lightState.create().on().brightness(brightness);
     }
   }
+
   try {
-    const lights = await Hue.setGroupLightState(lightNumber, state);
+    let lights = await Hue.setGroupLightState(lightNumber, state);
+    state = null; // DeAllocate state object
+
     if (lights) {
       returnState = true;
       returnMessage = `The light group was turned ${lightAction}.`;
@@ -120,6 +116,7 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
     }
+    lights = null; // DeAllocate state object
     return returnMessage;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
@@ -192,15 +189,18 @@ exports.listLightGroups = async function FnListLightGroups(res) {
  * Skill: turn off all lights
  */
 exports.allOff = async function FnAllOff(res) {
-  const state = lightState.create().off();
+  let state = lightState.create().off();
   try {
     // Get a list of all the lights
-    const lights = await Hue.lights();
+    let lights = await Hue.lights();
     lights.lights.forEach((value) => {
       Hue.setLightState(value.id, state);
     });
+    state = null; // DeAllocate state object
+    lights = null; // DeAllocate lights object
     alfredHelper.sendResponse(res, true, 'Turned off all lights.'); // Send response back to caller
   } catch (err) {
+    state = null; // DeAllocate state object
     alfredHelper.sendResponse(res, null, 'There was a problem turning off all the lights.');
     global.logger.error(`allOff Error: ${err}`);
     return err;
