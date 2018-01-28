@@ -8,13 +8,14 @@ const fs = require('fs');
 const alfredHelper = require('./helper.js');
 const logger = require('winston');
 const memwatch = require('memwatch-next');
+const util = require('util');
 
 // Get up global vars
 global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
 global.eightSessionInfo = null;
-global.memwatch = memwatch;
+global.lastPayloadInfo = null;
 
 dotenv.load(); // Load env vars
 
@@ -33,8 +34,9 @@ global.server = server;
 /**
  * Capture any memory leaks
  */
-global.memwatch.on('leak', (info) => {
+memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
+  logger.error(`Last payload: ${global.lastPayloadInfo}`);
 });
 
 /*
@@ -45,13 +47,6 @@ setInterval(() => {
   logger.info('Heap: ', process.memoryUsage().heapUsed);
 }, 10000);
 */
-
-server.pre((request, response, next) => {
-  if (request.method !== 'GET') {
-    logger.info(`Request body: ${request.body}`);
-  }
-  next();
-});
 
 /**
  * API Middleware
@@ -77,6 +72,9 @@ server.listen(process.env.PORT, () => {
  */
 server.use((req, res, next) => {
   if (req.headers.app_key === process.env.app_key) {
+    if (req.method !== 'GET') { // Log post payload for memory leak info
+      global.lastPayloadInfo = util.inspect(req.body, false, null);
+    }
     next();
   } else {
     logger.error(`Invaid app_key: ${req.headers.app_key}`);
