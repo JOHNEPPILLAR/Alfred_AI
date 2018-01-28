@@ -8,14 +8,13 @@ const fs = require('fs');
 const alfredHelper = require('./helper.js');
 const logger = require('winston');
 const memwatch = require('memwatch-next');
-const util = require('util');
+const heapdump = require('heapdump');
 
 // Get up global vars
 global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
 global.eightSessionInfo = null;
-global.lastPayloadInfo = null;
 
 dotenv.load(); // Load env vars
 
@@ -36,17 +35,8 @@ global.server = server;
  */
 memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
-  logger.error(`Last payload: ${global.lastPayloadInfo}`);
+  heapdump.writeSnapshot(`/var/config/HeapSnapShot_${Date.now()}.heapsnapshot`);
 });
-
-/*
- global.memwatch.on('stats', (d) => {
-  logger.info('postgc:', msFromStart(), d.current_base);
- });
-setInterval(() => {
-  logger.info('Heap: ', process.memoryUsage().heapUsed);
-}, 10000);
-*/
 
 /**
  * API Middleware
@@ -72,9 +62,6 @@ server.listen(process.env.PORT, () => {
  */
 server.use((req, res, next) => {
   if (req.headers.app_key === process.env.app_key) {
-    if (req.method !== 'GET') { // Log post payload for memory leak info
-      global.lastPayloadInfo = util.inspect(req.body, false, null);
-    }
     next();
   } else {
     logger.error(`Invaid app_key: ${req.headers.app_key}`);
@@ -114,3 +101,6 @@ timeRouter.applyRoutes(server);
 travelRouter.applyRoutes(server, '/travel');
 tvRouter.applyRoutes(server, '/tv');
 weatherRouter.applyRoutes(server, '/weather');
+
+// Create base heap snapshot
+heapdump.writeSnapshot(`/var/config/BaseHeapSnapShot_${Date.now()}.heapsnapshot`);
