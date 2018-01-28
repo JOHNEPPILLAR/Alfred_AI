@@ -35,7 +35,7 @@ global.server = server;
  */
 memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
-  heapdump.writeSnapshot(`/var/config/${Date.now()}HeapSnapShot.heapsnapshot`);
+  heapdump.writeSnapshot(`/var/config/${Date.now()}_HeapSnapShot.heapsnapshot`);
 });
 
 /**
@@ -103,4 +103,4 @@ tvRouter.applyRoutes(server, '/tv');
 weatherRouter.applyRoutes(server, '/weather');
 
 // Create base heap snapshot
-heapdump.writeSnapshot(`/var/config/${Date.now()}BaseHeapSnapShot.heapsnapshot`);
+heapdump.writeSnapshot(`/var/config/${Date.now()}_BaseHeapSnapShot.heapsnapshot`);
