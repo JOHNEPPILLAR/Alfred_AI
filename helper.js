@@ -63,17 +63,19 @@ exports.sendResponse = function FnSendResponse(res, status, dataObj) {
  * Call a remote API to get data
  */
 exports.requestAPIdata = function FnRequestAPIdata(apiURL, userAgent) {
-  const options = {
-    'User-Agent': userAgent,
-    method: 'GET',
-    uri: apiURL,
-    family: 4,
-    resolveWithFullResponse: true,
-    json: true,
-  };
-  return rp(options).on('error', (err) => {
+  try {
+    const options = {
+      'User-Agent': userAgent,
+      method: 'GET',
+      uri: apiURL,
+      family: 4,
+      resolveWithFullResponse: true,
+      json: true,
+    };
+    return rp(options);
+  } catch (err) {
     global.logger.error(err);
-  }).end();
+  }
 };
 
 /**
