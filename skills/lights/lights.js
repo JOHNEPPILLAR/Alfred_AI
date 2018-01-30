@@ -339,12 +339,12 @@ skill.get('/sensor', sensor);
  */
 async function lightstate(req, res, next) {
   if (typeof req.query.light_number !== 'undefined' && req.query.light_number !== null) {
-    lightshelper.lightstate(res, req.query.light_number);
+    await lightshelper.lightstate(res, req.query.light_number);
     next();
   } else {
     global.logger.error('lightstate: The parameter light_number was not supplied.');
     if (typeof res !== 'undefined' && res !== null) {
-      await alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
+      alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
       next();
     }
   }

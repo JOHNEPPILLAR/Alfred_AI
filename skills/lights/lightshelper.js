@@ -236,14 +236,16 @@ exports.sensor = async function FnSensor(res) {
 
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, sensors); // Send response back to caller
+    } else {
+      return sensors;
     }
-    return sensors;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
     global.logger.error(`scenes: ${err}`);
-    return err;
   }
 };
 
@@ -256,13 +258,15 @@ exports.lightstate = async function FnLightstate(res, lightNumber) {
 
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, state); // Send response back to caller
+    } else {
+      return state;
     }
-    return state;
   } catch (err) {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
     global.logger.error(`lightstate: ${err}`);
-    return err;
   }
 };
