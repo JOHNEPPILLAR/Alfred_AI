@@ -64,14 +64,20 @@ async function lightOnOff(req, res, next) {
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
-        (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null) ||
-        (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null)) {
+      (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null)) {
     paramsOK = true;
   }
+
+  let lightNumber = req.body.light_number;
+  if (lightNumber < 1) { lightNumber = 1; }
+
+  const lightState = req.body.light_status.toLowerCase();
   if (paramsOK) {
-    switch (req.body.light_status.toLowerCase()) {
+    switch (lightState) {
       case 'on':
-        paramsOK = true;
+        if (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null) {
+          paramsOK = true;
+        }
         break;
       case 'off':
         paramsOK = true;
@@ -84,6 +90,7 @@ async function lightOnOff(req, res, next) {
     let {
       brightness, x, y, ct,
     } = req.body;
+    if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
     if (brightness > 255) { brightness = 255; }
     if (typeof x !== 'undefined' && x !== null) {
@@ -98,12 +105,12 @@ async function lightOnOff(req, res, next) {
       if (ct < 153) { ct = 153; }
       if (ct > 500) { ct = 500; }
     }
-    await lightshelper.lightOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
+    await lightshelper.lightOnOff(res, lightNumber, lightState, brightness, x, y, ct);
     next();
   } else {
-    global.logger.info('lightOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    global.logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+      alfredHelper.sendResponse(res, false, 'The parameters light_status or light_number was either not supplied or invalid.');
       next();
     }
   }
@@ -141,12 +148,16 @@ async function lightGroupOnOff(req, res, next) {
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
-        (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null) ||
-        (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null)) {
+      (typeof req.body.light_status !== 'undefined' && req.body.light_status !== null)) {
     paramsOK = true;
   }
+
+  let lightNumber = req.body.light_number;
+  if (lightNumber < 1) { lightNumber = 1; }
+
+  const lightState = req.body.light_status.toLowerCase();
   if (paramsOK) {
-    switch (req.body.light_status.toLowerCase()) {
+    switch (lightState) {
       case 'on':
         paramsOK = true;
         break;
@@ -161,6 +172,7 @@ async function lightGroupOnOff(req, res, next) {
     let {
       brightness, x, y, ct,
     } = req.body;
+    if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
     if (brightness > 255) { brightness = 255; }
     if (typeof x !== 'undefined' && x !== null) {
@@ -175,12 +187,12 @@ async function lightGroupOnOff(req, res, next) {
       if (ct < 153) { ct = 153; }
       if (ct > 500) { ct = 500; }
     }
-    await lightshelper.lightGroupOnOff(res, req.body.light_number, req.body.light_status.toLowerCase(), brightness, x, y, ct);
+    await lightshelper.lightGroupOnOff(res, lightNumber, lightState, brightness, x, y, ct);
     next();
   } else {
-    global.logger.info('lightGroupOnOff: The parameters light_status, light_number or percentage was either not supplied or invalid.');
+    global.logger.info('lightGroupOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'The parameters light_status, light_number or percentage was either not supplied or invalid.');
+      alfredHelper.sendResponse(res, false, 'The parameters light_status or light_number was either not supplied or invalid.');
       next();
     }
   }

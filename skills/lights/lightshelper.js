@@ -41,15 +41,12 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
   let returnMessage;
   let returnState;
 
-  // Validate input params and set state
-  // if (typeof brightness === 'undefined' || brightness == null) { brightness = 100; }
-
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
     if (typeof ct !== 'undefined' && ct != null) {
       state = lightState.create().on().brightness(brightness).ct(ct);
     } else if ((typeof x !== 'undefined' && x != null) &&
-                (typeof y !== 'undefined' && y != null)) {
+               (typeof y !== 'undefined' && y != null)) {
       state = lightState.create().on().brightness(brightness).xy(x, y);
     } else {
       state = lightState.create().on().brightness(brightness);
@@ -62,10 +59,10 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
 
     if (lights) {
       returnState = true;
-      returnMessage = `The light was turned ${lightAction}.`;
+      returnMessage = `Light ${lightNumber} was turned ${lightAction}.`;
     } else {
       returnState = false;
-      returnMessage = `There was an error turning the light ${lightAction}.`;
+      returnMessage = `There was an error turning light ${lightNumber} ${lightAction}.`;
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
@@ -87,15 +84,12 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
   let returnMessage;
   let returnState;
 
-  // Validate input params and set state
-  // if (typeof brightness === 'undefined' || brightness == null) { brightness = 100; }
-
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
     if (typeof ct !== 'undefined' && ct != null) {
       state = lightState.create().on().brightness(brightness).ct(ct);
     } else if ((typeof x !== 'undefined' && x != null) &&
-                (typeof y !== 'undefined' && y != null)) {
+               (typeof y !== 'undefined' && y != null)) {
       state = lightState.create().on().brightness(brightness).xy(x, y);
     } else {
       state = lightState.create().on().brightness(brightness);
@@ -108,10 +102,10 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
 
     if (lights) {
       returnState = true;
-      returnMessage = `The light group was turned ${lightAction}.`;
+      returnMessage = `Light group ${lightNumber} was turned ${lightAction}.`;
     } else {
       returnState = false;
-      returnMessage = `There was an error turning the light group ${lightAction}.`;
+      returnMessage = `There was an error turning light group ${lightNumber} ${lightAction}.`;
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
@@ -240,12 +234,12 @@ exports.sensor = async function FnSensor(res) {
       return sensors;
     }
   } catch (err) {
+    global.logger.error(`scenes: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     } else {
       return err;
     }
-    global.logger.error(`scenes: ${err}`);
   }
 };
 
@@ -262,11 +256,11 @@ exports.lightstate = async function FnLightstate(res, lightNumber) {
       return state;
     }
   } catch (err) {
+    global.logger.error(`lightstate: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     } else {
       return err;
     }
-    global.logger.error(`lightstate: ${err}`);
   }
 };
