@@ -103,4 +103,4 @@ tvRouter.applyRoutes(server, '/tv');
 weatherRouter.applyRoutes(server, '/weather');
 
 // Create base heap snapshot
-heapdump.writeSnapshot(`/var/config/${Date.now()}_BaseHeapSnapShot.heapsnapshot`);
+heapdump.writeSnapshot(`/var/config/mem/${Date.now()}_BaseHeapSnapShot.heapsnapshot`);
