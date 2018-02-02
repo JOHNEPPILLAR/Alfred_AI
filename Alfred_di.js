@@ -35,7 +35,7 @@ global.server = server;
  */
 memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
-  heapdump.writeSnapshot(`/var/config/${Date.now()}_HeapSnapShot.heapsnapshot`);
+  heapdump.writeSnapshot(`/var/config/mem/${Date.now()}_HeapSnapShot.heapsnapshot`);
 });
 
 /**
