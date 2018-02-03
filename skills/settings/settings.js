@@ -3,9 +3,9 @@
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
-const lightshelper = require('../../skills/lights/lightshelper.js');
 const fs = require('fs');
 const dateFormat = require('dateformat');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -29,30 +29,28 @@ const skill = new Skills();
  *
  */
 function delLog(req, res, next) {
-  global.logger.info('Delete log file API called');
+  logger.info('Delete log file API called');
   try {
-    global.logger.remove(global.logger.transports.File); // Remove the logger
+    logger.remove(logger.transports.File); // Remove the logger transport
 
     // Delete the log file
     const filePath = './Alfred.log';
     fs.unlinkSync(filePath);
 
     // re-setup the log file
-    global.logger.add(global.logger.transports.File, {
+    logger.add(logger.transports.File, {
       JSON: true, filename: 'Alfred.log', colorize: true, timestamp() { return dateFormat(new Date(), 'dd mmm yyyy HH:MM'); },
     });
 
-    global.logger.info('Cleared log file');
+    logger.info('Cleared log file');
     alfredHelper.sendResponse(res, true, 'cleared');
     next();
   } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
-    }
-    global.logger.error(`dellog: ${err}`);
+    logger.error(`dellog: ${err}`);
+    alfredHelper.sendResponse(res, null, err); // Send response back to caller
     next();
-    return err;
   }
+  return null;
 }
 skill.get('/dellog', delLog);
 
@@ -76,16 +74,15 @@ skill.get('/dellog', delLog);
  *
  */
 function reStart(req, res, next) {
-  global.logger.info('Restart Alfred API called');
+  logger.info('Restart Alfred API called');
 
   alfredHelper.sendResponse(res, true, 'restarting');
+  next();
 
   setTimeout(() => {
-    global.logger.info('Restarting Alfred');
-    global.server.close(); // Stop API responses
-    process.exit(); // Kill the app and let nodemon restart it
+    logger.info('Restarting Alfred_DI');
+    process.exit(); // Kill the app and let PM2 restart it
   }, 1000);
-  next();
 }
 skill.get('/restart', reStart);
 

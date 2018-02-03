@@ -4,6 +4,7 @@
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
 const bedhelper = require('./bedhelper.js');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -42,7 +43,7 @@ async function checkWarmingStatus(side) {
  *
  */
 async function setHeatingLevel(req, res, next) {
-  global.logger.info('Set heating level API called');
+  logger.info('Set heating level API called');
   try {
     const { side } = req.body;
     let { temp } = req.body;
@@ -92,13 +93,15 @@ async function setHeatingLevel(req, res, next) {
       next();
     }
   } catch (err) {
+    logger.error(`setHeatingLevel: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
     }
-    global.logger.error(`setHeatingLevel: ${err}`);
-    next();
-    return err;
   }
+  return null;
 }
 skill.put('/setheatinglevel', setHeatingLevel);
 
@@ -127,7 +130,7 @@ skill.put('/setheatinglevel', setHeatingLevel);
  *
  */
 async function setHeatingTimer(req, res, next) {
-  global.logger.info('Set heating timer API called');
+  logger.info('Set heating timer API called');
   try {
     const { side } = req.body;
     let { temp, duration } = req.body;
@@ -177,21 +180,23 @@ async function setHeatingTimer(req, res, next) {
     if (tempParamError || sideParamError || durationParamError) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, false, 'Missing temp, side or duration param'); // Send response back to caller
+        next();
       }
-      next();
     } else {
       temp *= 10;
       await bedhelper.setHeatingTimer(res, side, temp, duration);
       next();
     }
   } catch (err) {
+    logger.error(`setHeatingTimer: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
     }
-    global.logger.error(`setHeatingTimer: ${err}`);
-    next();
-    return err;
   }
+  return null;
 }
 skill.put('/setheatingtimer', setHeatingTimer);
 
@@ -217,16 +222,17 @@ skill.put('/setheatingtimer', setHeatingTimer);
  */
 async function getBedData(req, res, next) {
   try {
-    global.logger.info('Get bed data API called');
+    logger.info('Get bed data API called');
     await bedhelper.getBedData(res);
     next();
   } catch (err) {
+    logger.error(`getBedData: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
     }
-    global.logger.error(`getBedData: ${err}`);
-    next();
-    return err;
   }
   return null;
 }
@@ -255,7 +261,7 @@ skill.get('/getbeddata', getBedData);
  *
  */
 async function turnOffBed(req, res, next) {
-  global.logger.info('Turn off bed warming API called');
+  logger.info('Turn off bed warming API called');
   try {
     const { side } = req.body;
     let sideParamError = true;
@@ -277,24 +283,26 @@ async function turnOffBed(req, res, next) {
     if (sideParamError) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, false, 'Missing side param'); // Send response back to caller
+        next();
       }
-      next();
     } else {
       const bedOn = await checkWarmingStatus(side);
       if (bedOn) {
         await bedhelper.turnOffBed(res, side);
+        next();
       } else if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, true, 'Bed already off'); // Send response back to caller
+        next();
       }
-      next();
     }
   } catch (err) {
+    logger.error(`turnOffBed: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
     }
-    global.logger.error(`turnOffBed: ${err}`);
-    next();
-    return err;
   }
   return null;
 }

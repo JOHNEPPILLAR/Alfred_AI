@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const alfredHelper = require('../../helper.js');
 const mockLights = require('./mockLights.json');
 const mockLightGroups = require('./mockLightGroups.json');
+const logger = require('winston');
 
 dotenv.load(); // Load env vars
 
@@ -23,14 +24,16 @@ exports.registerDevice = async function FnRegisterDevice(res) {
     const config = await Hue.config();
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, config); // Send response back to caller
+    } else {
+      return config;
     }
-    return config;
   } catch (err) {
+    logger.error(`registerDevice: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
+    } else {
+      return err;
     }
-    global.logger.error(`registerDevice: ${err}`);
-    return err;
   }
 };
 
@@ -66,14 +69,16 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
+    } else {
+      return returnMessage;
     }
-    return returnMessage;
   } catch (err) {
+    logger.error(`lightOnOff: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
-    global.logger.error(`lightOnOff: ${err}`);
-    return err;
   }
 };
 
@@ -107,17 +112,19 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
       returnState = false;
       returnMessage = `There was an error turning light group ${lightNumber} ${lightAction}.`;
     }
+    lights = null; // DeAllocate state object
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
+    } else {
+      return returnMessage;
     }
-    lights = null; // DeAllocate state object
-    return returnMessage;
   } catch (err) {
+    logger.error(`lightGroupOnOff: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
-    global.logger.error(`lightGroupOnOff: ${err}`);
-    return err;
   }
 };
 
@@ -128,22 +135,25 @@ exports.listLights = async function FnListLights(res) {
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, mockLights); // Send mock response back to caller
+    } else {
+      return mockLights;
     }
-    return mockLights;
   }
   if (process.env.environment !== 'dev') {
     try {
       const lights = await Hue.lights();
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, true, lights); // Send response back to caller
+      } else {
+        return lights;
       }
-      return lights;
     } catch (err) {
+      logger.error(`listLights: ${err}`);
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      } else {
+        return err;
       }
-      global.logger.error(`listLights: ${err}`);
-      return err;
     }
   }
 };
@@ -155,8 +165,9 @@ exports.listLightGroups = async function FnListLightGroups(res) {
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, mockLightGroups); // Send mock response back to caller
+    } else {
+      return mockLightGroups;
     }
-    return mockLightGroups;
   }
   if (process.env.environment !== 'dev') {
     try {
@@ -167,14 +178,16 @@ exports.listLightGroups = async function FnListLightGroups(res) {
 
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, true, tidyLights); // Send response back to caller
+      } else {
+        return lights;
       }
-      return lights;
     } catch (err) {
+      logger.error(`listLightGroups: ${err}`);
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      } else {
+        return err;
       }
-      global.logger.error(`listLightGroups: ${err}`);
-      return err;
     }
   }
 };
@@ -210,14 +223,16 @@ exports.scenes = async function FnScenes(res) {
 
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, lights); // Send response back to caller
+    } else {
+      return lights;
     }
-    return lights;
   } catch (err) {
+    logger.error(`scenes: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
-    global.logger.error(`scenes: ${err}`);
-    return err;
   }
 };
 
@@ -234,7 +249,7 @@ exports.sensor = async function FnSensor(res) {
       return sensors;
     }
   } catch (err) {
-    global.logger.error(`scenes: ${err}`);
+    logger.error(`scenes: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     } else {
@@ -256,7 +271,7 @@ exports.lightstate = async function FnLightstate(res, lightNumber) {
       return state;
     }
   } catch (err) {
-    global.logger.error(`lightstate: ${err}`);
+    logger.error(`lightstate: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     } else {

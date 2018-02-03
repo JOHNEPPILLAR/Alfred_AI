@@ -5,6 +5,7 @@ const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
 const dateFormat = require('dateformat');
 const NodeGeocoder = require('node-geocoder');
+const logger = require('winston');
 
 const skill = new Skills();
 const options = {
@@ -36,13 +37,11 @@ const geocoder = NodeGeocoder(options);
  *
  */
 async function whatisthetime(req, res, next) {
-  global.logger.info('Time API called');
+  logger.info('Time API called');
 
   // Get the location
-  let location = '';
-  if (typeof req.query.location !== 'undefined' && req.query.location !== null) {
-    location = req.query.location;
-  } else {
+  let { location } = req.query;
+  if (typeof location === 'undefined' || location == null) {
     location = 'london';
   }
 
@@ -53,18 +52,12 @@ async function whatisthetime(req, res, next) {
     const url = `http://api.geonames.org/timezoneJSON?lat=${lat}&lng=${lng}&username=${process.env.geonames}`;
     const apiData = await alfredHelper.requestAPIdata(url);
     const returnMessage = `The time in ${location} is currently ${dateFormat(apiData.body.time, 'h:MM TT')}`;
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, returnMessage);
-    }
+    alfredHelper.sendResponse(res, true, returnMessage);
     next();
-    return returnMessage;
   } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, err); // Send response back to caller
-    }
-    global.logger.error(`whatisthetime: ${err}`);
+    logger.error(`whatisthetime: ${err}`);
+    alfredHelper.sendResponse(res, false, err); // Send response back to caller
     next();
-    return err;
   }
 }
 skill.get('/whatisthetime', whatisthetime);

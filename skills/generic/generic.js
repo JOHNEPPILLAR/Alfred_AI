@@ -6,7 +6,7 @@ const _ = require('lodash');
 const readline = require('readline');
 const fs = require('fs');
 const alfredHelper = require('../../helper.js');
-const { exec } = require('child_process');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -47,12 +47,14 @@ function sayHello() {
 }
 
 function root(req, res, next) {
+  logger.info('Root API called');
   alfredHelper.sendResponse(res, true, sayHello()); // Send response back to caller
   next();
 }
 skill.get('/', root);
 
 function hello(req, res, next) {
+  logger.info('Hello API called');
   alfredHelper.sendResponse(res, true, sayHello()); // Send response back to caller
   next();
 }
@@ -78,6 +80,7 @@ skill.get('/hello', hello);
  *
  */
 function help(req, res, next) {
+  logger.info('Help API called');
   const responseText = 'So you need some help, not a problem.' +
                         'You can ask: ' +
                         'Tell me a joke. ' +
@@ -115,7 +118,7 @@ skill.get('/help', help);
  *
  */
 function ping(req, res, next) {
-  global.logger.info('Ping API called');
+  logger.info('Ping API called');
   alfredHelper.sendResponse(res, true, 'pong'); // Send response back to caller
   next();
 }
@@ -159,7 +162,7 @@ skill.get('/ping', ping);
  *
  */
 function displayLog(req, res, next) {
-  global.logger.info('Display Log API called');
+  logger.info('Display Log API called');
   try {
     let page = 1;
     if (typeof req.query.page !== 'undefined' && req.query.page !== null && req.query.page !== '') {
@@ -189,9 +192,7 @@ function displayLog(req, res, next) {
       results.reverse(); // Reverse logfile order
 
       const pagesCount = Math.floor(results.length / itemsOnPage) + (results.length % itemsOnPage === 0 ? 0 : 1);
-
       if (page > pagesCount) { page = pagesCount; }
-
       const logs = results.splice((page - 1) * itemsOnPage, itemsOnPage);
 
       if (page === pagesCount) {
@@ -215,53 +216,13 @@ function displayLog(req, res, next) {
       next();
     });
   } catch (err) {
+    logger.error(`displayLog: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
     }
-    global.logger.error(`displayLog: ${err}`);
-    next();
   }
 }
 skill.get('/displaylog', displayLog);
-
-/**
- * @api {get} /unlinkpm2 Un-link from PM2
- * @apiName unlinkpm2
- * @apiGroup Generic
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *     sucess: 'true'
- *     data: unlinked
- *   }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
- *   {
- *     data: Error message
- *   }
- *
- */
-function unlinkpm2(req, res, next) {
-  try {
-    // pm2 link delete
-    exec('pm2 delete', (err, stdout, stderr) => {
-      if (err) {
-        global.logger.error('node could not execute the command');
-        return;
-      }
-      // the *entire* stdout and stderr (buffered)
-      global.logger.info(`stdout: ${stdout}`);
-      global.logger.error(`stderr: ${stderr}`);
-    });
-    alfredHelper.sendResponse(res, true, 'unlinked'); // Send response back to caller
-    next();
-  } catch (err) {
-    alfredHelper.sendResponse(res, false, 'failed'); // Send response back to caller
-    next();
-  }
-}
-skill.get('/unlinkpm2', unlinkpm2);
 
 module.exports = skill;

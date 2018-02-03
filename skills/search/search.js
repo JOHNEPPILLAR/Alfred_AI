@@ -4,10 +4,10 @@
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
 const $ = require('cheerio');
-const cheerio = require('cheerio');
 const Entities = require('html-entities').XmlEntities;
 const xray = require('x-ray')();
 const sanitizeHtml = require('sanitize-html');
+const logger = require('winston');
 
 const skill = new Skills();
 const entities = new Entities();
@@ -34,29 +34,18 @@ const entities = new Entities();
  *
  */
 async function googlesearch(req, res, next) {
-  global.logger.info('Search API called');
+  logger.info('Search API called');
   let returnData;
 
   // Get the search term
   let searchTerm = '';
   if (typeof req.query.search_term !== 'undefined' && req.query.search_term !== null) {
     searchTerm = req.query.search_term;
-
-    const userAgent = [
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
-      'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14',
-      'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36',
-    ];
-    const userAgentRandom = userAgent[Math.floor((Math.random() * 5))];
     const url = `http://www.google.co.uk/search?q=${searchTerm}&oe=utf8&hl=en-GB`;
 
     try {
       const apiData = await alfredHelper.requestAPIdata(url);
-
-      // Get the search results data
-      const { body } = apiData;
+      const { body } = apiData; // Get the search results data
 
       // result variable init
       let found = 0;
@@ -192,17 +181,13 @@ async function googlesearch(req, res, next) {
       // Send response back to caller
       alfredHelper.sendResponse(res, true, returnData);
     } catch (err) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, null, err); // Send response back to caller
-      }
-      global.logger.error(`googlesearch: ${err}`);
+      logger.error(`googlesearch: ${err}`);
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
       next();
     }
   } else {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'No search term param'); // Send response back to caller
-    }
-    global.logger.info('googlesearch: No search term param');
+    logger.info('googlesearch: No search term param');
+    alfredHelper.sendResponse(res, false, 'No search term param'); // Send response back to caller
     next();
   }
 }

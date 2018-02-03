@@ -3,6 +3,7 @@
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -21,7 +22,7 @@ const skill = new Skills();
  *      {
  *         "author": "BBC News",
  *         "title": "Spain set for pro-unity rallies",
- *         "description": "Thousands are expected to rally in Spain against Catalonian independence, after a disputed referendum.",
+ *         "description": "Thousands are expected to rally in Spain.",
  *         "url": "http://www.bbc.co.uk/news/world-europe-41533587",
  *         "urlToImage": "https://ichef.bbci.co.uk/images/ic/1024x576/p05j8tqr.jpg",
  *         "publishedAt": "2017-10-07T06:57:30Z"
@@ -37,7 +38,7 @@ const skill = new Skills();
  *
  */
 async function news(req, res, next) {
-  global.logger.info('NEWS API called');
+  logger.info('NEWS API called');
   try {
     // Get the source
     let newsType = 'bbc-news';
@@ -72,7 +73,6 @@ async function news(req, res, next) {
       alfredHelper.sendResponse(res, false, 'Unsupported type of news.'); // Send response back to caller
       global.logger.info('news: Unsupported type of news.');
       next();
-      return false;
     }
     if (!newsTypeError) {
       // Get news data
@@ -80,16 +80,13 @@ async function news(req, res, next) {
       const apiData = await alfredHelper.requestAPIdata(url);
       alfredHelper.sendResponse(res, true, apiData.body.articles); // Send response back to caller
       next();
-      return apiData.body.articles;
     }
   } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
-    }
-    global.logger.error(`news: ${err}`);
+    logger.error(`news: ${err}`);
+    alfredHelper.sendResponse(res, null, err); // Send response back to caller
     next();
-    return err;
   }
+  return null;
 }
 skill.get('/news', news);
 

@@ -3,6 +3,7 @@
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -33,7 +34,7 @@ const skill = new Skills();
  */
 async function bustubestatus(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    global.logger.info('Bus & Tube Status API called');
+    logger.info('Bus & Tube Status API called');
   }
 
   const { route } = req.query;
@@ -50,7 +51,7 @@ async function bustubestatus(req, res, next) {
           alfredHelper.sendResponse(res, false, 'No data was returned from the TFL API call');
           next();
         }
-        global.logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
+        logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
       } else {
         if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
           disruptions = 'false';
@@ -69,15 +70,16 @@ async function bustubestatus(req, res, next) {
         return returnJSON;
       }
     } catch (err) {
+      logger.error(`bustubestatus: ${err}`);
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
         next();
+      } else {
+        return err;
       }
-      global.logger.error(`bustubestatus: ${err}`);
-      return err;
     }
   } else {
-    global.logger.info('bustubestatus: Missing route param');
+    logger.info('bustubestatus: Missing route param');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
       next();
@@ -86,7 +88,6 @@ async function bustubestatus(req, res, next) {
   return null;
 }
 skill.get('/bustubestatus', bustubestatus);
-
 
 /**
  * @api {get} /travel/nextbus Get next bus information
@@ -118,7 +119,7 @@ skill.get('/bustubestatus', bustubestatus);
  */
 async function nextbus(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    global.logger.info('Next Bus API called');
+    logger.info('Next Bus API called');
   }
 
   const tflapiKey = process.env.tflapikey;
@@ -138,19 +139,20 @@ async function nextbus(req, res, next) {
         url = `https://api.tfl.gov.uk/StopPoint/490001058H/Arrivals?mode=bus&line=486&${tflapiKey}`;
         break;
       default:
+        logger.info('nextbus: Bus route not supported');
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, false, 'Bus route not supported'); // Send response back to caller
           next();
+        } else {
+          return null;
         }
-        global.logger.info('nextbus: Bus route not supported');
-        return null;
     }
   } else {
+    logger.info('nextbus: Missing route param');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
       next();
     }
-    global.logger.info('nextbus: Missing route param');
   }
 
   try {
@@ -170,11 +172,11 @@ async function nextbus(req, res, next) {
         disruptions: 'true',
         error: 'No data was returned from the call to the TFL API',
       };
+      logger.info('nextbus: No data was returned from the TFL API call');
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, false, returnJSON);
         next();
       }
-      global.logger.info('nextbus: No data was returned from the TFL API call');
     } else {
       let busData = apiData.filter(a => a.lineId === busroute);
       busData = busData.sort(alfredHelper.GetSortOrder('timeToStation'));
@@ -210,12 +212,13 @@ async function nextbus(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
+    logger.error(`nextbus: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, err); // Send response back to caller
       next();
+    } else {
+      return err;
     }
-    global.logger.error(`nextbus: ${err}`);
-    return err;
   }
   return null;
 }
@@ -253,7 +256,7 @@ skill.get('/nextbus', nextbus);
  */
 async function nexttrain(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    global.logger.info('Next Train API called');
+    logger.info('Next Train API called');
   }
 
   const { transportapiKey } = process.env;
@@ -277,11 +280,11 @@ async function nexttrain(req, res, next) {
         url += trainroute;
         break;
       default:
+        logger.info('Nexttrain: Train destination not supported.');
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, false, 'Train route not supported');
+          next();
         }
-        global.logger.info('Nexttrain: Train destination not supported.');
-        next();
         return 'Train route not supported';
     }
 
@@ -289,8 +292,8 @@ async function nexttrain(req, res, next) {
       let apiData = await alfredHelper.requestAPIdata(url);
       apiData = apiData.body;
       if (alfredHelper.isEmptyObject(apiData)) {
+        logger.info('nexttrain: No data was returned from the train API call.');
         alfredHelper.sendResponse(res, false, 'No data was returned from the train API call');
-        global.logger.info('nexttrain: No data was returned from the train API call.');
         next();
       } else {
         const trainsWorking = apiData.departures.all;
@@ -342,24 +345,27 @@ async function nexttrain(req, res, next) {
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
           next();
+        } else {
+          return returnJSON;
         }
-        return returnJSON;
       }
     } catch (err) {
+      logger.error(`nexttrain: ${err}`);
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, null, err); // Send response back to caller
         next();
+      } else {
+        return err;
       }
-      global.logger.error(`nexttrain: ${err}`);
-      return err;
     }
   } else {
-    global.logger.error('nexttrain: No train route was supplied.');
+    logger.error('nexttrain: No train route was supplied.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'No train route was supplied.');
       next();
+    } else {
+      return 'No train route was supplied';
     }
-    return 'No train route was supplied';
   }
   return null;
 }
@@ -415,7 +421,7 @@ skill.get('/nexttrain', nexttrain);
  *
  */
 async function getCommute(req, res, next) {
-  global.logger.info('Get commute API called');
+  logger.info('Get commute API called');
 
   const { user } = req.query;
   let part1;
@@ -451,12 +457,13 @@ async function getCommute(req, res, next) {
         part4JSON = await bustubestatus(part4, null, next);
         break;
       default:
+        logger.info('getCommute: User not supported.');
         if (typeof res !== 'undefined' && res !== null) {
           alfredHelper.sendResponse(res, false, 'User not supported');
+          next();
+        } else {
+          return 'User not supported';
         }
-        global.logger.info('getCommute: User not supported.');
-        next();
-        return 'User not supported';
     }
 
     returnJSON = {
@@ -466,19 +473,21 @@ async function getCommute(req, res, next) {
       part4: part4JSON,
     };
 
-
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, returnJSON);
+      next();
+    } else {
+      return returnJSON;
     }
-    next();
-    return returnJSON;
   }
-  global.logger.error('getCommute: No user was supplied.');
+  logger.error('getCommute: No user was supplied.');
   if (typeof res !== 'undefined' && res !== null) {
     alfredHelper.sendResponse(res, false, 'No user was supplied.');
     next();
+  } else {
+    return 'No user was supplied';
   }
-  return 'No user was supplied';
+  return null;
 }
 skill.get('/getcommute', getCommute);
 

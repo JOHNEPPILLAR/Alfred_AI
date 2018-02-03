@@ -3,6 +3,7 @@
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../helper.js');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -26,21 +27,17 @@ const skill = new Skills();
  *
  */
 async function joke(req, res, next) {
-  global.logger.info('Joke API called');
+  logger.info('Joke API called');
   const url = 'http://ron-swanson-quotes.herokuapp.com/v2/quotes';
   try {
     let apiData = await alfredHelper.requestAPIdata(url);
     apiData = apiData.body;
     alfredHelper.sendResponse(res, true, apiData); // Send response back to caller
     next();
-    return apiData;
   } catch (err) {
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
-    }
-    global.logger.error(`joke: ${err}`);
+    logger.error(`joke: ${err}`);
+    alfredHelper.sendResponse(res, null, err); // Send response back to caller
     next();
-    return err;
   }
 }
 skill.get('/joke', joke);

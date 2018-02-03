@@ -2,22 +2,20 @@
  * Setup server
  */
 const restify = require('restify');
-const dotenv = require('dotenv');
 const lightNameHelper = require('./lightNames.js');
 const fs = require('fs');
 const alfredHelper = require('./helper.js');
+const dotenv = require('dotenv');
 const logger = require('winston');
 const memwatch = require('memwatch-next');
 const heapdump = require('heapdump');
 
 // Get up global vars
-global.logger = logger;
 global.lightNames = [];
 global.lightGroupNames = [];
-global.eightSessionInfo = null;
+// global.eightSessionInfo = null;
 
 dotenv.load(); // Load env vars
-
 alfredHelper.setLogger(logger); // Configure the logger
 
 // Restify server Init
@@ -27,8 +25,6 @@ const server = restify.createServer({
   key: fs.readFileSync('./server.key'),
   certificate: fs.readFileSync('./server.cert'),
 });
-
-global.server = server;
 
 /**
  * Capture any memory leaks
@@ -70,9 +66,9 @@ server.use((req, res, next) => {
 });
 
 /**
- * Setup light & light group names
+ * Setup light & light group names after 1 second delay to setup api server
  */
-lightNameHelper.setupLightNames();
+setTimeout(() => { lightNameHelper.setupLightNames(); }, 1000);
 
 /**
  * Configure API end points

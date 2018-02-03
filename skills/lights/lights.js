@@ -4,6 +4,7 @@
 const Skills = require('restify-router').Router;
 const lightshelper = require('./lightshelper.js');
 const alfredHelper = require('../../helper.js');
+const logger = require('winston');
 
 const skill = new Skills();
 
@@ -27,7 +28,7 @@ const skill = new Skills();
  *
  */
 async function registerDevice(req, res, next) {
-  global.logger.info('Register Device API called');
+  logger.info('Register Device API called');
   await lightshelper.registerDevice(res);
   next();
 }
@@ -60,7 +61,7 @@ skill.get('/registerdevice', registerDevice);
  *
  */
 async function lightOnOff(req, res, next) {
-  global.logger.info('Light on/off API called');
+  logger.info('Light on/off API called');
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
@@ -108,7 +109,7 @@ async function lightOnOff(req, res, next) {
     await lightshelper.lightOnOff(res, lightNumber, lightState, brightness, x, y, ct);
     next();
   } else {
-    global.logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
+    logger.info('lightOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status or light_number was either not supplied or invalid.');
       next();
@@ -144,7 +145,7 @@ skill.put('/lightonoff', lightOnOff);
  *
  */
 async function lightGroupOnOff(req, res, next) {
-  global.logger.info('Light group on/off API called');
+  logger.info('Light group on/off API called');
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
@@ -190,7 +191,7 @@ async function lightGroupOnOff(req, res, next) {
     await lightshelper.lightGroupOnOff(res, lightNumber, lightState, brightness, x, y, ct);
     next();
   } else {
-    global.logger.info('lightGroupOnOff: The parameters light_status or light_number was either not supplied or invalid.');
+    logger.info('lightGroupOnOff: The parameters light_status or light_number was either not supplied or invalid.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameters light_status or light_number was either not supplied or invalid.');
       next();
@@ -219,7 +220,7 @@ skill.put('/lightgrouponoff', lightGroupOnOff);
  *
  */
 async function listLights(req, res, next) {
-  global.logger.info('List Lights API called');
+  logger.info('List Lights API called');
   await lightshelper.listLights(res);
   next();
 }
@@ -245,7 +246,7 @@ skill.get('/listlights', listLights);
  *
  */
 async function listLightGroups(req, res, next) {
-  global.logger.info('List Light Groups API called');
+  logger.info('List Light Groups API called');
   await lightshelper.listLightGroups(res);
   next();
 }
@@ -271,7 +272,7 @@ skill.get('/listlightgroups', listLightGroups);
  *
  */
 async function allOff(req, res, next) {
-  global.logger.info('Turn off all Lights API called');
+  logger.info('Turn off all Lights API called');
   await lightshelper.allOff(res);
   next();
 }
@@ -297,7 +298,7 @@ skill.get('/alloff', allOff);
  *
  */
 async function scenes(req, res, next) {
-  global.logger.info('Get light scenes API called');
+  logger.info('Get light scenes API called');
   await lightshelper.scenes(res);
   next();
 }
@@ -354,7 +355,7 @@ async function lightstate(req, res, next) {
     await lightshelper.lightstate(res, req.query.light_number);
     next();
   } else {
-    global.logger.error('lightstate: The parameter light_number was not supplied.');
+    logger.error('lightstate: The parameter light_number was not supplied.');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'The parameter light_number was not supplied.');
       next();

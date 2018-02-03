@@ -1,5 +1,8 @@
 const rp = require('request-promise');
 const dateFormat = require('dateformat');
+const dotenv = require('dotenv');
+
+dotenv.load(); // Load env vars
 
 /**
  * Setup logging
