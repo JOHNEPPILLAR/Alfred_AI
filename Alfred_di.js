@@ -8,7 +8,7 @@ const alfredHelper = require('./helper.js');
 const dotenv = require('dotenv');
 const logger = require('winston');
 const memwatch = require('memwatch-next');
-const heapdump = require('heapdump');
+// const heapdump = require('heapdump');
 
 // Get up global vars
 global.lightNames = [];
@@ -29,10 +29,12 @@ const server = restify.createServer({
 /**
  * Capture any memory leaks
  */
+/*
 memwatch.on('leak', (info) => {
   logger.error('Memory leak detected: ', info);
   heapdump.writeSnapshot(`/var/config/mem/${Date.now()}_HeapSnapShot.heapsnapshot`);
 });
+*/
 
 /**
  * API Middleware
@@ -66,11 +68,6 @@ server.use((req, res, next) => {
 });
 
 /**
- * Setup light & light group names after 1 second delay to setup api server
- */
-setTimeout(() => { lightNameHelper.setupLightNames(); }, 1000);
-
-/**
  * Configure API end points
  */
 const bedRouter = require('./skills/bed/bed.js');
@@ -98,5 +95,10 @@ travelRouter.applyRoutes(server, '/travel');
 tvRouter.applyRoutes(server, '/tv');
 weatherRouter.applyRoutes(server, '/weather');
 
+/**
+ * Setup light & light group names after 1 second delay to setup api server
+ */
+setTimeout(() => { lightNameHelper.setupLightNames(); }, 1000);
+
 // Create base heap snapshot
-heapdump.writeSnapshot(`/var/config/mem/${Date.now()}_BaseHeapSnapShot.heapsnapshot`);
+// heapdump.writeSnapshot(`/var/config/mem/${Date.now()}_BaseHeapSnapShot.heapsnapshot`);
