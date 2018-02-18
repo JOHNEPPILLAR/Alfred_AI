@@ -3,7 +3,7 @@
  */
 const Skills = require('restify-router').Router;
 const lightshelper = require('./lightshelper.js');
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const logger = require('winston');
 
 const skill = new Skills();

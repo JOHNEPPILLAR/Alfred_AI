@@ -2,7 +2,7 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const bedhelper = require('./bedhelper.js');
 const logger = require('winston');
 

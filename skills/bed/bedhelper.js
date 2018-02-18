@@ -1,7 +1,7 @@
 /**
  * Setup includes
  */
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const rp = require('request-promise');
 const dateFormat = require('dateformat');
 

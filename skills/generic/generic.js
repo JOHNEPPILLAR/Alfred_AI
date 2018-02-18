@@ -5,7 +5,7 @@ const Skills = require('restify-router').Router;
 const _ = require('lodash');
 const readline = require('readline');
 const fs = require('fs');
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const logger = require('winston');
 
 const skill = new Skills();

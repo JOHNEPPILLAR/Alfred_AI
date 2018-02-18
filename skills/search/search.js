@@ -2,7 +2,7 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const $ = require('cheerio');
 const Entities = require('html-entities').XmlEntities;
 const xray = require('x-ray')();

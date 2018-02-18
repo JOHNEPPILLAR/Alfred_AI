@@ -2,7 +2,7 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const dateFormat = require('dateformat');
 const NodeGeocoder = require('node-geocoder');
 const logger = require('winston');

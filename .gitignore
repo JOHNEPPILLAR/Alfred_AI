@@ -1,6 +1,6 @@
 node_modules/
 .env
-runAI.sh
+run.sh
 Alfred.log
 scheduleSettings.json
 package-lock.json

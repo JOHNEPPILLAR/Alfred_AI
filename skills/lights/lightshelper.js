@@ -4,7 +4,7 @@
 const HueLights = require('node-hue-api');
 const { HueApi } = require('node-hue-api');
 const dotenv = require('dotenv');
-const alfredHelper = require('../../helper.js');
+const alfredHelper = require('../../lib/helper.js');
 const mockLights = require('./mockLights.json');
 const mockLightGroups = require('./mockLightGroups.json');
 const logger = require('winston');
