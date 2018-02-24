@@ -64,12 +64,12 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
 
     if (lights) {
       returnState = true;
-      returnMessage = `Light ${lightNumber} was turned ${lightAction}.`;
-      logger.info(`Light ${lightNumber} was turned ${lightAction}.`);
+      returnMessage = `Light ${alfredHelper.getLightName(lightNumber)} was turned ${lightAction}.`;
+      logger.info(`Light ${alfredHelper.getLightName(lightNumber)} was turned ${lightAction}.`);
     } else {
       returnState = false;
-      returnMessage = `There was an error turning light ${lightNumber} ${lightAction}.`;
-      logger.error(`There was an error turning light ${lightNumber} ${lightAction}.`);
+      returnMessage = `There was an error turning light ${alfredHelper.getLightName(lightNumber)} ${lightAction}.`;
+      logger.error(`There was an error turning light ${alfredHelper.getLightName(lightNumber)} ${lightAction}.`);
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
@@ -117,8 +117,8 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
       logger.info(`Light group ${lightNumber} was turned ${lightAction}.`);
     } else {
       returnState = false;
-      returnMessage = `There was an error turning light group ${lightNumber} ${lightAction}.`;
-      logger.error(`There was an error turning light group ${lightNumber} ${lightAction}.`);
+      returnMessage = `There was an error turning light group ${alfredHelper.getLightGroupName(lightNumber)} ${lightAction}.`;
+      logger.error(`There was an error turning light group ${alfredHelper.getLightGroupName(lightNumber)} ${lightAction}.`);
     }
     lights = null; // DeAllocate state object
     if (typeof res !== 'undefined' && res !== null) {
@@ -151,8 +151,8 @@ exports.lightGroupBrightness = async function FnlightGroupBrightness(res, lightN
 
     if (lights) {
       returnState = true;
-      returnMessage = `Light group ${lightNumber} brightness was set to ${brightness}.`;
-      logger.info(`Light group ${lightNumber} brightness was set to ${brightness}.`);
+      returnMessage = `Light group ${alfredHelper.getLightGroupName(lightNumber)} brightness was set to ${brightness}.`;
+      logger.info(`Light group ${alfredHelper.getLightGroupName(lightNumber)} brightness was set to ${brightness}.`);
     } else {
       returnState = false;
       returnMessage = `There was an error updating light group ${lightNumber} brighness to ${brightness}.`;
