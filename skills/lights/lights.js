@@ -76,9 +76,7 @@ async function lightOnOff(req, res, next) {
   if (paramsOK) {
     switch (lightState) {
       case 'on':
-        if (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null) {
-          paramsOK = true;
-        }
+        paramsOK = true;
         break;
       case 'off':
         paramsOK = true;
@@ -91,7 +89,6 @@ async function lightOnOff(req, res, next) {
     let {
       brightness, x, y, ct,
     } = req.body;
-    // if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
     if (brightness > 255) { brightness = 255; }
     if (typeof x !== 'undefined' && x !== null) {
@@ -145,7 +142,6 @@ skill.put('/lightonoff', lightOnOff);
  *
  */
 async function lightGroupOnOff(req, res, next) {
-  logger.info('Light group on/off API called');
   let paramsOK = false;
 
   if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||

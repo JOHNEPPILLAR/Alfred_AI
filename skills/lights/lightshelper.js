@@ -65,9 +65,11 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     if (lights) {
       returnState = true;
       returnMessage = `Light ${lightNumber} was turned ${lightAction}.`;
+      logger.info(`Light ${lightNumber} was turned ${lightAction}.`);
     } else {
       returnState = false;
       returnMessage = `There was an error turning light ${lightNumber} ${lightAction}.`;
+      logger.error(`There was an error turning light ${lightNumber} ${lightAction}.`);
     }
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
@@ -112,9 +114,11 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
     if (lights) {
       returnState = true;
       returnMessage = `Light group ${lightNumber} was turned ${lightAction}.`;
+      logger.info(`Light group ${lightNumber} was turned ${lightAction}.`);
     } else {
       returnState = false;
       returnMessage = `There was an error turning light group ${lightNumber} ${lightAction}.`;
+      logger.error(`There was an error turning light group ${lightNumber} ${lightAction}.`);
     }
     lights = null; // DeAllocate state object
     if (typeof res !== 'undefined' && res !== null) {
