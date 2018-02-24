@@ -197,6 +197,55 @@ async function lightGroupOnOff(req, res, next) {
 skill.put('/lightgrouponoff', lightGroupOnOff);
 
 /**
+ * @api {put} /lights/brightness Update light brightness
+ * @apiName brightness
+ * @apiGroup Lights
+ *
+ * @apiParam {Number} light_number Hue bridge light group number
+ * @apiParam {Number} brightness Brighness [ 0..255 ]
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "The light group was updated."
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function lightGroupBrightness(req, res, next) {
+  let paramsOK = false;
+
+  if ((typeof req.body.light_number !== 'undefined' && req.body.light_number !== null) ||
+      (typeof req.body.brightness !== 'undefined' && req.body.brightness !== null)) {
+    paramsOK = true;
+  }
+
+  const lightNumber = req.body.light_number;
+  if (lightNumber < 1) { paramsOK = false; }
+
+  if (paramsOK) {
+    let { brightness } = req.body;
+    if (brightness < 0) { brightness = 0; }
+    if (brightness > 255) { brightness = 255; }
+    await lightshelper.lightGroupBrightness(res, lightNumber, brightness);
+    next();
+  } else {
+    logger.info('lightGroupBrightness: The parameters light_number or brightness was either not supplied or invalid.');
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'The parameters light_number or brightness was either not supplied or invalid.');
+      next();
+    }
+  }
+}
+skill.put('/lightgroupbrightness', lightGroupBrightness);
+
+/**
  * @api {get} /lights/listlights Lists all of the lights
  * @apiName listlights
  * @apiGroup Lights

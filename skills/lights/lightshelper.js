@@ -137,6 +137,44 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
 };
 
 /**
+ * Skill: light group brightness
+ */
+exports.lightGroupBrightness = async function FnlightGroupBrightness(res, lightNumber, brightness) {
+  let returnMessage;
+  let returnState;
+
+  let state = lightState.create().brightness(brightness);
+
+  try {
+    let lights = await Hue.setGroupLightState(lightNumber, state);
+    state = null; // DeAllocate state object
+
+    if (lights) {
+      returnState = true;
+      returnMessage = `Light group ${lightNumber} brightness was set to ${brightness}.`;
+      logger.info(`Light group ${lightNumber} brightness was set to ${brightness}.`);
+    } else {
+      returnState = false;
+      returnMessage = `There was an error updating light group ${lightNumber} brighness to ${brightness}.`;
+      logger.error(`There was an error updating light group ${lightNumber} brighness to ${brightness}.`);
+    }
+    lights = null; // DeAllocate state object
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, returnState, returnMessage); // Send response back to caller
+    } else {
+      return returnMessage;
+    }
+  } catch (err) {
+    logger.error(`lightGroupBrightness: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
+    }
+  }
+};
+
+/**
  * Skill: list lights
  */
 exports.listLights = async function FnListLights(res) {
