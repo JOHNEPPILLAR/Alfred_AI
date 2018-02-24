@@ -69,8 +69,8 @@ async function lightOnOff(req, res, next) {
     paramsOK = true;
   }
 
-  let lightNumber = req.body.light_number;
-  if (lightNumber < 1) { lightNumber = 1; }
+  const lightNumber = req.body.light_number;
+  if (lightNumber < 1) { paramsOK = false; }
 
   const lightState = req.body.light_status.toLowerCase();
   if (paramsOK) {
@@ -91,7 +91,7 @@ async function lightOnOff(req, res, next) {
     let {
       brightness, x, y, ct,
     } = req.body;
-    if (lightState === 'off') { brightness = 0; }
+    // if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
     if (brightness > 255) { brightness = 255; }
     if (typeof x !== 'undefined' && x !== null) {
@@ -153,8 +153,8 @@ async function lightGroupOnOff(req, res, next) {
     paramsOK = true;
   }
 
-  let lightNumber = req.body.light_number;
-  if (lightNumber < 1) { lightNumber = 1; }
+  const lightNumber = req.body.light_number;
+  if (lightNumber < 1) { paramsOK = false; }
 
   const lightState = req.body.light_status.toLowerCase();
   if (paramsOK) {
@@ -173,7 +173,7 @@ async function lightGroupOnOff(req, res, next) {
     let {
       brightness, x, y, ct,
     } = req.body;
-    if (lightState === 'off') { brightness = 0; }
+    // if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
     if (brightness > 255) { brightness = 255; }
     if (typeof x !== 'undefined' && x !== null) {
