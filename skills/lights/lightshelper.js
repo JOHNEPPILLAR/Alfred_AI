@@ -54,6 +54,8 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
     } else {
       state = lightState.create().on().brightness(brightness);
     }
+  } else if (typeof brightness !== 'undefined' && brightness != null) {
+    state = lightState.create().off().brightness(brightness);
   }
 
   try {
@@ -99,6 +101,8 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
     } else {
       state = lightState.create().on().brightness(brightness);
     }
+  } else if (typeof brightness !== 'undefined' && brightness != null) {
+    state = lightState.create().off().brightness(brightness);
   }
 
   try {
