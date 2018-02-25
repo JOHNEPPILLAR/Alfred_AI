@@ -147,7 +147,7 @@ exports.lightGroupBrightness = async function FnlightGroupBrightness(res, lightN
 
   try {
     let lights = await Hue.setGroupLightState(lightNumber, state);
-  
+
     state = null; // DeAllocate state object
 
     if (lights) {
