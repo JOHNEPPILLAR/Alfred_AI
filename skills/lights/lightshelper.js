@@ -179,6 +179,7 @@ exports.lightGroupBrightness = async function FnlightGroupBrightness(res, lightN
  * Skill: list lights
  */
 exports.listLights = async function FnListLights(res) {
+  /*
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, mockLights); // Send mock response back to caller
@@ -187,28 +188,30 @@ exports.listLights = async function FnListLights(res) {
     }
   }
   if (process.env.environment !== 'dev') {
-    try {
-      const lights = await Hue.lights();
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, lights); // Send response back to caller
-      } else {
-        return lights;
-      }
-    } catch (err) {
-      logger.error(`listLights: ${err}`);
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, null, err); // Send response back to caller
-      } else {
-        return err;
-      }
+  */
+  try {
+    const lights = await Hue.lights();
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, lights); // Send response back to caller
+    } else {
+      return lights;
+    }
+  } catch (err) {
+    logger.error(`listLights: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
   }
+  // }
 };
 
 /**
  * Skill: list light groups
  */
 exports.listLightGroups = async function FnListLightGroups(res) {
+  /*
   if (process.env.environment === 'dev') {
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, mockLightGroups); // Send mock response back to caller
@@ -217,26 +220,27 @@ exports.listLightGroups = async function FnListLightGroups(res) {
     }
   }
   if (process.env.environment !== 'dev') {
-    try {
-      const lights = await Hue.groups();
+  */
+  try {
+    const lights = await Hue.groups();
 
-      // Remove unwanted light groups from json
-      const tidyLights = lights.filter(light => light.type === 'Room');
+    // Remove unwanted light groups from json
+    const tidyLights = lights.filter(light => light.type === 'Room');
 
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, tidyLights); // Send response back to caller
-      } else {
-        return lights;
-      }
-    } catch (err) {
-      logger.error(`listLightGroups: ${err}`);
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, null, err); // Send response back to caller
-      } else {
-        return err;
-      }
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, tidyLights); // Send response back to caller
+    } else {
+      return lights;
+    }
+  } catch (err) {
+    logger.error(`listLightGroups: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
     }
   }
+// }
 };
 
 /**
