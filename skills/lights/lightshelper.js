@@ -249,13 +249,8 @@ exports.listLightGroups = async function FnListLightGroups(res) {
 exports.allOff = async function FnAllOff(res) {
   let state = lightState.create().off();
   try {
-    // Get a list of all the lights
-    let lights = await Hue.lights();
-    lights.lights.forEach((value) => {
-      Hue.setLightState(value.id, state);
-    });
+    Hue.setGroupLightState(0, state);
     state = null; // DeAllocate state object
-    lights = null; // DeAllocate lights object
     alfredHelper.sendResponse(res, true, 'Turned off all lights.'); // Send response back to caller
   } catch (err) {
     state = null; // DeAllocate state object
