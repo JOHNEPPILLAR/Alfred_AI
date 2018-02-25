@@ -90,7 +90,7 @@ async function lightOnOff(req, res, next) {
       brightness, x, y, ct,
     } = req.body;
     if (brightness < 0) { brightness = 0; }
-    if (brightness > 255) { brightness = 255; }
+    if (brightness > 100) { brightness = 100; }
     if (typeof x !== 'undefined' && x !== null) {
       if (x < 0) { x = 0; }
       if (x > 1) { x = 1; }
@@ -171,7 +171,7 @@ async function lightGroupOnOff(req, res, next) {
     } = req.body;
     // if (lightState === 'off') { brightness = 0; }
     if (brightness < 0) { brightness = 0; }
-    if (brightness > 255) { brightness = 255; }
+    if (brightness > 100) { brightness = 100; }
     if (typeof x !== 'undefined' && x !== null) {
       if (x < 0) { x = 0; }
       if (x > 1) { x = 1; }
@@ -232,7 +232,7 @@ async function lightGroupBrightness(req, res, next) {
   if (paramsOK) {
     let { brightness } = req.body;
     if (brightness < 0) { brightness = 0; }
-    if (brightness > 255) { brightness = 255; }
+    if (brightness > 100) { brightness = 100; }
     await lightshelper.lightGroupBrightness(res, lightNumber, brightness);
     next();
   } else {
