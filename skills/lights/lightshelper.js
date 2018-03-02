@@ -5,8 +5,8 @@ const HueLights = require('node-hue-api');
 const { HueApi } = require('node-hue-api');
 const dotenv = require('dotenv');
 const alfredHelper = require('../../lib/helper.js');
-const mockLights = require('./mockLights.json');
-const mockLightGroups = require('./mockLightGroups.json');
+// const mockLights = require('./mockLights.json');
+// const mockLightGroups = require('./mockLightGroups.json');
 const logger = require('winston');
 
 dotenv.load(); // Load env vars
@@ -47,15 +47,15 @@ exports.lightOnOff = async function FnLightOnOff(res, lightNumber, lightAction, 
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
     if (typeof ct !== 'undefined' && ct != null) {
-      state = lightState.create().on().brightness(brightness).ct(ct);
+      state = lightState.create().on().bri(brightness).ct(ct);
     } else if ((typeof x !== 'undefined' && x != null) &&
                (typeof y !== 'undefined' && y != null)) {
-      state = lightState.create().on().brightness(brightness).xy(x, y);
+      state = lightState.create().on().bri(brightness).xy(x, y);
     } else {
-      state = lightState.create().on().brightness(brightness);
+      state = lightState.create().on().bri(brightness);
     }
   } else if (typeof brightness !== 'undefined' && brightness != null) {
-    state = lightState.create().off().brightness(brightness);
+    state = lightState.create().off().bri(brightness);
   }
 
   try {
@@ -96,15 +96,15 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
   let state = lightState.create().off(); // Default off
   if (lightAction === 'on') {
     if (typeof ct !== 'undefined' && ct != null) {
-      state = lightState.create().on().brightness(brightness).ct(ct);
+      state = lightState.create().on().bri(brightness).ct(ct);
     } else if ((typeof x !== 'undefined' && x != null) &&
                (typeof y !== 'undefined' && y != null)) {
-      state = lightState.create().on().brightness(brightness).xy(x, y);
+      state = lightState.create().on().bri(brightness).xy(x, y);
     } else {
-      state = lightState.create().on().brightness(brightness);
+      state = lightState.create().on().bri(brightness);
     }
   } else if (typeof brightness !== 'undefined' && brightness != null) {
-    state = lightState.create().off().brightness(brightness);
+    state = lightState.create().off().bri(brightness);
   }
 
   try {
@@ -143,7 +143,7 @@ exports.lightGroupBrightness = async function FnlightGroupBrightness(res, lightN
   let returnMessage;
   let returnState;
 
-  let state = lightState.create().brightness(brightness);
+  let state = lightState.create().bri(brightness);
 
   try {
     let lights = await Hue.setGroupLightState(lightNumber, state);
