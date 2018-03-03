@@ -254,8 +254,8 @@ exports.allOff = async function FnAllOff(res) {
     alfredHelper.sendResponse(res, true, 'Turned off all lights.'); // Send response back to caller
   } catch (err) {
     state = null; // DeAllocate state object
-    alfredHelper.sendResponse(res, null, 'There was a problem turning off all the lights.');
     global.logger.error(`allOff Error: ${err}`);
+    alfredHelper.sendResponse(res, null, 'There was a problem turning off all the lights.');
     return err;
   }
 };
@@ -274,6 +274,29 @@ exports.scenes = async function FnScenes(res) {
     }
   } catch (err) {
     logger.error(`scenes: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+    } else {
+      return err;
+    }
+  }
+};
+
+/**
+ * Skill: get sensor light and motion details
+ */
+exports.lightMotion = async function FNlightMotion(res) {
+  try {
+    let sensorData = await Hue.sensors();
+    sensorData = sensorData.filter(s => (s.type === 'ZLLLightLevel' || s.type === 'ZLLPresence'));
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, sensorData); // Send response back to caller
+    } else {
+      return sensorData;
+    }
+  } catch (err) {
+    logger.error(`lightMotion: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, null, err); // Send response back to caller
     } else {

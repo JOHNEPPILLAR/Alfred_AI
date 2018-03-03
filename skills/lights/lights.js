@@ -350,6 +350,31 @@ async function scenes(req, res, next) {
 skill.get('/scenes', scenes);
 
 /**
+ * @api {get} /lights/lightmotion List all light and motion sensors connected to the HUE bridge
+ * @apiName lightMotion
+ * @apiGroup Lights
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: Hue bridge API response
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function lightMotion(req, res, next) {
+  await lightshelper.lightMotion(res);
+  next();
+}
+skill.get('/lightmotion', lightMotion);
+
+/**
  * @api {get} /lights/sensor List all sensors connected to the HUE bridge
  * @apiName sensor
  * @apiGroup Lights
