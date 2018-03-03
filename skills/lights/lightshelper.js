@@ -295,7 +295,7 @@ exports.lightMotion = async function FNlightMotion(res) {
     ];
     sensorData = _.filter(sensorData, sensors => _.find(filterBy, sensor => sensor.type === sensors.type));
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, sensorData); // Send response back to caller
+      alfredHelper.sendResponse(res, true, JSON.stringify(sensorData)); // Send response back to caller
     } else {
       return sensorData;
     }
