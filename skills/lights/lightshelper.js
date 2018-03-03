@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const alfredHelper = require('../../lib/helper.js');
 // const mockLights = require('./mockLights.json');
 // const mockLightGroups = require('./mockLightGroups.json');
+const _ = require('underscore');
 const logger = require('winston');
 
 dotenv.load(); // Load env vars
@@ -288,8 +289,11 @@ exports.scenes = async function FnScenes(res) {
 exports.lightMotion = async function FNlightMotion(res) {
   try {
     let sensorData = await Hue.sensors();
-    sensorData = sensorData.filter(s => (s.type === 'ZLLLightLevel' || s.type === 'ZLLPresence'));
-
+    const filterBy = [
+      { type: 'LLLightLevel' },
+      { type: 'ZLLPresence' },
+    ];
+    sensorData = _.filter(sensorData, sensors => _.find(filterBy, sensor => sensor.type === sensors.type));
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, sensorData); // Send response back to caller
     } else {
