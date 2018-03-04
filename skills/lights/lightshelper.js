@@ -289,7 +289,7 @@ exports.scenes = async function FnScenes(res) {
 exports.lightMotion = async function FNlightMotion(res) {
   try {
     let sensorData = await Hue.sensors();
-    sensorData = sensorData.sensors.filter(o => (o.type === 'ZLLPresence' || o.type === 'LLLightLevel'));
+    sensorData = sensorData.sensors.filter(o => (o.type === 'ZLLPresence' || o.type === 'ZLLLightLevel'));
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, true, sensorData); // Send response back to caller
     } else {
