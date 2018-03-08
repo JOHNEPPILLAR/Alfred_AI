@@ -6,8 +6,79 @@ const alfredHelper = require('../../lib/helper.js');
 const sortArray = require('array-sort');
 const dateFormat = require('dateformat');
 const logger = require('winston');
+const darkSky = require('dark-sky-api');
+const NodeGeocoder = require('node-geocoder');
 
 const skill = new Skills();
+
+// Configure geocoder
+const options = {
+  provider: 'google',
+  httpAdapter: 'https',
+  formatter: null,
+  apiKey: process.env.geolocationKey,
+};
+const geocoder = NodeGeocoder(options);
+
+/**
+ * @api {get} /weather/sunset What time is sunset in London
+ * @apiName sunset
+ * @apiGroup Weather
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "18:23"
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function sunSet(req, res, next) {
+  logger.info('Sunset API called');
+
+  // Configure darksky
+  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.proxy = true;
+
+  // Get the location
+  let { location } = req.query;
+  if (typeof location === 'undefined' || location == null) {
+    location = 'london';
+  }
+
+  try {
+    let apiData = await geocoder.geocode(location);
+    const position = {
+      latitude: apiData[0].latitude,
+      longitude: apiData[0].longitude,
+    };
+    apiData = await darkSky.loadForecast(position);
+    const sunSetTime = new Date(apiData.daily.data[0].sunsetTime * 1000);
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM')); // Send response back to caller
+      next();
+    } else {
+      return dateFormat(sunSetTime, 'HH:MM');
+    }
+  } catch (err) {
+    logger.error(`sunSet: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
+    }
+  }
+  return null;
+}
+skill.get('/sunset', sunSet);
 
 /**
  * @api {get} /weather/today Get todays weather
@@ -21,14 +92,13 @@ const skill = new Skills();
  *   {
  *     sucess: 'true'
  *     data: {
- *      "locationname": "London",
- *      "Summary": "shower rain",
- *      "CurrentTemp": 13.09,
- *      "MaxTemp": 14,
- *      "MinTemp": 12,
- *      "PercentOvercast": 75,
- *      "RainVolume": 0,
- *      "SnowVolume": 0
+ *      "locationName": "london",
+        "icon": "clear-night",
+        "summary": "Clear",
+        "temperature": 43,
+        "apparentTemperature": 37,
+        "temperatureHigh": 48,
+        "temperatureLow": 35
  *     }
  *   }
  *
@@ -42,48 +112,48 @@ const skill = new Skills();
 async function weatherForcastForToday(req, res, next) {
   logger.info('Today\'s Weather API called');
 
+  // Configure darksky
+  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.proxy = true;
+
   // Get the location
   let { location } = req.query;
   if (typeof location === 'undefined' || location == null) {
-    location = 'london,uk';
+    location = 'london';
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${location}&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
-
   try {
-    let apiData = await alfredHelper.requestAPIdata(url);
+    const apiData = await geocoder.geocode(location);
+    const position = {
+      latitude: apiData[0].latitude,
+      longitude: apiData[0].longitude,
+    };
+    const currentWeather = await darkSky.loadCurrent(position);
+    const forcastWeather = await darkSky.loadForecast(position);
 
     // Get the weather data
-    apiData = apiData.body;
-    const locationname = apiData.name;
-    const Summary = apiData.weather[0].description;
-    const CurrentTemp = apiData.main.temp;
-    const MaxTemp = apiData.main.temp_max;
-    const MinTemp = apiData.main.temp_min;
-    const PercentOvercast = apiData.clouds.all;
-    let RainVolume = apiData.rain;
-    let SnowVolume = apiData.snow;
-    if (typeof RainVolume === 'undefined') {
-      RainVolume = 0;
-    } else {
-      RainVolume = RainVolume['3h'];
-    }
-    if (typeof SnowVolume === 'undefined') {
-      SnowVolume = 0;
-    } else {
-      SnowVolume = SnowVolume['3h'];
-    }
+    const locationName = location;
+    const { icon } = currentWeather;
+    const { summary } = currentWeather;
+    let { temperature } = currentWeather;
+    let { apparentTemperature } = currentWeather;
+    let { temperatureHigh } = forcastWeather.daily.data[0];
+    let { temperatureLow } = forcastWeather.daily.data[0];
 
     // Construct the returning message
+    temperature = Math.floor(temperature);
+    apparentTemperature = Math.floor(apparentTemperature);
+    temperatureHigh = Math.floor(temperatureHigh);
+    temperatureLow = Math.floor(temperatureLow);
+
     const jsonDataObj = {
-      locationname,
-      Summary,
-      CurrentTemp,
-      MaxTemp,
-      MinTemp,
-      PercentOvercast,
-      RainVolume,
-      SnowVolume,
+      locationName,
+      icon,
+      summary,
+      temperature,
+      apparentTemperature,
+      temperatureHigh,
+      temperatureLow,
     };
 
     if (typeof res !== 'undefined' && res !== null) {
@@ -147,6 +217,7 @@ skill.get('/today', weatherForcastForToday);
  *   }
  *
  */
+/*
 async function weatherForcastForTomorrow(req, res, next) {
   logger.info('Tomorrow\'s Weather API called');
 
@@ -252,7 +323,7 @@ async function weatherForcastForTomorrow(req, res, next) {
   return null;
 }
 skill.get('/tomorrow', weatherForcastForTomorrow);
-
+*/
 /**
  * @api {get} /weather/willitsnow Will it snow
  * @apiName willitsnow
@@ -277,7 +348,8 @@ skill.get('/tomorrow', weatherForcastForTomorrow);
  *   }
  *
  */
-async function willItSnow(req, res, next) {
+/*
+ async function willItSnow(req, res, next) {
   logger.info('Will it snow API called');
 
   // Get the location
@@ -327,7 +399,7 @@ async function willItSnow(req, res, next) {
   return null;
 }
 skill.get('/willitsnow', willItSnow);
-
+*/
 /**
  * @api {get} /weather/willitrain Will it rain
  * @apiName willitrain
@@ -356,7 +428,8 @@ skill.get('/willitsnow', willItSnow);
  *   }
  *
  */
-async function willItRain(req, res, next) {
+/*
+ async function willItRain(req, res, next) {
   logger.info('Will it rain API called');
 
   // Get the location
@@ -408,52 +481,6 @@ async function willItRain(req, res, next) {
   return null;
 }
 skill.get('/willitrain', willItRain);
-
-/**
- * @api {get} /weather/sunset What time is sunset in London
- * @apiName sunset
- * @apiGroup Weather
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *     sucess: 'true'
- *     data: "18:23"
- *   }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 500 Internal error
- *   {
- *     data: Error message
- *   }
- *
- */
-async function sunSet(req, res, next) {
-  logger.info('Sunset API called');
-
-  const url = `http://api.openweathermap.org/data/2.5/weather?q=london,uk&APPID=${process.env.OPENWEATHERMAPAPIKEY}`;
-
-  try {
-    const apiData = await alfredHelper.requestAPIdata(url);
-    const sunSetTime = new Date(apiData.body.sys.sunset * 1000);
-
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM')); // Send response back to caller
-      next();
-    } else {
-      return dateFormat(sunSetTime, 'HH:MM');
-    }
-  } catch (err) {
-    logger.error(`sunSet: ${err}`);
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
-      next();
-    } else {
-      return err;
-    }
-  }
-  return null;
-}
-skill.get('/sunset', sunSet);
+*/
 
 module.exports = skill;

@@ -27,7 +27,8 @@
     "sanitize-html": "*",
     "underscore": "*",
     "winston": "*",
-    "x-ray": "*"
+    "x-ray": "*",
+    "dark-sky-api": "*"
   },
   "devDependencies": {
     "eslint": "^4.18.0",
