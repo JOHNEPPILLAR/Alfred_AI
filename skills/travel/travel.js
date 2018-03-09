@@ -447,13 +447,13 @@ async function getCommute(req, res, next) {
         part4JSON = await bustubestatus(part4, null, next);
         break;
       case 'JP':
-        part1 = { query: { route: 'CHX' } };
-        part1JSON = await nexttrain(part1, null, next);
-        part2 = { query: { route: 'bakerloo' } };
+        part1 = { query: { route: '486' } };
+        part1JSON = await nextbus(part1, null, next);
+        part2 = { query: { route: 'jubilee' } };
         part2JSON = await bustubestatus(part2, null, next);
-        part3 = { query: { route: '486' } };
-        part3JSON = await nextbus(part3, null, next);
-        part4 = { query: { route: 'jubilee' } };
+        part3 = { query: { route: 'CHX' } };
+        part3JSON = await nexttrain(part3, null, next);
+        part4 = { query: { route: 'bakerloo' } };
         part4JSON = await bustubestatus(part4, null, next);
         break;
       default:
@@ -479,15 +479,16 @@ async function getCommute(req, res, next) {
     } else {
       return returnJSON;
     }
-  }
-  logger.error('getCommute: No user was supplied.');
-  if (typeof res !== 'undefined' && res !== null) {
-    alfredHelper.sendResponse(res, false, 'No user was supplied.');
-    next();
   } else {
-    return 'No user was supplied';
+    logger.error('getCommute: No user was supplied.');
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'No user was supplied.');
+      next();
+    } else {
+      return 'No user was supplied';
+    }
+    return null;
   }
-  return null;
 }
 skill.get('/getcommute', getCommute);
 
