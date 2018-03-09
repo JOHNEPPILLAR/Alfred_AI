@@ -45,6 +45,7 @@ async function sunSet(req, res, next) {
   // Configure darksky
   darkSky.apiKey = process.env.darkskyKey;
   darkSky.proxy = true;
+  darkSky.units = 'uk2';
 
   // Get the location
   let { location } = req.query;
@@ -115,6 +116,7 @@ async function weatherForcastForToday(req, res, next) {
   // Configure darksky
   darkSky.apiKey = process.env.darkskyKey;
   darkSky.proxy = true;
+  darkSky.units = 'uk2';
 
   // Get the location
   let { location } = req.query;
