@@ -433,6 +433,7 @@ async function getCommute(req, res, next) {
   let part3JSON;
   let part4JSON;
   let returnJSON;
+  let anyDisruptions;
 
   if (typeof user !== 'undefined' && user !== null) {
     switch (user.toUpperCase()) {
@@ -466,7 +467,14 @@ async function getCommute(req, res, next) {
         }
     }
 
+    // Work out if there are any anyDisruptions on the primary commute
+    anyDisruptions = false;
+    if (part1JSON.disruptions || part2JSON.disruptions) {
+      anyDisruptions = true;
+    }
+
     returnJSON = {
+      anyDisruptions,
       part1: part1JSON,
       part2: part2JSON,
       part3: part3JSON,
