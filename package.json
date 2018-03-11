@@ -28,7 +28,8 @@
     "underscore": "*",
     "winston": "*",
     "x-ray": "*",
-    "dark-sky-api": "*"
+    "dark-sky-api": "*",
+    "netatmo": "*"
   },
   "devDependencies": {
     "eslint": "^4.18.0",
