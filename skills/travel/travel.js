@@ -126,17 +126,34 @@ async function nextbus(req, res, next) {
   const busroute = req.query.route;
   let url;
   let returnJSON;
+  let goingtowork;
 
+  switch (req.query.goingtowork) {
+    case 'false':
+      goingtowork = false;
+      break;
+    case 'true':
+      goingtowork = true;
+      break;
+    default:
+      goingtowork = true;
+  }
+
+  let stopPoint = '';
   if (typeof busroute !== 'undefined' && busroute !== null) {
     switch (busroute) {
       case '9':
-        url = `https://api.tfl.gov.uk/StopPoint/490013766H/Arrivals?mode=bus&line=9&${tflapiKey}`;
+        stopPoint = '490013766H'; // Default going to work stop point
+        if (!goingtowork) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
+        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${tflapiKey}`;
         break;
       case '380':
         url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
         break;
       case '486':
-        url = `https://api.tfl.gov.uk/StopPoint/490001058H/Arrivals?mode=bus&line=486&${tflapiKey}`;
+        stopPoint = '490001058H'; // Default going to work stop point
+        if (!goingtowork) { stopPoint = '490010374B'; } // Override to coming home stop point
+        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${tflapiKey}`;
         break;
       default:
         logger.info('nextbus: Bus route not supported');
@@ -180,6 +197,7 @@ async function nextbus(req, res, next) {
     } else {
       let busData = apiData.filter(a => a.lineId === busroute);
       busData = busData.sort(alfredHelper.GetSortOrder('timeToStation'));
+
       let numberOfElements = busData.length;
       if (numberOfElements > 2) { numberOfElements = 2; }
 
@@ -188,7 +206,7 @@ async function nextbus(req, res, next) {
           returnJSON = {
             mode: 'bus',
             line: busData[0].lineName,
-            destination: busData[0].towards,
+            destination: busData[0].destinationName,
             firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
             secondTime: alfredHelper.minutesToStop(busData[1].timeToStation),
             disruptions: distruptionsJSON.disruptions,
@@ -198,7 +216,7 @@ async function nextbus(req, res, next) {
           returnJSON = {
             mode: 'bus',
             line: busData[0].lineName,
-            destination: busData[0].towards,
+            destination: busData[0].destinationName,
             firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
             secondTime: 'N/A',
             disruptions: distruptionsJSON.disruptions,
@@ -495,8 +513,8 @@ async function getCommute(req, res, next) {
     } else {
       return 'No user was supplied';
     }
-    return null;
   }
+  return null;
 }
 skill.get('/getcommute', getCommute);
 
