@@ -114,8 +114,8 @@ exports.lightGroupOnOff = async function FnLightGroupOnOff(res, lightNumber, lig
 
     if (lights) {
       returnState = true;
-      returnMessage = `Light group ${lightNumber} was turned ${lightAction}.`;
-      logger.info(`Light group ${lightNumber} was turned ${lightAction}.`);
+      returnMessage = `Light group ${alfredHelper.getLightGroupName(lightNumber)} was turned ${lightAction}.`;
+      logger.info(`Light group ${alfredHelper.getLightGroupName(lightNumber)} was turned ${lightAction}.`);
     } else {
       returnState = false;
       returnMessage = `There was an error turning light group ${alfredHelper.getLightGroupName(lightNumber)} ${lightAction}.`;
