@@ -486,9 +486,9 @@ async function getCommute(req, res, next) {
     }
 
     // Work out if there are any disruptions as part of the primary commute
-    anyDisruptions = false;
-    if (part1JSON.disruptions || part2JSON.disruptions) {
-      anyDisruptions = true;
+    anyDisruptions = 'false';
+    if (part1JSON.disruptions === 'true' || part2JSON.disruptions === 'true') {
+      anyDisruptions = 'true';
     }
 
     returnJSON = {
