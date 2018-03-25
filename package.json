@@ -19,7 +19,7 @@
     "inherits": "*",
     "lodash": "*",
     "node-geocoder": "*",
-    "node-hue-api": "*",
+    "huejay": "*",
     "request": "*",
     "request-promise": "*",
     "restify": "*",

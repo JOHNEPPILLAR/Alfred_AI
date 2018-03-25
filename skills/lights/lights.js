@@ -9,32 +9,6 @@ const logger = require('winston');
 const skill = new Skills();
 
 /**
- * @api {get} /lights/registerdevice Register API server with HUE bridge
- * @apiName registerdevice
- * @apiGroup Lights
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *     sucess: 'true'
- *     data: Hue bridge API response
- *   }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 500 Internal error
- *   {
- *     data: Error message
- *   }
- *
- */
-async function registerDevice(req, res, next) {
-  logger.info('Register Device API called');
-  await lightshelper.registerDevice(res);
-  next();
-}
-skill.get('/registerdevice', registerDevice);
-
-/**
  * @api {put} /lights/lightonoff Turn lights on or off
  * @apiName lightonoff
  * @apiGroup Lights
