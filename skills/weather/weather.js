@@ -3,12 +3,11 @@
  */
 const Skills = require('restify-router').Router;
 const alfredHelper = require('../../lib/helper.js');
-// const sortArray = require('array-sort');
 const dateFormat = require('dateformat');
 const logger = require('winston');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
-const netatmo = require('netatmo');
+const Netatmo = require('netatmo');
 
 const skill = new Skills();
 
@@ -93,15 +92,15 @@ skill.get('/sunset', sunSet);
  *   HTTPS/1.1 200 OK
  *   {
  *     sucess: 'true'
- *     data: {
- *      "locationName": "london",
-        "icon": "clear-night",
-        "summary": "Clear",
-        "temperature": 43,
-        "apparentTemperature": 37,
-        "temperatureHigh": 48,
-        "temperatureLow": 35
- *     }
+ *     "data": {
+        "locationName": "london",
+        "icon": "partly-cloudy-night",
+        "summary": "Partly Cloudy",
+        "temperature": 5,
+        "apparentTemperature": 3,
+        "temperatureHigh": 8,
+        "temperatureLow": 4
+    }
  *   }
  *
  * @apiErrorExample {json} Error-Response:
@@ -179,8 +178,8 @@ async function CurrentWeather(req, res, next) {
 skill.get('/today', CurrentWeather);
 
 /**
- * @api {get} /weather/today Get todays weather
- * @apiName today
+ * @api {get} /weather/inside Get the weather from the house weather station
+ * @apiName inside
  * @apiGroup Weather
  *
  * @apiParam {String} location Location i.e. London
@@ -189,15 +188,10 @@ skill.get('/today', CurrentWeather);
  *   HTTPS/1.1 200 OK
  *   {
  *     sucess: 'true'
- *     data: {
- *      "locationName": "london",
-        "icon": "clear-night",
-        "summary": "Clear",
-        "temperature": 43,
-        "apparentTemperature": 37,
-        "temperatureHigh": 48,
-        "temperatureLow": 35
- *     }
+ *     "data": {
+        "insideTemp": 20,
+        "insideCO2": 742
+      }
  *   }
  *
  * @apiErrorExample {json} Error-Response:
@@ -218,7 +212,7 @@ async function houseWeather(req, res, next) {
   };
 
   try {
-    const api = new netatmo(auth); // Connect to api service
+    const api = new Netatmo(auth); // Connect to api service
     api.getStationsData((err, apiData) => { // Get data from device
       if (err) {
         if (typeof res !== 'undefined' && res !== null) {
@@ -235,9 +229,9 @@ async function houseWeather(req, res, next) {
       if (typeof res !== 'undefined' && res !== null) {
         alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
         next();
-      } else {
-        return jsonDataObj;
       }
+
+      return jsonDataObj;
     });
   } catch (err) {
     logger.error(`houseWeather: ${err}`);
