@@ -126,17 +126,17 @@ async function nextbus(req, res, next) {
   const busroute = req.query.route;
   let url;
   let returnJSON;
-  let goingtowork;
+  let atHome;
 
-  switch (req.query.goingtowork) {
-    case 'false':
-      goingtowork = false;
+  switch (req.query.atHome) {
+    case false:
+      atHome = false;
       break;
-    case 'true':
-      goingtowork = true;
+    case true:
+      atHome = true;
       break;
     default:
-      goingtowork = true;
+      atHome = true;
   }
 
   let stopPoint = '';
@@ -144,7 +144,7 @@ async function nextbus(req, res, next) {
     switch (busroute) {
       case '9':
         stopPoint = '490013766H'; // Default going to work stop point
-        if (!goingtowork) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
+        if (!atHome) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
         url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${tflapiKey}`;
         break;
       case '380':
@@ -152,8 +152,12 @@ async function nextbus(req, res, next) {
         break;
       case '486':
         stopPoint = '490001058H'; // Default going to work stop point
-        if (!goingtowork) { stopPoint = '490010374B'; } // Override to coming home stop point
+        if (!atHome) { stopPoint = '490010374B'; } // Override to coming home stop point
         url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${tflapiKey}`;
+        break;
+      case '161':
+        stopPoint = '490010374A'; // Default coming home stop point
+        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${tflapiKey}`;
         break;
       default:
         logger.info('nextbus: Bus route not supported');
@@ -401,34 +405,24 @@ skill.get('/nexttrain', nexttrain);
  *   {
  *     sucess: 'true'
  *     data: {
- *       "part1": {
- *           "mode": "train",
- *           "disruptions": "false",
- *           "firstDestination": "London Charing Cross",
- *           "firstTime": "7:47 PM",
- *           "firstNotes": "late",
- *           "secondDestination": "London Charing Cross",
- *           "secondTime": "8:16 PM",
- *           "secondNotes": "on time"
- *       },
- *       "part2": {
- *           "mode": "tube",
- *           "line": "Bakerloo",
- *           "disruptions": "false"
- *       },
- *       "part3": {
- *           "mode": "bus",
- *           "line": "486",
- *           "destination": "North Greenwich",
- *           "firstTime": "7:52 PM",
- *           "secondTime": "8:03 PM",
- *           "disruptions": "false"
- *       },
- *       "part4": {
- *           "mode": "tube",
- *           "line": "Jubilee",
- *           "disruptions": "false"
- *       }
+ *       "anyDisruptions": false,
+ *       "commuteResults": [
+ *           {
+ *               "mode": "bus",
+ *               "line": "486",
+ *               "destination": "North Greenwich",
+ *               "firstTime": "11:41 AM",
+ *               "secondTime": "11:48 AM",
+ *               "disruptions": "false",
+ *               "order": 0
+ *           },
+ *           {
+ *               "mode": "tube",
+ *               "line": "Jubilee",
+ *               "disruptions": "false",
+ *               "order": 1
+ *           },
+ *       ]
  *    }
  *
  * @apiErrorExample {json} Error-Response:
@@ -441,39 +435,38 @@ skill.get('/nexttrain', nexttrain);
 async function getCommute(req, res, next) {
   logger.info('Get commute API called');
 
-  const { user } = req.query;
-  let part1;
-  let part2;
-  let part3;
-  let part4;
-  let part1JSON;
-  let part2JSON;
-  let part3JSON;
-  let part4JSON;
+  const commuteOptions = [];
+  const commuteResults = [];
   let returnJSON;
-  let anyDisruptions;
+  let anyDisruptions = false;
+  let tmpResults = [];
+  let atHome = true;
+
+  const { user, lat, long } = req.query;
+
+  if ((typeof lat !== 'undefined' && lat !== null) || (typeof long !== 'undefined' && long !== null)) {
+    atHome = alfredHelper.inHomeGeoFence(lat, long);
+  }
 
   if (typeof user !== 'undefined' && user !== null) {
     switch (user.toUpperCase()) {
       case 'FRAN':
-        part1 = { query: { route: 'CHX' } };
-        part1JSON = await nexttrain(part1, null, next);
-        part2 = { query: { route: '9' } };
-        part2JSON = await nextbus(part2, null, next);
-        part3 = { query: { route: 'CST' } };
-        part3JSON = await nexttrain(part3, null, next);
-        part4 = { query: { route: 'district' } };
-        part4JSON = await bustubestatus(part4, null, next);
+        if (atHome) {
+          commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
+          commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
+          commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
+          commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
+        }
         break;
       case 'JP':
-        part1 = { query: { route: '486' } };
-        part1JSON = await nextbus(part1, null, next);
-        part2 = { query: { route: 'jubilee' } };
-        part2JSON = await bustubestatus(part2, null, next);
-        part3 = { query: { route: 'CHX' } };
-        part3JSON = await nexttrain(part3, null, next);
-        part4 = { query: { route: 'bakerloo' } };
-        part4JSON = await bustubestatus(part4, null, next);
+        commuteOptions.push({ order: 0, type: 'bus', query: { query: { route: '486', atHome } } });
+        if (atHome) {
+          commuteOptions.push({ order: 1, type: 'tube', query: { query: { route: 'jubilee' } } });
+          commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CHX' } } });
+          commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'bakerloo' } } });
+        } else {
+          commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '161', atHome } } });
+        }
         break;
       default:
         logger.info('getCommute: User not supported.');
@@ -485,18 +478,37 @@ async function getCommute(req, res, next) {
         }
     }
 
-    // Work out if there are any disruptions as part of the primary commute
-    anyDisruptions = 'false';
-    if (part1JSON.disruptions === 'true' || part2JSON.disruptions === 'true') {
-      anyDisruptions = 'true';
-    }
+    await Promise.all(commuteOptions.map(async (commuteOption) => {
+      switch (commuteOption.type) {
+        case 'bus':
+          tmpResults = await nextbus(commuteOption.query, null, next);
+          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+          tmpResults.order = commuteOption.order;
+          commuteResults.push(tmpResults);
+          break;
+        case 'tube':
+          tmpResults = await bustubestatus(commuteOption.query, null, next);
+          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+          tmpResults.order = commuteOption.order;
+          commuteResults.push(tmpResults);
+          break;
+        case 'train':
+          tmpResults = await nexttrain(commuteOption.query, null, next);
+          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+          tmpResults.order = commuteOption.order;
+          commuteResults.push(tmpResults);
+          break;
+        default:
+          break;
+      }
+    }));
+
+    // Order commute options correctly
+    commuteResults.sort((a, b) => a.order - b.order);
 
     returnJSON = {
       anyDisruptions,
-      part1: part1JSON,
-      part2: part2JSON,
-      part3: part3JSON,
-      part4: part4JSON,
+      commuteResults,
     };
 
     if (typeof res !== 'undefined' && res !== null) {

@@ -29,7 +29,8 @@
     "winston": "*",
     "x-ray": "*",
     "dark-sky-api": "*",
-    "netatmo": "*"
+    "netatmo": "*",
+    "in-n-out": "*"
   },
   "devDependencies": {
     "eslint": "^4.18.0",
