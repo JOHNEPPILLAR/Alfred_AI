@@ -8,7 +8,7 @@ server.cert
 server.key
 Dockerfile
 certs/
-lib/geoHome.json
+geoHome.json
 
 
 
