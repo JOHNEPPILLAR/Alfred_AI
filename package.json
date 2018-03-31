@@ -30,7 +30,9 @@
     "x-ray": "*",
     "dark-sky-api": "*",
     "netatmo": "*",
-    "geolib": "*"
+    "geolib": "*",
+    "memwatch-next": "*",
+    "heapdump": "*"
   },
   "devDependencies": {
     "eslint": "^4.18.0",
