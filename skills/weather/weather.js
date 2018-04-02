@@ -81,6 +81,68 @@ async function sunSet(req, res, next) {
 }
 skill.get('/sunset', sunSet);
 
+
+/**
+ * @api {get} /weather/sunrise What time is sunrise in London
+ * @apiName sunrise
+ * @apiGroup Weather
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: "06:23"
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function sunRise(req, res, next) {
+  logger.info('Sunrise API called');
+
+  // Configure darksky
+  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.proxy = true;
+  darkSky.units = 'uk2';
+
+  // Get the location
+  let { location } = req.query;
+  if (typeof location === 'undefined' || location == null) {
+    location = 'london';
+  }
+
+  try {
+    let apiData = await geocoder.geocode(location);
+    const position = {
+      latitude: apiData[0].latitude,
+      longitude: apiData[0].longitude,
+    };
+    apiData = await darkSky.loadForecast(position);
+    const sunriseTime = new Date(apiData.daily.data[0].sunriseTime * 1000);
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, dateFormat(sunriseTime, 'HH:MM')); // Send response back to caller
+      next();
+    } else {
+      return dateFormat(sunriseTime, 'HH:MM');
+    }
+  } catch (err) {
+    logger.error(`sunSet: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    } else {
+      return err;
+    }
+  }
+  return null;
+}
+skill.get('/sunrise', sunRise);
+
 /**
  * @api {get} /weather/today Get todays weather
  * @apiName today
