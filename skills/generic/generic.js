@@ -118,8 +118,14 @@ skill.get('/help', help);
  *
  */
 function ping(req, res, next) {
+  const ackJSON = {
+    service: 'Alfred Digital Assistant',
+    server: 'sheldon',
+    reply: 'pong',
+  };
+
   logger.info('Ping API called');
-  alfredHelper.sendResponse(res, true, 'pong'); // Send response back to caller
+  alfredHelper.sendResponse(res, true, ackJSON); // Send response back to caller
   next();
 }
 skill.get('/ping', ping);
