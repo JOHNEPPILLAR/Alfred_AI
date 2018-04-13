@@ -33,7 +33,7 @@ const auth = {
  *
  */
 async function register(req, res, next) {
-  logger.info('Register new device api called ');
+  logger.info('Register device api called ');
 
   const client = new Client({
     user: process.env.alfred_datastore_un,
@@ -43,7 +43,7 @@ async function register(req, res, next) {
     port: 5432,
   });
 
-  const deviceToken = req.query.device_token;
+  const deviceToken = req.body;
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     alfredHelper.sendResponse(res, false, null); // Send response back to caller
     next();
@@ -84,6 +84,6 @@ async function register(req, res, next) {
     next();
   }
 }
-skill.get('/register', register);
+skill.put('/register', register);
 
 module.exports = skill;
