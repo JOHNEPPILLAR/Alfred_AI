@@ -32,7 +32,8 @@
     "netatmo": "*",
     "geolib": "*",
     "memwatch-next": "*",
-    "heapdump": "*"
+    "heapdump": "*",
+    "pg": "*"
   },
   "devDependencies": {
     "eslint": "^4.18.0",
