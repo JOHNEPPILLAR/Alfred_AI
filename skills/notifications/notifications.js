@@ -43,7 +43,8 @@ async function register(req, res, next) {
     port: 5432,
   });
 
-  const deviceToken = req.body;
+  const deviceToken = req.body.device;
+  
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     alfredHelper.sendResponse(res, false, null); // Send response back to caller
     next();
