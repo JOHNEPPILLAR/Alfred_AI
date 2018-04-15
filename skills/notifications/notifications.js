@@ -78,8 +78,11 @@ async function register(req, res, next) {
   }
 
   if (results.rowCount > 0) {
-    SQL = `UPDATE push_notifications SET main_user=$1 WHERE device_token='${deviceToken}'`;
-    dataValues = [deviceUser];
+    SQL = `UPDATE push_notifications SET time=S1, main_user=$2 WHERE device_token='${deviceToken}'`;
+    dataValues = [
+      new Date(),
+      deviceUser,
+    ];
   } else {
     SQL = 'INSERT INTO push_notifications("time", device_token, main_user) VALUES ($1, $2, $3)';
     dataValues = [
