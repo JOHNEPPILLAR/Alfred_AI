@@ -44,6 +44,11 @@ async function register(req, res, next) {
   });
 
   const deviceToken = req.body.device;
+  const deviceUser = req.body.user;
+
+  let SQL;
+  let dataValues;
+  let results;
 
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     alfredHelper.sendResponse(res, false, null); // Send response back to caller
@@ -53,35 +58,56 @@ async function register(req, res, next) {
 
   try {
     client.connect();
-  } catch (connectErr) {
-    logger.error(`Register: ${connectErr}`);
+  } catch (err) {
+    logger.error(`Register: ${err}`);
     alfredHelper.sendResponse(res, false, null); // Send response back to caller
     next();
     return;
   }
 
+  // Check if device is already registered
   try {
-    const dataInsert = 'INSERT INTO push_notifications("time", device_token) VALUES ($1, $2)';
-    const dataValues = [
+    SQL = `SELECT * FROM push_notifications WHERE device_token = '${deviceToken}'`;
+    results = await client.query(SQL);
+  } catch (err) {
+    client.end();
+    logger.error(`Register: ${err}`);
+    alfredHelper.sendResponse(res, false, null); // Send response back to caller
+    next();
+    return;
+  }
+
+  if (results.rowCount > 0) {
+    SQL = `UPDATE push_notifications SET main_user=$1 WHERE device_token='${deviceToken}'`;
+    dataValues = [deviceUser];
+  } else {
+    SQL = 'INSERT INTO push_notifications("time", device_token, main_user) VALUES ($1, $2, $3)';
+    dataValues = [
       new Date(),
       deviceToken,
+      deviceUser,
     ];
+  }
 
-    const results = await client.query(dataInsert, dataValues);
+  results = null; // Clear results
+
+  try {
+    results = await client.query(SQL, dataValues);
     client.end();
 
     if (results.rowCount !== 1) {
-      logger.error(`Register: Failed to insert data for device: ${dataValues[1]}`);
+      logger.error(`Register: Failed to insert/update data for device: ${deviceToken}`);
       alfredHelper.sendResponse(res, false, null); // Send response back to caller
       next();
       return;
     }
-    logger.info(`Saved data for device: ${dataValues[1]}`);
+    logger.info(`Saved data for device: ${deviceToken}`);
     alfredHelper.sendResponse(res, true, null); // Send response back to caller
     next();
-  } catch (saveErr) {
-    logger.error(`Register: ${saveErr}`);
-    alfredHelper.sendResponse(res, false, null); // Send response back to caller
+  } catch (err) {
+    client.end();
+    logger.error(`Register: ${err}`);
+    alfredHelper.sendResponse(res, false, err); // Send response back to caller
     next();
   }
 }
@@ -130,7 +156,7 @@ async function devicesToUse(req, res, next) {
   }
 
   try {
-    const dataSelect = 'SELECT * FROM push_notifications';
+    const dataSelect = 'SELECT * FROM push_notifications GROUP BY device';
 
     const results = await client.query(dataSelect);
     client.end();
