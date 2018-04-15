@@ -127,7 +127,7 @@ async function devicesToUse(req, res, next) {
   }
 
   try {
-    const dataSelect = 'SELECT * push_notifications';
+    const dataSelect = 'SELECT * FROM push_notifications';
 
     const results = await client.query(dataSelect);
     client.end();
