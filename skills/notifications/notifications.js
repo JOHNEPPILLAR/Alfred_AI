@@ -96,7 +96,10 @@ skill.put('/register', register);
  *   HTTPS/1.1 200 OK
  *   {
  *     sucess: 'true',
- *     data:
+ *     data: [{
+ *               "time": "yyy-mm-ddThh:mm:ss",
+ *               "device_token": "xxxxx"
+ *           }]
  *   }
  *
  * @apiErrorExample {json} Error-Response:
@@ -132,7 +135,7 @@ async function devicesToUse(req, res, next) {
     const results = await client.query(dataSelect);
     client.end();
 
-    alfredHelper.sendResponse(res, true, results); // Send response back to caller
+    alfredHelper.sendResponse(res, true, results.rows); // Send response back to caller
     next();
   } catch (err) {
     logger.error(`DevicesToUse: ${err}`);
