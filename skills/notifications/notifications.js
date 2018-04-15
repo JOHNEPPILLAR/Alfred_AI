@@ -15,7 +15,7 @@ const auth = {
 };
 
 /**
- * @api {get} /register Register for push notifications
+ * @api {put} /register Register for push notifications
  * @apiName register
  * @apiGroup Notifications
  *
@@ -44,7 +44,7 @@ async function register(req, res, next) {
   });
 
   const deviceToken = req.body.device;
-  
+
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     alfredHelper.sendResponse(res, false, null); // Send response back to caller
     next();
@@ -86,5 +86,60 @@ async function register(req, res, next) {
   }
 }
 skill.put('/register', register);
+
+/**
+ * @api {get} /devices List push notifications api called
+ * @apiName devices
+ * @apiGroup Notifications
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true',
+ *     data:
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 400 Bad Request
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function devicesToUse(req, res, next) {
+  logger.info('List push notifications api called');
+
+  const client = new Client({
+    user: process.env.alfred_datastore_un,
+    host: process.env.alfred_datastore,
+    database: process.env.alfred_datastore_db,
+    password: process.env.alfred_datastore_pwd,
+    port: 5432,
+  });
+
+  try {
+    client.connect();
+  } catch (connectErr) {
+    logger.error(`DevicesToUse: ${connectErr}`);
+    alfredHelper.sendResponse(res, false, null); // Send response back to caller
+    next();
+    return;
+  }
+
+  try {
+    const dataSelect = 'SELECT * push_notifications';
+
+    const results = await client.query(dataSelect);
+    client.end();
+
+    alfredHelper.sendResponse(res, true, results); // Send response back to caller
+    next();
+  } catch (err) {
+    logger.error(`DevicesToUse: ${err}`);
+    alfredHelper.sendResponse(res, false, null); // Send response back to caller
+    next();
+  }
+}
+skill.get('/devices', devicesToUse);
 
 module.exports = skill;
