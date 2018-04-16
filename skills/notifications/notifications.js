@@ -7,12 +7,6 @@ const alfredHelper = require('../../lib/helper.js');
 const logger = require('winston');
 
 const skill = new Skills();
-const auth = {
-  client_id: process.env.NetatmoClientKey,
-  client_secret: process.env.NetatmoClientSecret,
-  username: process.env.NetatmpUserName,
-  password: process.env.NetatmoPassword,
-};
 
 /**
  * @api {put} /register Register for push notifications
