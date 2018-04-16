@@ -78,7 +78,7 @@ async function register(req, res, next) {
   }
 
   if (results.rowCount > 0) {
-    SQL = `UPDATE push_notifications SET "time"=S1, main_user=$2 WHERE device_token='${deviceToken}'`;
+    SQL = `UPDATE push_notifications SET "time"=$1, main_user=$2 WHERE device_token='${deviceToken}'`;
     dataValues = [
       new Date(),
       deviceUser,
