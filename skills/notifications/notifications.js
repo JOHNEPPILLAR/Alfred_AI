@@ -153,7 +153,7 @@ async function devicesToUse(req, res, next) {
   }
 
   try {
-    const dataSelect = 'SELECT * FROM push_notifications GROUP BY device';
+    const dataSelect = 'SELECT device_token, last(main_user, time) as device_token, last(push_status, time) as push_status, last(distruptions, time) as distruptions FROM push_notifications GROUP BY device_token';
 
     const results = await client.query(dataSelect);
     client.end();
