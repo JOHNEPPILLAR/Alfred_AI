@@ -138,7 +138,7 @@ async function devicesToUse(req, res, next) {
   const client = new Client({
     user: process.env.alfred_datastore_un,
     host: process.env.alfred_datastore,
-    database: process.env.alfred_datastore_db,
+    database: 'alfred',
     password: process.env.alfred_datastore_pwd,
     port: 5432,
   });
