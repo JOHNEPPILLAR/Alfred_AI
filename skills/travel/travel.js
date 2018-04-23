@@ -37,12 +37,14 @@ async function bustubestatus(req, res, next) {
     logger.info('Bus & Tube Status API called');
   }
 
+  const tflapiKey = process.env.tflapikey;
   const { route } = req.query;
+
   let disruptions = 'false';
   let returnJSON;
 
   if (typeof route !== 'undefined' && route !== null) {
-    const url = `https://api.tfl.gov.uk/Line/${route}`;
+    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption&${tflapiKey}`;
     try {
       let apiData = await alfredHelper.requestAPIdata(url);
       apiData = apiData.body;
@@ -56,7 +58,7 @@ async function bustubestatus(req, res, next) {
         if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
           disruptions = 'false';
         } else {
-          disruptions = apiData[0].disruptions;
+          disruptions = apiData.description;
         }
         returnJSON = {
           mode: apiData[0].modeName,
