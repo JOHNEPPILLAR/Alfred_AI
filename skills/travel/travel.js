@@ -38,7 +38,7 @@ async function tubeStatus(req, res, next) {
   }
 
   const tflapiKey = process.env.tflapikey;
-  
+
   let { route } = req.query;
   let disruptions = 'false';
   let returnJSON;
@@ -58,7 +58,7 @@ async function tubeStatus(req, res, next) {
     apiData = apiData.body;
 
     if (!alfredHelper.isEmptyObject(apiData)) {
-      disruptions = apiData[0].lineStatuses.reason;
+      disruptions = apiData[0].description;
       route = apiData[0].name;
     }
 
@@ -73,7 +73,6 @@ async function tubeStatus(req, res, next) {
       next();
     }
     return returnJSON;
-
   } catch (err) {
     logger.error(`tubestatus: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
@@ -145,7 +144,7 @@ async function busStatus(req, res, next) {
     }
 
     if (!alfredHelper.isEmptyObject(apiData[0].disruptions)) disruptions = apiData.description;
-    
+
     returnJSON = {
       mode: apiData[0].modeName,
       line: apiData[0].name,
@@ -157,7 +156,6 @@ async function busStatus(req, res, next) {
       next();
     }
     return returnJSON;
-
   } catch (err) {
     logger.error(`busstatus: ${err}`);
     if (typeof res !== 'undefined' && res !== null) {
