@@ -8,11 +8,89 @@ const logger = require('winston');
 const skill = new Skills();
 
 /**
- * @api {get} /travel/bustubestatus Get bus or tube status
- * @apiName bustubestatus
+ * @api {get} /travel/tubestatus Get tube status
+ * @apiName tubestatus
  * @apiGroup Travel
  *
- * @apiParam {String} route Train line or bus number i.e. Circle line or 380
+ * @apiParam {String} route Tube line i.e. Circle line
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *   "sucess": "true",
+ *   "data": {
+ *       "mode:": "tube",
+ *       "line": "Victoris",
+ *       "disruptions": "false"
+ *   }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function tubeStatus(req, res, next) {
+  if (typeof res !== 'undefined' && res !== null) {
+    logger.info('Tube status API called');
+  }
+
+  const tflapiKey = process.env.tflapikey;
+  
+  let { route } = req.query;
+  let disruptions = 'false';
+  let returnJSON;
+
+  if (typeof route === 'undefined' || route === null) {
+    logger.info('tubestatus: Missing route param');
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
+      next();
+    }
+    return false;
+  }
+
+  const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${tflapiKey}`;
+  try {
+    let apiData = await alfredHelper.requestAPIdata(url);
+    apiData = apiData.body;
+
+    if (!alfredHelper.isEmptyObject(apiData)) {
+      disruptions = apiData[0].lineStatuses.reason;
+      route = apiData[0].name;
+    }
+
+    returnJSON = {
+      mode: 'tube',
+      line: route,
+      disruptions,
+    };
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+      next();
+    }
+    return returnJSON;
+
+  } catch (err) {
+    logger.error(`tubestatus: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    }
+    return false;
+  }
+}
+skill.get('/tubestatus', tubeStatus);
+
+/**
+ * @api {get} /travel/busstatus Get bus status
+ * @apiName busstatus
+ * @apiGroup Travel
+ *
+ * @apiParam {String} route bus number i.e. 486
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -32,9 +110,9 @@ const skill = new Skills();
  *   }
  *
  */
-async function bustubestatus(req, res, next) {
+async function busStatus(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Bus & Tube Status API called');
+    logger.info('Bus status API called');
   }
 
   const tflapiKey = process.env.tflapikey;
@@ -43,53 +121,53 @@ async function bustubestatus(req, res, next) {
   let disruptions = 'false';
   let returnJSON;
 
-  if (typeof route !== 'undefined' && route !== null) {
-    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption&${tflapiKey}`;
-    try {
-      let apiData = await alfredHelper.requestAPIdata(url);
-      apiData = apiData.body;
-      if (alfredHelper.isEmptyObject(apiData)) {
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, false, 'No data was returned from the TFL API call');
-          next();
-        }
-        logger.info('bustubestatus - Failure, no data was returned from the TFL API call');
-      } else {
-        if (alfredHelper.isEmptyObject(apiData[0].disruptions)) {
-          disruptions = 'false';
-        } else {
-          disruptions = apiData.description;
-        }
-        returnJSON = {
-          mode: apiData[0].modeName,
-          line: apiData[0].name,
-          disruptions,
-        };
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
-          next();
-        }
-        return returnJSON;
-      }
-    } catch (err) {
-      logger.error(`bustubestatus: ${err}`);
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, null, err); // Send response back to caller
-        next();
-      } else {
-        return err;
-      }
-    }
-  } else {
-    logger.info('bustubestatus: Missing route param');
+  if (typeof route === 'undefined' || route === null) {
+    logger.info('busstatus: Missing route param');
     if (typeof res !== 'undefined' && res !== null) {
       alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
       next();
     }
+    return false;
   }
-  return null;
+
+  const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${tflapiKey}`;
+  try {
+    let apiData = await alfredHelper.requestAPIdata(url);
+    apiData = apiData.body;
+
+    if (alfredHelper.isEmptyObject(apiData)) {
+      if (typeof res !== 'undefined' && res !== null) {
+        alfredHelper.sendResponse(res, false, 'No data was returned from the TFL API call');
+        next();
+      }
+      logger.info('busstatus - Failure, no data was returned from the TFL API call');
+      return false;
+    }
+
+    if (!alfredHelper.isEmptyObject(apiData[0].disruptions)) disruptions = apiData.description;
+    
+    returnJSON = {
+      mode: apiData[0].modeName,
+      line: apiData[0].name,
+      disruptions,
+    };
+
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+      next();
+    }
+    return returnJSON;
+
+  } catch (err) {
+    logger.error(`busstatus: ${err}`);
+    if (typeof res !== 'undefined' && res !== null) {
+      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      next();
+    }
+    return false;
+  }
 }
-skill.get('/bustubestatus', bustubestatus);
+skill.get('/busstatus', busStatus);
 
 /**
  * @api {get} /travel/nextbus Get next bus information
@@ -181,7 +259,7 @@ async function nextbus(req, res, next) {
   try {
     // Get the bus data
     const params = { query: { route: busroute } };
-    const distruptionsJSON = await bustubestatus(params, null, next);
+    const distruptionsJSON = await busStatus(params, null, next);
 
     let apiData = await alfredHelper.requestAPIdata(url);
     apiData = apiData.body;
@@ -192,7 +270,7 @@ async function nextbus(req, res, next) {
         destination: '',
         firstTime: 'N/A',
         secondTime: 'N/A',
-        disruptions: 'true',
+        disruptions: 'N/A',
         error: 'No data was returned from the call to the TFL API',
       };
       logger.info('nextbus: No data was returned from the TFL API call');
@@ -278,7 +356,7 @@ skill.get('/nextbus', nextbus);
  *   }
  *
  */
-async function nexttrain(req, res, next) {
+async function nextTrain(req, res, next) {
   if (typeof res !== 'undefined' && res !== null) {
     logger.info('Next Train API called');
   }
@@ -393,7 +471,7 @@ async function nexttrain(req, res, next) {
   }
   return null;
 }
-skill.get('/nexttrain', nexttrain);
+skill.get('/nexttrain', nextTrain);
 
 /**
  * @api {get} /travel/getcommute Get commute information
@@ -489,13 +567,13 @@ async function getCommute(req, res, next) {
           commuteResults.push(tmpResults);
           break;
         case 'tube':
-          tmpResults = await bustubestatus(commuteOption.query, null, next);
+          tmpResults = await tubeStatus(commuteOption.query, null, next);
           if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
           tmpResults.order = commuteOption.order;
           commuteResults.push(tmpResults);
           break;
         case 'train':
-          tmpResults = await nexttrain(commuteOption.query, null, next);
+          tmpResults = await nextTrain(commuteOption.query, null, next);
           if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
           tmpResults.order = commuteOption.order;
           commuteResults.push(tmpResults);
