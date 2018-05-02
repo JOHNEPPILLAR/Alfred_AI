@@ -31,7 +31,6 @@
     "dark-sky-api": "*",
     "netatmo": "*",
     "geolib": "*",
-    "memwatch-next": "*",
     "heapdump": "*",
     "pg": "*"
   },
