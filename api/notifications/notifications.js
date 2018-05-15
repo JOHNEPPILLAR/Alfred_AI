@@ -29,10 +29,10 @@ async function register(req, res, next) {
   serviceHelper.log('trace', 'register', 'register API called');
 
   const client = new Client({
-    user: process.env.alfred_datastore_un,
-    host: process.env.alfred_datastore,
+    host: process.env.DataStore,
+    user: process.env.DataStoreUser,
+    password: process.env.DataStoreUserPassword,
     database: 'alfred',
-    password: process.env.alfred_datastore_pwd,
     port: 5432,
   });
 
@@ -49,13 +49,15 @@ async function register(req, res, next) {
   let SQL;
   let dataValues;
   let results;
-  
+
   try {
+    serviceHelper.log('trace', 'register', 'Connect to data store');
     client.connect();
     SQL = `SELECT device_token FROM push_notifications WHERE device_token = '${deviceToken}'`;
     results = await client.query(SQL);
 
     if (results.rowCount > 0) {
+      serviceHelper.log('trace', 'register', 'Device found so updating record');
       SQL = 'UPDATE push_notifications SET "time"=$1, main_user=$2 WHERE device_token=$3';
       dataValues = [
         new Date(),
@@ -63,6 +65,7 @@ async function register(req, res, next) {
         deviceToken,
       ];
     } else {
+      serviceHelper.log('trace', 'register', 'Register new device');
       SQL = 'INSERT INTO push_notifications("time", device_token, main_user) VALUES ($1, $2, $3)';
       dataValues = [
         new Date(),
@@ -73,20 +76,18 @@ async function register(req, res, next) {
     results = await client.query(SQL, dataValues);
     client.end();
     if (results.rowCount !== 1) {
-      logger.error(`Register: Failed to insert/update data for device: ${deviceToken}`);
-      serviceHelper.sendResponse(res, false, `Register: Failed to insert/update data for device: ${deviceToken}`);
+      serviceHelper.log('error', 'register', `Failed to insert/update data for device: ${deviceToken}`);
+      serviceHelper.sendResponse(res, false, `Failed to insert/update data for device: ${deviceToken}`);
       next();
       return;
     }
-    logger.info(`Saved data for device: ${deviceToken}`);
-    alfredHelper.sendResponse(res, true, null);
+    serviceHelper.log('info', 'register', `Registered/updated device : ${deviceToken}`);
+    serviceHelper.sendResponse(res, true, `Registered device : ${deviceToken}`);
     next();
-
   } catch (err) {
-    logger.error(`Register: ${err}`);
-    alfredHelper.sendResponse(res, false, err);
+    serviceHelper.log('error', 'register', err);
+    serviceHelper.sendResponse(res, false, err);
     next();
-    return;
   }
 }
 skill.put('/register', register);
@@ -114,36 +115,28 @@ skill.put('/register', register);
  *
  */
 async function devicesToUse(req, res, next) {
-  logger.info('List push notifications api called');
+  serviceHelper.log('trace', 'devicesToUse', 'devicesToUse API called');
 
   const client = new Client({
-    user: process.env.alfred_datastore_un,
-    host: process.env.alfred_datastore,
+    host: process.env.DataStore,
+    user: process.env.DataStoreUser,
+    password: process.env.DataStoreUserPassword,
     database: 'alfred',
-    password: process.env.alfred_datastore_pwd,
     port: 5432,
   });
 
   try {
-    client.connect();
-  } catch (connectErr) {
-    logger.error(`DevicesToUse: ${connectErr}`);
-    alfredHelper.sendResponse(res, false, null); // Send response back to caller
-    next();
-    return;
-  }
-
-  try {
+    serviceHelper.log('trace', 'devicesToUse', 'Connect to data store');
     const dataSelect = 'SELECT device_token, last(main_user, time) as device_token, last(push_status, time) as push_status, last(distruptions, time) as distruptions FROM push_notifications GROUP BY device_token';
-
+    client.connect();
     const results = await client.query(dataSelect);
+    serviceHelper.log('trace', 'devicesToUse', 'Got data so close data store connection');
     client.end();
-
-    alfredHelper.sendResponse(res, true, results.rows); // Send response back to caller
+    serviceHelper.sendResponse(res, true, results.rows);
     next();
   } catch (err) {
-    logger.error(`DevicesToUse: ${err}`);
-    alfredHelper.sendResponse(res, false, null); // Send response back to caller
+    serviceHelper.log('error', 'devicesToUse', err);
+    serviceHelper.sendResponse(res, false, err);
     next();
   }
 }
