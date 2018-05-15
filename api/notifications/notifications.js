@@ -40,8 +40,15 @@ async function register(req, res, next) {
   const deviceUser = req.body.user;
 
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
-    serviceHelper.log('trace', 'register', 'deviceToken param missing');
-    serviceHelper.sendResponse(res, 400, 'deviceToken param missing');
+    serviceHelper.log('trace', 'register', 'Missing param: deviceToken');
+    serviceHelper.sendResponse(res, 400, 'Missing param: deviceToken');
+    next();
+    return;
+  }
+
+  if (typeof deviceUser === 'undefined' || deviceUser === null) {
+    serviceHelper.log('trace', 'register', 'Missing param: deviceUser');
+    serviceHelper.sendResponse(res, 400, 'Missing param: deviceUser');
     next();
     return;
   }

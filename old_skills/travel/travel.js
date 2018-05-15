@@ -2,8 +2,7 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const alfredHelper = require('../../lib/helper.js');
-const logger = require('winston');
+const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
 
@@ -20,7 +19,7 @@ const skill = new Skills();
  *   "sucess": "true",
  *   "data": {
  *       "mode:": "tube",
- *       "line": "Victoris",
+ *       "line": "Victoria",
  *       "disruptions": "false"
  *   }
  *   }
@@ -33,31 +32,29 @@ const skill = new Skills();
  *
  */
 async function tubeStatus(req, res, next) {
-  if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Tube status API called');
-  }
+  serviceHelper.log('trace', 'tubeStatus', 'tubeStatus API called');
 
   const tflapiKey = process.env.tflapikey;
 
   let { route } = req.query;
   let disruptions = 'false';
   let returnJSON;
-
-  if (typeof route === 'undefined' || route === null) {
-    logger.info('tubestatus: Missing route param');
+  if (typeof route === 'undefined' || route === null || route === '') {
+    serviceHelper.log('info', 'tubeStatus', 'Missing param: route');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
+      serviceHelper.sendResponse(res, 400, 'Missing param: route');
       next();
     }
     return false;
   }
 
-  const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${tflapiKey}`;
   try {
-    let apiData = await alfredHelper.requestAPIdata(url);
+    serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
+    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${tflapiKey}`;
+    let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
 
-    if (!alfredHelper.isEmptyObject(apiData)) {
+    if (!serviceHelper.isEmptyObject(apiData)) {
       disruptions = apiData[0].description;
       route = apiData[0].name;
     }
@@ -69,14 +66,14 @@ async function tubeStatus(req, res, next) {
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+      serviceHelper.sendResponse(res, true, returnJSON);
       next();
     }
     return returnJSON;
   } catch (err) {
-    logger.error(`tubestatus: ${err}`);
+    serviceHelper.log('error', 'tubeStatus', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      serviceHelper.sendResponse(res, false, err);
       next();
     }
     return false;
