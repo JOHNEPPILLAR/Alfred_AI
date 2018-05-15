@@ -40,7 +40,7 @@ async function tubeStatus(req, res, next) {
   let disruptions = 'false';
   let returnJSON;
 
-  if (typeof route === 'undefined' || route === null) {
+  if (typeof route === 'undefined' || route === null || route === '') {
     serviceHelper.log('info', 'tubeStatus', 'Missing param: route');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: route');

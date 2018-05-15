@@ -1,9 +1,10 @@
 {
-  "name": "alfred_di_service",
+  "name": "alfred_digital_assistant_service",
   "version": "1.0.0",
-  "description": "Pillar home Digital Assistant API",
-  "main": "server.js",
+  "description": "Alfred Digital Assistant Service",
+  "main": "lib/server.js",
   "scripts": {
+    "start": "node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "JP",

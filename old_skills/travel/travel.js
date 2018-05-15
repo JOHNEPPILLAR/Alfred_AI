@@ -48,6 +48,9 @@ async function tubeStatus(req, res, next) {
     return false;
   }
 
+console.log(req.query)
+return;
+
   try {
     serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
     const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${tflapiKey}`;
