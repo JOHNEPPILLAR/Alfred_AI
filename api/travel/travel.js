@@ -35,7 +35,7 @@ async function tubeStatus(req, res, next) {
   serviceHelper.log('trace', 'tubeStatus', 'tubeStatus API called');
 
   const tflapiKey = process.env.tflapikey;
-
+  
   let { route } = req.query;
   let disruptions = 'false';
   let returnJSON;
@@ -108,56 +108,52 @@ skill.get('/tubestatus', tubeStatus);
  *
  */
 async function busStatus(req, res, next) {
-  if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Bus status API called');
-  }
+  serviceHelper.log('trace', 'busStatus', 'busStatus API called');
 
   const tflapiKey = process.env.tflapikey;
-  const { route } = req.query;
-
+  
+  let { route } = req.query;
   let disruptions = 'false';
   let returnJSON;
 
-  if (typeof route === 'undefined' || route === null) {
-    logger.info('busstatus: Missing route param');
+  if (typeof route === 'undefined' || route === null || route === '') {
+    serviceHelper.log('info', 'busStatus', 'Missing param: route');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
+      serviceHelper.sendResponse(res, 400, 'Missing param: route');
       next();
     }
     return false;
   }
 
-  const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${tflapiKey}`;
   try {
-    let apiData = await alfredHelper.requestAPIdata(url);
-    apiData = apiData.body;
+    serviceHelper.log('trace', 'busStatus', 'Getting data from TFL');
 
-    if (alfredHelper.isEmptyObject(apiData)) {
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, false, 'No data was returned from the TFL API call');
-        next();
+    const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${tflapiKey}`;
+    let apiData = await serviceHelper.requestAPIdata(url);
+    apiData = apiData.body
+    
+    if (!serviceHelper.isEmptyObject(apiData)) {
+      route = apiData[0].name;
+      if (!serviceHelper.isEmptyObject(apiData[0].disruptions)) {
+        disruptions = apiData[0].disruptions;
       }
-      logger.info('busstatus - Failure, no data was returned from the TFL API call');
-      return false;
     }
 
-    if (!alfredHelper.isEmptyObject(apiData[0].disruptions)) disruptions = apiData.description;
-
     returnJSON = {
-      mode: apiData[0].modeName,
-      line: apiData[0].name,
+      mode: 'bus',
+      line: route,
       disruptions,
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+      serviceHelper.sendResponse(res, true, returnJSON);
       next();
     }
     return returnJSON;
   } catch (err) {
-    logger.error(`busstatus: ${err}`);
+    serviceHelper.log('error', 'busStatus', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      serviceHelper.sendResponse(res, false, err);
       next();
     }
     return false;
@@ -194,15 +190,15 @@ skill.get('/busstatus', busStatus);
  *
  */
 async function nextbus(req, res, next) {
-  if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Next Bus API called');
-  }
+  serviceHelper.log('trace', 'nextbus', 'nextbus API called');
 
   const tflapiKey = process.env.tflapikey;
   const busroute = req.query.route;
+
   let url;
   let returnJSON;
   let atHome;
+  let stopPoint = '';
 
   switch (req.query.atHome) {
     case false:
@@ -215,41 +211,44 @@ async function nextbus(req, res, next) {
       atHome = true;
   }
 
-  let stopPoint = '';
-  if (typeof busroute !== 'undefined' && busroute !== null) {
-    switch (busroute) {
-      case '9':
-        stopPoint = '490013766H'; // Default going to work stop point
-        if (!atHome) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
-        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${tflapiKey}`;
-        break;
-      case '380':
-        url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
-        break;
-      case '486':
-        stopPoint = '490001058H'; // Default going to work stop point
-        if (!atHome) { stopPoint = '490010374B'; } // Override to coming home stop point
-        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${tflapiKey}`;
-        break;
-      case '161':
-        stopPoint = '490010374A'; // Default coming home stop point
-        url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${tflapiKey}`;
-        break;
-      default:
-        logger.info('nextbus: Bus route not supported');
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, false, 'Bus route not supported'); // Send response back to caller
-          next();
-        } else {
-          return null;
-        }
-    }
-  } else {
-    logger.info('nextbus: Missing route param');
+  if (typeof busroute === 'undefined' || busroute === null || busroute === '') {
+    serviceHelper.log('info', 'nextbus', 'Missing param: route');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'Missing route param'); // Send response back to caller
+      serviceHelper.sendResponse(res, 400, 'Missing param: route');
       next();
     }
+    return false;
+  }
+
+  switch (busroute) {
+    case '9':
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no.9');
+      stopPoint = '490013766H'; // Default going to work stop point
+      if (!atHome) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${tflapiKey}`;
+      break;
+    case '380':
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no.380');
+      url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
+      break;
+    case '486':
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no.486');
+      stopPoint = '490001058H'; // Default going to work stop point
+      if (!atHome) { stopPoint = '490010374B'; } // Override to coming home stop point
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${tflapiKey}`;
+      break;
+    case '161':
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no.161');
+      stopPoint = '490010374A'; // Default coming home stop point
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${tflapiKey}`;
+      break;
+    default:
+      serviceHelper.log('trace', 'nextbus', `Bus no.${busroute} is not supported`);
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, `Bus route ${busroute} is not currently supported`);
+        next();
+      }
+      return false;
   }
 
   try {
@@ -257,9 +256,9 @@ async function nextbus(req, res, next) {
     const params = { query: { route: busroute } };
     const distruptionsJSON = await busStatus(params, null, next);
 
-    let apiData = await alfredHelper.requestAPIdata(url);
+    let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
-    if (alfredHelper.isEmptyObject(apiData)) {
+    if (serviceHelper.isEmptyObject(apiData)) {
       returnJSON = {
         mode: 'bus',
         line: busroute,
@@ -269,14 +268,14 @@ async function nextbus(req, res, next) {
         disruptions: 'N/A',
         error: 'No data was returned from the call to the TFL API',
       };
-      logger.info('nextbus: No data was returned from the TFL API call');
+      serviceHelper.log('error', 'nextbus', 'No data was returned from the call to the TFL API');
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, false, returnJSON);
+        serviceHelper.sendResponse(res, false, returnJSON);
         next();
       }
     } else {
       let busData = apiData.filter(a => a.lineId === busroute);
-      busData = busData.sort(alfredHelper.GetSortOrder('timeToStation'));
+      busData = busData.sort(serviceHelper.GetSortOrder('timeToStation'));
 
       let numberOfElements = busData.length;
       if (numberOfElements > 2) { numberOfElements = 2; }
@@ -287,8 +286,8 @@ async function nextbus(req, res, next) {
             mode: 'bus',
             line: busData[0].lineName,
             destination: busData[0].destinationName,
-            firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
-            secondTime: alfredHelper.minutesToStop(busData[1].timeToStation),
+            firstTime: serviceHelper.minutesToStop(busData[0].timeToStation),
+            secondTime: serviceHelper.minutesToStop(busData[1].timeToStation),
             disruptions: distruptionsJSON.disruptions,
           };
           break;
@@ -297,28 +296,27 @@ async function nextbus(req, res, next) {
             mode: 'bus',
             line: busData[0].lineName,
             destination: busData[0].destinationName,
-            firstTime: alfredHelper.minutesToStop(busData[0].timeToStation),
+            firstTime: serviceHelper.minutesToStop(busData[0].timeToStation),
             secondTime: 'N/A',
             disruptions: distruptionsJSON.disruptions,
           };
           break;
       }
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
+        serviceHelper.sendResponse(res, true, returnJSON);
         next();
       }
     }
     return returnJSON;
   } catch (err) {
-    logger.error(`nextbus: ${err}`);
+    serviceHelper.log('error', 'nextbus', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, err); // Send response back to caller
+      serviceHelper.sendResponse(res, false, err);
       next();
-    } else {
-      return err;
     }
+    return err;
   }
-  return null;
+  return true;
 }
 skill.get('/nextbus', nextbus);
 
