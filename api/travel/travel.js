@@ -201,10 +201,10 @@ async function nextbus(req, res, next) {
   let stopPoint = '';
 
   switch (req.query.atHome) {
-    case false:
+    case 'false':
       atHome = false;
       break;
-    case true:
+    case 'true':
       atHome = true;
       break;
     default:
@@ -256,6 +256,7 @@ async function nextbus(req, res, next) {
     const params = { query: { route: busroute } };
     const distruptionsJSON = await busStatus(params, null, next);
 
+    serviceHelper.log('trace', 'nextbus', 'Get data from TFL');
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
     if (serviceHelper.isEmptyObject(apiData)) {
@@ -274,7 +275,9 @@ async function nextbus(req, res, next) {
         next();
       }
     } else {
+      serviceHelper.log('trace', 'nextbus', 'Filter bus stop for only desired route and direction');
       let busData = apiData.filter(a => a.lineId === busroute);
+      serviceHelper.log('trace', 'nextbus', 'Sort by time to arrive at staton');
       busData = busData.sort(serviceHelper.GetSortOrder('timeToStation'));
 
       let numberOfElements = busData.length;
