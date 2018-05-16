@@ -34,7 +34,7 @@ const skill = new Skills();
 async function tubeStatus(req, res, next) {
   serviceHelper.log('trace', 'tubeStatus', 'tubeStatus API called');
 
-  const tflapiKey = process.env.tflapikey;
+  const { tflapiKey } = process.env;
   
   let { route } = req.query;
   let disruptions = 'false';
@@ -110,7 +110,7 @@ skill.get('/tubestatus', tubeStatus);
 async function busStatus(req, res, next) {
   serviceHelper.log('trace', 'busStatus', 'busStatus API called');
 
-  const tflapiKey = process.env.tflapikey;
+  const { tflapiKey } = process.env;
   
   let { route } = req.query;
   let disruptions = 'false';
@@ -192,7 +192,7 @@ skill.get('/busstatus', busStatus);
 async function nextbus(req, res, next) {
   serviceHelper.log('trace', 'nextbus', 'nextbus API called');
 
-  const tflapiKey = process.env.tflapikey;
+  const { tflapiKey } = process.env;
   const busroute = req.query.route;
 
   let url;
@@ -354,11 +354,10 @@ skill.get('/nextbus', nextbus);
  *
  */
 async function nextTrain(req, res, next) {
-  if (typeof res !== 'undefined' && res !== null) {
-    logger.info('Next Train API called');
-  }
+  serviceHelper.log('trace', 'nextTrain', 'nextTrain API called');
 
   const { transportapiKey } = process.env;
+
   let trainroute = req.query.route;
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
   let returnJSON;
@@ -369,104 +368,113 @@ async function nextTrain(req, res, next) {
   let secondTime = 'N/A';
   let secondNotes;
 
-  if (typeof trainroute !== 'undefined' && trainroute !== null) {
-    trainroute = trainroute.toUpperCase();
-    switch (trainroute.toUpperCase()) {
-      case 'CST':
-        url += trainroute;
-        break;
-      case 'CHX':
-        url += trainroute;
-        break;
-      default:
-        logger.info('Nexttrain: Train destination not supported.');
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, false, 'Train route not supported');
-          next();
-        }
-        return 'Train route not supported';
-    }
-
-    try {
-      let apiData = await alfredHelper.requestAPIdata(url);
-      apiData = apiData.body;
-      if (alfredHelper.isEmptyObject(apiData)) {
-        logger.info('nexttrain: No data was returned from the train API call.');
-        alfredHelper.sendResponse(res, false, 'No data was returned from the train API call');
-        next();
-      } else {
-        const trainsWorking = apiData.departures.all;
-        if (alfredHelper.isEmptyObject(trainsWorking)) {
-          disruptions = 'true';
-        } else {
-          let trainData = apiData.departures.all;
-          trainData = trainData.filter(a => a.platform === '1');
-          trainData = trainData.sort(alfredHelper.GetSortOrder('best_arrival_estimate_mins'));
-          let numberOfElements = trainData.length;
-          if (numberOfElements > 2) { numberOfElements = 2; }
-          switch (numberOfElements) {
-            case 2:
-              if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
-                disruptions = 'true';
-                destination = trainData[0].destination_name;
-                firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-                firstNotes = 'Cancelled';
-              } else {
-                destination = trainData[0].destination_name;
-                firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-                firstNotes = trainData[0].status.toLowerCase();
-              }
-              if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
-                secondTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-                secondNotes = 'Cancelled';
-              } else {
-                secondTime = alfredHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-                secondNotes = trainData[1].status.toLowerCase();
-              }
-              break;
-            default:
-              destination = trainData[0].destination_name;
-              firstTime = alfredHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-              firstNotes = trainData[0].status.toLowerCase();
-          }
-        }
-
-        returnJSON = {
-          mode: 'train',
-          disruptions,
-          destination,
-          firstTime,
-          firstNotes,
-          secondTime,
-          secondNotes,
-        };
-
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, true, returnJSON); // Send response back to caller
-          next();
-        } else {
-          return returnJSON;
-        }
-      }
-    } catch (err) {
-      logger.error(`nexttrain: ${err}`);
-      if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, null, err); // Send response back to caller
-        next();
-      } else {
-        return err;
-      }
-    }
-  } else {
-    logger.error('nexttrain: No train route was supplied.');
+  if (typeof trainroute === 'undefined' || trainroute === null || trainroute === '') {
+    serviceHelper.log('info', 'nextTrain', 'Missing param: route');
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'No train route was supplied.');
+      serviceHelper.sendResponse(res, 400, 'Missing param: route');
+      next();
+    }
+    return false;
+  }
+
+  serviceHelper.log('trace', 'nextTrain', `Check is ${trainroute} is a valid route`);
+  trainroute = trainroute.toUpperCase();
+  switch (trainroute.toUpperCase()) {
+    case 'CST':
+      url += trainroute;
+      break;
+    case 'CHX':
+      url += trainroute;
+      break;
+    default:
+      serviceHelper.log('trace', 'nextTrain', `Train route ${trainroute} is not supported`);
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, `Train route ${trainroute} is not currently supported`);
+        next();
+      }
+      return false;
+  }
+
+  try {
+    let apiData = await serviceHelper.requestAPIdata(url);
+    apiData = apiData.body;
+    if (serviceHelper.isEmptyObject(apiData)) {
+      serviceHelper.log('error', 'nextTrain', 'No data was returned from the call to the TFL API');
+      serviceHelper.sendResponse(res, false, 'No data was returned from the call to the TFL API');
+      next();
+      return false;
+    } else {
+      const trainsWorking = apiData.departures.all;
+      if (serviceHelper.isEmptyObject(trainsWorking)) {
+        serviceHelper.log('error', 'nextTrain', 'No train departure data was returned from the call to the TFL API');
+        disruptions = 'true';
+      } else {
+        let trainData = apiData.departures.all;
+        serviceHelper.log('trace', 'nextTrain', 'Filter to only have London bound trains');
+        trainData = trainData.filter(a => a.platform === '1');
+        serviceHelper.log('trace', 'nextTrain', 'Sort by arrival time');
+        trainData = trainData.sort(serviceHelper.GetSortOrder('best_arrival_estimate_mins'));
+        let numberOfElements = trainData.length;
+        if (numberOfElements > 2) { numberOfElements = 2; }
+        switch (numberOfElements) {
+          case 2:
+            if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
+              serviceHelper.log('trace', 'nextTrain', '1st train cancelled');
+              disruptions = 'true';
+              destination = trainData[0].destination_name;
+              firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+              firstNotes = 'Cancelled';
+            } else {
+              serviceHelper.log('trace', 'nextTrain', '1st train ok');
+              destination = trainData[0].destination_name;
+              firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+              firstNotes = trainData[0].status.toLowerCase();
+            }
+            if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
+              serviceHelper.log('trace', 'nextTrain', '2nd train cancelled');
+              secondTime = serviceHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+              secondNotes = 'Cancelled';
+            } else {
+              serviceHelper.log('trace', 'nextTrain', '2nd train ok');
+              secondTime = serviceHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
+              secondNotes = trainData[1].status.toLowerCase();
+            }
+            break;
+          default:
+          serviceHelper.log('trace', 'nextTrain', 'Only one train came back in data');
+          destination = trainData[0].destination_name;
+            firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
+            firstNotes = trainData[0].status.toLowerCase();
+        }
+      }
+      
+      returnJSON = {
+        mode: 'train',
+        disruptions,
+        destination,
+        firstTime,
+        firstNotes,
+        secondTime,
+        secondNotes,
+      };
+
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, true, returnJSON);
+        next();
+      } else {
+        return returnJSON;
+      }
+    }
+  } catch (err) {
+    serviceHelper.log('error', 'nextTrain', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, false, err);
       next();
     } else {
-      return 'No train route was supplied';
+      return err;
     }
+    return false;
   }
-  return null;
 }
 skill.get('/nexttrain', nextTrain);
 
@@ -510,17 +518,29 @@ skill.get('/nexttrain', nextTrain);
  *
  */
 async function getCommute(req, res, next) {
-  logger.info('Get commute API called');
+  serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
   const commuteOptions = [];
   const commuteResults = [];
+  const { user, lat, long } = req.query;
+
   let returnJSON;
   let anyDisruptions = false;
   let tmpResults = [];
   let atHome = true;
 
-  const { user, lat, long } = req.query;
+  if (typeof user === 'undefined' || user === null || user === '') {
+    serviceHelper.log('info', 'getCommute', 'Missing param: user');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: user');
+      next();
+    }
+    return false;
+  }
 
+// ** Up to here in refactor
+
+  
   if ((typeof lat !== 'undefined' && lat !== null) || (typeof long !== 'undefined' && long !== null)) {
     atHome = alfredHelper.inHomeGeoFence(lat, long);
   }
