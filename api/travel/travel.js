@@ -34,7 +34,7 @@ const skill = new Skills();
 async function tubeStatus(req, res, next) {
   serviceHelper.log('trace', 'tubeStatus', 'tubeStatus API called');
 
-  const { tflapiKey } = process.env;
+  const { TFLAPIKey } = process.env;
   
   let { route } = req.query;
   let disruptions = 'false';
@@ -51,7 +51,8 @@ async function tubeStatus(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
-    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${tflapiKey}`;
+    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${TFLAPIKey}`;
+    serviceHelper.log('trace', 'tubeStatus', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
 
@@ -110,7 +111,7 @@ skill.get('/tubestatus', tubeStatus);
 async function busStatus(req, res, next) {
   serviceHelper.log('trace', 'busStatus', 'busStatus API called');
 
-  const { tflapiKey } = process.env;
+  const { TFLAPIKey } = process.env;
   
   let { route } = req.query;
   let disruptions = 'false';
@@ -127,8 +128,8 @@ async function busStatus(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'busStatus', 'Getting data from TFL');
-
-    const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${tflapiKey}`;
+    const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${TFLAPIKey}`;
+    serviceHelper.log('trace', 'busStatus', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body
     
@@ -192,7 +193,7 @@ skill.get('/busstatus', busStatus);
 async function nextbus(req, res, next) {
   serviceHelper.log('trace', 'nextbus', 'nextbus API called');
 
-  const { tflapiKey } = process.env;
+  const { TFLAPIKey } = process.env;
   const busroute = req.query.route;
 
   let url;
@@ -222,23 +223,23 @@ async function nextbus(req, res, next) {
 
   switch (busroute) {
     case '9':
-      serviceHelper.log('trace', 'nextbus', 'Using Bus no.9');
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no. 9');
       stopPoint = '490013766H'; // Default going to work stop point
       if (!atHome) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
-      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${tflapiKey}`;
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${TFLAPIKey}`;
       break;
     case '380':
-      serviceHelper.log('trace', 'nextbus', 'Using Bus no.380');
-      url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${tflapiKey}`;
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no. 380');
+      url = `https://api.tfl.gov.uk/StopPoint/490013012S/Arrivals?mode=bus&line=380&${TFLAPIKey}`;
       break;
     case '486':
-      serviceHelper.log('trace', 'nextbus', 'Using Bus no.486');
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no. 486');
       stopPoint = '490001058H'; // Default going to work stop point
       if (!atHome) { stopPoint = '490010374B'; } // Override to coming home stop point
-      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${tflapiKey}`;
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${TFLAPIKey}`;
       break;
     case '161':
-      serviceHelper.log('trace', 'nextbus', 'Using Bus no.161');
+      serviceHelper.log('trace', 'nextbus', 'Using Bus no. 161');
       stopPoint = '490010374A'; // Default coming home stop point
       url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${tflapiKey}`;
       break;
@@ -257,6 +258,7 @@ async function nextbus(req, res, next) {
     const distruptionsJSON = await busStatus(params, null, next);
 
     serviceHelper.log('trace', 'nextbus', 'Get data from TFL');
+    serviceHelper.log('trace', 'nextbus', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
     if (serviceHelper.isEmptyObject(apiData)) {
@@ -396,6 +398,8 @@ async function nextTrain(req, res, next) {
   }
 
   try {
+    serviceHelper.log('trace', 'nextTrain', 'Get data from TFL');
+    serviceHelper.log('trace', 'nextTrain', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
     if (serviceHelper.isEmptyObject(apiData)) {
@@ -538,90 +542,85 @@ async function getCommute(req, res, next) {
     return false;
   }
 
-// ** Up to here in refactor
-
-  
-  if ((typeof lat !== 'undefined' && lat !== null) || (typeof long !== 'undefined' && long !== null)) {
-    atHome = alfredHelper.inHomeGeoFence(lat, long);
+  if ((typeof lat !== 'undefined' && lat !== null && lat !== '') || 
+      (typeof long !== 'undefined' && long !== null && long !== '')) {
+    atHome = serviceHelper.inHomeGeoFence(lat, long);
   }
 
-  if (typeof user !== 'undefined' && user !== null) {
-    switch (user.toUpperCase()) {
-      case 'FRAN':
-        if (atHome) {
-          commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
-          commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
-          commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
-          commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
-        }
-        break;
-      case 'JP':
+  switch (user.toUpperCase()) {
+    case 'FRAN':
+      serviceHelper.log('trace', 'getCommute', 'User is Fran');
+      if (atHome) {
+        commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
+        commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
+        commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
+        commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
+      }
+      serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
+      break;
+    case 'JP':
+      serviceHelper.log('trace', 'getCommute', 'User is JP');
+
+      if (atHome) {
+        commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
+        commuteOptions.push({ order: 1, type: 'tube', query: { query: { route: 'northern' } } });
+        commuteOptions.push({ order: 2, type: 'bus', query: { query: { route: '486', atHome } } });
+        commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'jubilee' } } });
+        commuteOptions.push({ order: 4, type: 'tube', query: { query: { route: 'northern' } } });
+      } else {
         commuteOptions.push({ order: 0, type: 'bus', query: { query: { route: '486', atHome } } });
-        if (atHome) {
-          commuteOptions.push({ order: 1, type: 'tube', query: { query: { route: 'jubilee' } } });
-          commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CHX' } } });
-          commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'bakerloo' } } });
-        } else {
-          commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '161', atHome } } });
-        }
+        commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '161', atHome } } });
+      }
+      serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
+      break;
+    default:
+      serviceHelper.log('trace', 'getCommute', `User ${user} is not supported`);
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, `User ${user} is not supported`);
+        next();
+      }
+      return false;
+  }
+
+  await Promise.all(commuteOptions.map(async (commuteOption) => {
+    switch (commuteOption.type) {
+      case 'bus':
+        tmpResults = await nextbus(commuteOption.query, null, next);
+        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+        tmpResults.order = commuteOption.order;
+        commuteResults.push(tmpResults);
+        break;
+      case 'tube':
+        tmpResults = await tubeStatus(commuteOption.query, null, next);
+        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+        tmpResults.order = commuteOption.order;
+        commuteResults.push(tmpResults);
+        break;
+      case 'train':
+        tmpResults = await nextTrain(commuteOption.query, null, next);
+        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
+        tmpResults.order = commuteOption.order;
+        commuteResults.push(tmpResults);
         break;
       default:
-        logger.info('getCommute: User not supported.');
-        if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, false, 'User not supported');
-          next();
-        } else {
-          return 'User not supported';
-        }
+        break;
     }
+  }));
 
-    await Promise.all(commuteOptions.map(async (commuteOption) => {
-      switch (commuteOption.type) {
-        case 'bus':
-          tmpResults = await nextbus(commuteOption.query, null, next);
-          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-          tmpResults.order = commuteOption.order;
-          commuteResults.push(tmpResults);
-          break;
-        case 'tube':
-          tmpResults = await tubeStatus(commuteOption.query, null, next);
-          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-          tmpResults.order = commuteOption.order;
-          commuteResults.push(tmpResults);
-          break;
-        case 'train':
-          tmpResults = await nextTrain(commuteOption.query, null, next);
-          if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-          tmpResults.order = commuteOption.order;
-          commuteResults.push(tmpResults);
-          break;
-        default:
-          break;
-      }
-    }));
+  // Order commute options correctly
+  serviceHelper.log('trace', 'getCommute', 'Order commute options');
+  commuteResults.sort((a, b) => a.order - b.order);
 
-    // Order commute options correctly
-    commuteResults.sort((a, b) => a.order - b.order);
+  returnJSON = {
+    anyDisruptions,
+    commuteResults,
+  };
 
-    returnJSON = {
-      anyDisruptions,
-      commuteResults,
-    };
-
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, returnJSON);
-      next();
-    } else {
-      return returnJSON;
-    }
+  if (typeof res !== 'undefined' && res !== null) {
+    serviceHelper.sendResponse(res, true, returnJSON);
+    next();
   } else {
-    logger.error('getCommute: No user was supplied.');
-    if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, false, 'No user was supplied.');
-      next();
-    } else {
-      return 'No user was supplied';
-    }
+    return returnJSON;
   }
   return null;
 }
