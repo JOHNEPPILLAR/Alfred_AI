@@ -2,12 +2,11 @@
  * Setup includes
  */
 const Skills = require('restify-router').Router;
-const alfredHelper = require('../../lib/helper.js');
 const dateFormat = require('dateformat');
-const logger = require('winston');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
 const Netatmo = require('netatmo');
+const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
 
@@ -16,9 +15,8 @@ const options = {
   provider: 'google',
   httpAdapter: 'https',
   formatter: null,
-  apiKey: process.env.geolocationKey,
+  apiKey: process.env.GeoLocationKey,
 };
-const geocoder = NodeGeocoder(options);
 
 /**
  * @api {get} /weather/sunset What time is sunset in London
@@ -40,47 +38,49 @@ const geocoder = NodeGeocoder(options);
  *
  */
 async function sunSet(req, res, next) {
-  logger.info('Sunset API called');
+  serviceHelper.log('trace', 'sunSet', 'sunSet API called');
 
   // Configure darksky
-  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.apiKey = process.env.DarkSkyKey;
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  // Get the location
+  // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null) {
-    location = 'london';
-  }
+  if (typeof location === 'undefined' || location == null || location == '') location = 'london';
 
   try {
+    serviceHelper.log('trace', 'sunSet', 'Calling geocoder');
+    const geocoder = NodeGeocoder(options);
     let apiData = await geocoder.geocode(location);
     const position = {
       latitude: apiData[0].latitude,
       longitude: apiData[0].longitude,
     };
+
+    serviceHelper.log('trace', 'sunSet', 'Get forcast from DarkSky');
     apiData = await darkSky.loadForecast(position);
+
+    serviceHelper.log('trace', 'sunSet', 'Setup the correct sunset time from the DarkSky API data');
     const sunSetTime = new Date(apiData.daily.data[0].sunsetTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM')); // Send response back to caller
+      serviceHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM'));
       next();
     } else {
       return dateFormat(sunSetTime, 'HH:MM');
     }
   } catch (err) {
-    logger.error(`sunSet: ${err}`);
+    serviceHelper.log('error', 'sunSet', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      serviceHelper.sendResponse(res, null, err);
       next();
     } else {
       return err;
     }
   }
-  return null;
 }
 skill.get('/sunset', sunSet);
-
 
 /**
  * @api {get} /weather/sunrise What time is sunrise in London
@@ -102,44 +102,47 @@ skill.get('/sunset', sunSet);
  *
  */
 async function sunRise(req, res, next) {
-  logger.info('Sunrise API called');
+  serviceHelper.log('trace', 'sunRise', 'sunRise API called');
 
   // Configure darksky
-  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.apiKey = process.env.DarkSkyKey;
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  // Get the location
+  // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null) {
-    location = 'london';
-  }
+  if (typeof location === 'undefined' || location == null || location == '') location = 'london';
 
   try {
+    serviceHelper.log('trace', 'sunRise', 'Calling geocoder');
+    const geocoder = NodeGeocoder(options);
     let apiData = await geocoder.geocode(location);
     const position = {
       latitude: apiData[0].latitude,
       longitude: apiData[0].longitude,
     };
+
+    serviceHelper.log('trace', 'sunRise', 'Get forcast from DarkSky');
     apiData = await darkSky.loadForecast(position);
+
+    serviceHelper.log('trace', 'sunRise', 'Setup the correct sunrise time from the DarkSky API data');
     const sunriseTime = new Date(apiData.daily.data[0].sunriseTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, dateFormat(sunriseTime, 'HH:MM')); // Send response back to caller
+      serviceHelper.sendResponse(res, true, dateFormat(sunriseTime, 'HH:MM'));
       next();
     } else {
       return dateFormat(sunriseTime, 'HH:MM');
     }
   } catch (err) {
-    logger.error(`sunSet: ${err}`);
+    serviceHelper.log('error', 'sunRise', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      serviceHelper.sendResponse(res, null, err);
       next();
     } else {
       return err;
     }
   }
-  return null;
 }
 skill.get('/sunrise', sunRise);
 
@@ -173,29 +176,31 @@ skill.get('/sunrise', sunRise);
  *
  */
 async function CurrentWeather(req, res, next) {
-  logger.info('Today\'s Weather API called');
+  serviceHelper.log('trace', 'CurrentWeather', 'CurrentWeather API called');
 
   // Configure darksky
-  darkSky.apiKey = process.env.darkskyKey;
+  darkSky.apiKey = process.env.DarkSkyKey;
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  // Get the location
+  // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null) {
-    location = 'london';
-  }
+  if (typeof location === 'undefined' || location == null) location = 'london';
 
   try {
+    serviceHelper.log('trace', 'sunRise', 'Calling geocoder');
+    const geocoder = NodeGeocoder(options);
     const apiData = await geocoder.geocode(location);
     const position = {
       latitude: apiData[0].latitude,
       longitude: apiData[0].longitude,
     };
+
+    serviceHelper.log('trace', 'sunRise', 'Get forcast from DarkSky');
     const currentWeather = await darkSky.loadCurrent(position);
     const forcastWeather = await darkSky.loadForecast(position);
 
-    // Get the weather data
+    // Setup weather data
     const locationName = location;
     const { icon } = currentWeather;
     const { summary } = currentWeather;
@@ -221,21 +226,20 @@ async function CurrentWeather(req, res, next) {
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+      alfredHelper.sendResponse(res, true, jsonDataObj);
       next();
     } else {
       return jsonDataObj;
     }
   } catch (err) {
-    logger.error(`todaysWeatherFor: ${err}`);
+    serviceHelper.log('error', 'sunRise', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err);
       next();
     } else {
       return err;
     }
   }
-  return null;
 }
 skill.get('/today', CurrentWeather);
 
@@ -264,7 +268,7 @@ skill.get('/today', CurrentWeather);
  *
  */
 async function houseWeather(req, res, next) {
-  logger.info('House weather API called');
+  serviceHelper.log('trace', 'houseWeather', 'houseWeather API called');
 
   const auth = {
     client_id: process.env.NetatmoClientKey,
@@ -274,37 +278,41 @@ async function houseWeather(req, res, next) {
   };
 
   try {
+    serviceHelper.log('trace', 'houseWeather', 'Get data from netatmo API');
     const api = new Netatmo(auth); // Connect to api service
     api.getStationsData((err, apiData) => { // Get data from device
       if (err) {
+        serviceHelper.log('error', 'houseWeather', err);
         if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, true, err); // Send response back to caller
+          alfredHelper.sendResponse(res, true, err);
           next();
+        } else {
+          return err;
         }
       }
 
+      // Setup data
       const jsonDataObj = {
         insideTemp: Math.floor(apiData[0].dashboard_data.Temperature),
         insideCO2: Math.ceil(apiData[0].dashboard_data.CO2),
       };
 
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, jsonDataObj); // Send response back to caller
+        alfredHelper.sendResponse(res, true, jsonDataObj);
         next();
+      } else {
+        return jsonDataObj;
       }
-
-      return jsonDataObj;
     });
   } catch (err) {
-    logger.error(`houseWeather: ${err}`);
+    serviceHelper.log('error', 'houseWeather', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err); // Send response back to caller
+      alfredHelper.sendResponse(res, null, err);
       next();
     } else {
       return err;
     }
   }
-  return null;
 }
 skill.get('/inside', houseWeather);
 

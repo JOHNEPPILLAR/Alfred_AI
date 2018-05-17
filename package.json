@@ -21,24 +21,14 @@
     "pure-uuid": "*",
     "ip": "*",
     "os": "*",
-    "array-sort": "*",
-    "cheerio": "*",
     "harmonyhubjs-client": "*",
-    "html-entities": "*",
-    "inherits": "*",
-    "lodash": "*",
     "node-geocoder": "*",
-    "huejay": "*",
-    "sanitize-html": "*",
-    "underscore": "*",
-    "x-ray": "*",
     "dark-sky-api": "*",
-    "netatmo": "*",
-    "geolib": "*"
+    "netatmo": "*"
   },
   "devDependencies": {
-    "eslint": "^4.18.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0"
+    "eslint": "*",
+    "eslint-config-airbnb-base": "*",
+    "eslint-plugin-import": "*"
   }
 }
