@@ -1,5 +1,5 @@
 {
-    "name": "ALFRED - Digital Assistant API",
+    "name": "ALFRED - Digital Assistant Service",
     "script": "/home/nodejs/app/lib/server.js",
     "instances": "1",
     "env": {

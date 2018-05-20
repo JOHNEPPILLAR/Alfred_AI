@@ -1,42 +1,34 @@
 {
-  "name": "alfred_di",
+  "name": "alfred_digital_assistant_service",
   "version": "1.0.0",
-  "description": "Pillar home Digital Assistant API",
-  "main": "server.js",
+  "description": "Alfred Digital Assistant Service",
+  "main": "lib/server.js",
   "scripts": {
+    "start": "node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "JP",
-  "license": "ISC",
   "dependencies": {
-    "array-sort": "*",
-    "cheerio": "*",
     "dateformat": "*",
     "dotenv": "*",
     "fs": "*",
-    "harmonyhubjs-client": "*",
-    "html-entities": "*",
-    "inherits": "*",
-    "lodash": "*",
-    "node-geocoder": "*",
-    "huejay": "*",
     "request": "*",
     "request-promise": "*",
     "restify": "*",
     "restify-router": "*",
-    "sanitize-html": "*",
-    "underscore": "*",
     "winston": "*",
-    "x-ray": "*",
+    "pg": "*",
+    "pure-uuid": "*",
+    "ip": "*",
+    "os": "*",
+    "harmonyhubjs-client": "*",
+    "node-geocoder": "*",
     "dark-sky-api": "*",
-    "netatmo": "*",
-    "geolib": "*",
-    "heapdump": "*",
-    "pg": "*"
+    "netatmo": "*"
   },
   "devDependencies": {
-    "eslint": "^4.18.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0"
+    "eslint": "*",
+    "eslint-config-airbnb-base": "*",
+    "eslint-plugin-import": "*"
   }
 }
