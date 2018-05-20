@@ -24,7 +24,8 @@
     "harmonyhubjs-client": "*",
     "node-geocoder": "*",
     "dark-sky-api": "*",
-    "netatmo": "*"
+    "netatmo": "*",
+    "geolib": "*"
   },
   "devDependencies": {
     "eslint": "*",
