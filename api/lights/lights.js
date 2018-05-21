@@ -38,7 +38,7 @@ async function listLights(req, res, next) {
       return;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'listLights', err);
@@ -81,7 +81,7 @@ async function listLightGroups(req, res, next) {
       return;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'listLightGroups', err);
@@ -123,7 +123,7 @@ async function allOff(req, res, next) {
       return;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'allOff', err);
@@ -188,7 +188,7 @@ async function lightOnOff(req, res, next) {
       return false;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'lightOnOff', err);
@@ -254,7 +254,7 @@ async function lightGroupOnOff(req, res, next) {
       return false;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'lightGroupOnOff', err);
@@ -316,7 +316,7 @@ async function lightBrightness(req, res, next) {
       return false;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'lightBrightness', err);
@@ -378,7 +378,7 @@ async function lightGroupBrightness(req, res, next) {
       return false;
     }
 
-    serviceHelper.sendResponse(res, true, returnData.body.data);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'lightGroupBrightness', err);
