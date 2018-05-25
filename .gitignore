@@ -1,15 +1,12 @@
 node_modules/
-.env
-run.sh
-Alfred.log
-scheduleSettings.json
 package-lock.json
-server.cert
-server.key
+.env
+dev.env
+localDevDocker.sh
 certs/
+*.log
+scheduleSettings.json
 geoHome.json
-mem/
-
 
 
 
