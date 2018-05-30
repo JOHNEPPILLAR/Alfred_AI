@@ -47,7 +47,7 @@ async function sunSet(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null || location == '') location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
 
   try {
     serviceHelper.log('trace', 'sunSet', 'Calling geocoder');
@@ -67,17 +67,15 @@ async function sunSet(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM'));
       next();
-    } else {
-      return dateFormat(sunSetTime, 'HH:MM');
     }
+    return dateFormat(sunSetTime, 'HH:MM');
   } catch (err) {
     serviceHelper.log('error', 'sunSet', err);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
-    } else {
-      return err;
     }
+    return err;
   }
 }
 skill.get('/sunset', sunSet);
@@ -111,7 +109,7 @@ async function sunRise(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null || location == '') location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
 
   try {
     serviceHelper.log('trace', 'sunRise', 'Calling geocoder');
@@ -131,17 +129,15 @@ async function sunRise(req, res, next) {
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, true, dateFormat(sunriseTime, 'HH:MM'));
       next();
-    } else {
-      return dateFormat(sunriseTime, 'HH:MM');
     }
+    return dateFormat(sunriseTime, 'HH:MM');
   } catch (err) {
     serviceHelper.log('error', 'sunRise', err);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
-    } else {
-      return err;
     }
+    return err;
   }
 }
 skill.get('/sunrise', sunRise);
@@ -185,7 +181,7 @@ async function CurrentWeather(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location == null) location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
 
   try {
     serviceHelper.log('trace', 'sunRise', 'Calling geocoder');
@@ -226,19 +222,17 @@ async function CurrentWeather(req, res, next) {
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, true, jsonDataObj);
+      serviceHelper.sendResponse(res, true, jsonDataObj);
       next();
-    } else {
-      return jsonDataObj;
     }
+    return jsonDataObj;
   } catch (err) {
     serviceHelper.log('error', 'sunRise', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, null, err);
       next();
-    } else {
-      return err;
     }
+    return err;
   }
 }
 skill.get('/today', CurrentWeather);
@@ -284,11 +278,10 @@ async function houseWeather(req, res, next) {
       if (err) {
         serviceHelper.log('error', 'houseWeather', err);
         if (typeof res !== 'undefined' && res !== null) {
-          alfredHelper.sendResponse(res, true, err);
+          serviceHelper.sendResponse(res, true, err);
           next();
-        } else {
-          return err;
         }
+        return err;
       }
 
       // Setup data
@@ -298,21 +291,20 @@ async function houseWeather(req, res, next) {
       };
 
       if (typeof res !== 'undefined' && res !== null) {
-        alfredHelper.sendResponse(res, true, jsonDataObj);
+        serviceHelper.sendResponse(res, true, jsonDataObj);
         next();
-      } else {
-        return jsonDataObj;
       }
+      return jsonDataObj;
     });
   } catch (err) {
     serviceHelper.log('error', 'houseWeather', err);
     if (typeof res !== 'undefined' && res !== null) {
-      alfredHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, null, err);
       next();
-    } else {
-      return err;
     }
+    return err;
   }
+  return false;
 }
 skill.get('/inside', houseWeather);
 
