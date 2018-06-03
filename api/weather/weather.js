@@ -179,25 +179,36 @@ async function CurrentWeather(req, res, next) {
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  // Get the location and if blank set to London, UK
-  let { location } = req.query;
-  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
+  const { lat, long } = req.query;
+  if ((typeof lat === 'undefined' || lat === null || lat === '') ||
+    (typeof long === 'undefined' || long === null || long === '')) {
+    serviceHelper.log('info', 'CurrentWeather', 'Missing params: lat/long');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
+      next();
+    }
+    return false;
+  }
+
 
   try {
-    serviceHelper.log('trace', 'sunRise', 'Calling geocoder');
+    serviceHelper.log('trace', 'CurrentWeather', 'Calling geocoder to get location name');
     const geocoder = NodeGeocoder(options);
-    const apiData = await geocoder.geocode(location);
+    const apiData = await geocoder.reverse({ lat, lon: long });
     const position = {
-      latitude: apiData[0].latitude,
-      longitude: apiData[0].longitude,
+      latitude: lat,
+      longitude: long,
     };
+    const locationNeighborhood = apiData[0].extra.neighborhood;
+    const locationCity = apiData[0].city;
+    const locationCountry = apiData[0].country;
 
-    serviceHelper.log('trace', 'sunRise', 'Get forcast from DarkSky');
+    serviceHelper.log('trace', 'CurrentWeather', 'Get forcast from DarkSky');
     const currentWeather = await darkSky.loadCurrent(position);
     const forcastWeather = await darkSky.loadForecast(position);
 
     // Setup weather data
-    const locationName = location;
+    // const locationName = location;
     const { icon } = currentWeather;
     const { summary } = currentWeather;
     let { temperature } = currentWeather;
@@ -212,7 +223,9 @@ async function CurrentWeather(req, res, next) {
     temperatureLow = Math.floor(temperatureLow);
 
     const jsonDataObj = {
-      locationName,
+      locationNeighborhood,
+      locationCity,
+      locationCountry,
       icon,
       summary,
       temperature,
@@ -227,7 +240,7 @@ async function CurrentWeather(req, res, next) {
     }
     return jsonDataObj;
   } catch (err) {
-    serviceHelper.log('error', 'sunRise', err);
+    serviceHelper.log('error', 'CurrentWeather', err);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
