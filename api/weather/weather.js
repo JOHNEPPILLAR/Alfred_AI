@@ -143,11 +143,12 @@ async function sunRise(req, res, next) {
 skill.get('/sunrise', sunRise);
 
 /**
- * @api {get} /weather/today Get todays weather
+ * @api {post} /weather/today Get todays weather
  * @apiName today
  * @apiGroup Weather
  *
- * @apiParam {String} location Location i.e. London
+ * @apiParam {String} lat
+ * @apiParam {String} long
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -179,7 +180,7 @@ async function CurrentWeather(req, res, next) {
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  const { lat, long } = req.query;
+  const { lat, long } = req.body;
   if ((typeof lat === 'undefined' || lat === null || lat === '') ||
     (typeof long === 'undefined' || long === null || long === '')) {
     serviceHelper.log('info', 'CurrentWeather', 'Missing params: lat/long');
@@ -189,7 +190,6 @@ async function CurrentWeather(req, res, next) {
     }
     return false;
   }
-
 
   try {
     serviceHelper.log('trace', 'CurrentWeather', 'Calling geocoder to get location name');
@@ -208,7 +208,6 @@ async function CurrentWeather(req, res, next) {
     const forcastWeather = await darkSky.loadForecast(position);
 
     // Setup weather data
-    // const locationName = location;
     const { icon } = currentWeather;
     const { summary } = currentWeather;
     let { temperature } = currentWeather;
@@ -248,7 +247,7 @@ async function CurrentWeather(req, res, next) {
     return err;
   }
 }
-skill.get('/today', CurrentWeather);
+skill.put('/today', CurrentWeather);
 
 /**
  * @api {get} /weather/inside Get the weather from the house weather station
