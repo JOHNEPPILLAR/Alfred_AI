@@ -522,7 +522,6 @@ skill.get('/nexttrain', nextTrain);
  *
  */
 async function getCommute(req, res, next) {
-console.log('ddd');
   serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
   const commuteOptions = [];
