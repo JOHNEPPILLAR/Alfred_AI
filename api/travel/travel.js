@@ -482,11 +482,12 @@ async function nextTrain(req, res, next) {
 skill.get('/nexttrain', nextTrain);
 
 /**
- * @api {get} /travel/getcommute Get commute information
+ * @api {put} /travel/getcommute Get commute information
  * @apiName getcommute
  * @apiGroup Travel
  *
- * @apiParam {String} user Bring commute information back for specific user
+ * @apiParam {String} lat
+ * @apiParam {String} long
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -525,7 +526,7 @@ async function getCommute(req, res, next) {
 
   const commuteOptions = [];
   const commuteResults = [];
-  const { user, lat, long } = req.query;
+  const { user, lat, long } = req.body;
 
   let anyDisruptions = false;
   let tmpResults = [];
@@ -540,10 +541,17 @@ async function getCommute(req, res, next) {
     return false;
   }
 
-  if ((typeof lat !== 'undefined' && lat !== null && lat !== '') || 
-      (typeof long !== 'undefined' && long !== null && long !== '')) {
-    atHome = serviceHelper.inHomeGeoFence(lat, long);
+  if ((typeof lat === 'undefined' && lat === null && lat === '') ||
+      (typeof long === 'undefined' && long === null && long === '')) {
+    serviceHelper.log('info', 'getCommute', 'Missing param: lat/long');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: lat/long');
+      next();
+    }
+    return false;
   }
+
+  atHome = serviceHelper.inHomeGeoFence(lat, long);
 
   switch (user.toUpperCase()) {
     case 'FRAN':
@@ -622,6 +630,6 @@ async function getCommute(req, res, next) {
   }
   return null;
 }
-skill.get('/getcommute', getCommute);
+skill.put('/getcommute', getCommute);
 
 module.exports = skill;
