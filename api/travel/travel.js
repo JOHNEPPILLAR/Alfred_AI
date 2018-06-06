@@ -241,7 +241,7 @@ async function nextbus(req, res, next) {
     case '161':
       serviceHelper.log('trace', 'nextbus', 'Using Bus no. 161');
       stopPoint = '490010374A'; // Default coming home stop point
-      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${tflapiKey}`;
+      url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=161&${TFLAPIKey}`;
       break;
     default:
       serviceHelper.log('trace', 'nextbus', `Bus no.${busroute} is not supported`);
@@ -522,6 +522,7 @@ skill.get('/nexttrain', nextTrain);
  *
  */
 async function getCommute(req, res, next) {
+console.log('ddd');
   serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
   const commuteOptions = [];
@@ -532,6 +533,7 @@ async function getCommute(req, res, next) {
   let tmpResults = [];
   let atHome = true;
 
+  serviceHelper.log('trace', 'getCommute', 'Checking for params');
   if (typeof user === 'undefined' || user === null || user === '') {
     serviceHelper.log('info', 'getCommute', 'Missing param: user');
     if (typeof res !== 'undefined' && res !== null) {
@@ -551,6 +553,7 @@ async function getCommute(req, res, next) {
     return false;
   }
 
+  serviceHelper.log('trace', 'getCommute', 'Find out if caller is at home location');
   atHome = serviceHelper.inHomeGeoFence(lat, long);
 
   switch (user.toUpperCase()) {
