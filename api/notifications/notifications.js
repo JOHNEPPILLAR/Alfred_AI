@@ -11,9 +11,6 @@ const skill = new Skills();
  * @apiName register
  * @apiGroup Notifications
  *
- * @apiParam {String} deviceToken
- * @apiParam {String} deviceUser
- *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
