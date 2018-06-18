@@ -7,7 +7,7 @@ const serviceHelper = require('../../lib/helper.js');
 const skill = new Skills();
 
 /**
- * @api {get} /travel/tubestatus Get tube status
+ * @api {put} /travel/tubestatus Get tube status
  * @apiName tubestatus
  * @apiGroup Travel
  *
@@ -36,7 +36,7 @@ async function tubeStatus(req, res, next) {
 
   const { TFLAPIKey } = process.env;
 
-  let { route } = req.query;
+  let { route } = req.body;
   let disruptions = 'false';
   let returnJSON;
 
@@ -81,10 +81,10 @@ async function tubeStatus(req, res, next) {
     return false;
   }
 }
-skill.get('/tubestatus', tubeStatus);
+skill.put('/tubestatus', tubeStatus);
 
 /**
- * @api {get} /travel/busstatus Get bus status
+ * @api {put} /travel/busstatus Get bus status
  * @apiName busstatus
  * @apiGroup Travel
  *
@@ -113,7 +113,7 @@ async function busStatus(req, res, next) {
 
   const { TFLAPIKey } = process.env;
 
-  let { route } = req.query;
+  let { route } = req.body;
   let disruptions = 'false';
   let returnJSON;
 
@@ -160,10 +160,10 @@ async function busStatus(req, res, next) {
     return false;
   }
 }
-skill.get('/busstatus', busStatus);
+skill.put('/busstatus', busStatus);
 
 /**
- * @api {get} /travel/nextbus Get next bus information
+ * @api {put} /travel/nextbus Get next bus information
  * @apiName nextbus
  * @apiGroup Travel
  *
@@ -194,7 +194,7 @@ async function nextbus(req, res, next) {
   serviceHelper.log('trace', 'nextbus', 'nextbus API called');
 
   const { TFLAPIKey } = process.env;
-  const busroute = req.query.route;
+  const busroute = req.body.route;
 
   let url;
   let returnJSON;
@@ -322,10 +322,10 @@ async function nextbus(req, res, next) {
     return err;
   }
 }
-skill.get('/nextbus', nextbus);
+skill.put('/nextbus', nextbus);
 
 /**
- * @api {get} /travel/nexttrain Get next train information
+ * @api {put} /travel/nexttrain Get next train information
  * @apiName nexttrain
  * @apiGroup Travel
  *
@@ -359,7 +359,7 @@ async function nextTrain(req, res, next) {
 
   const { transportapiKey } = process.env;
 
-  let trainroute = req.query.route;
+  let trainroute = req.body.route;
   let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
   let returnJSON;
   let disruptions = 'false';
@@ -479,7 +479,91 @@ async function nextTrain(req, res, next) {
   }
   return true;
 }
-skill.get('/nexttrain', nextTrain);
+skill.put('/nexttrain', nextTrain);
+
+
+/**
+ * @api {put} /travel/planJourney Plan journey from A to B
+ * @apiName planJourney
+ * @apiGroup Travel
+ *
+ * @apiParam {String} startPoint Where journey will start from
+ * @apiParam {String} stopPoint Where journey will end
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *   "sucess": "true",
+ *   "data": {
+ *      "$type": "Tfl.Api.Presentation.Entities.JourneyPlanner.....",
+ *      "journeys": [
+ *        {
+ *           .....
+ *        }
+ *   }
+ *  }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function planJourney(req, res, next) {
+  serviceHelper.log('trace', 'planJourney', 'planJourney API called');
+
+  const { TFLAPIKey } = process.env;
+  const { startPoint, stopPoint } = req.body;
+
+  serviceHelper.log('trace', 'planJourney', 'Check params are ok');
+  if (typeof startPoint === 'undefined' || startPoint === null || startPoint === '') {
+    serviceHelper.log('info', 'planJourney', 'Missing param: startPoint');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: startPoint');
+      next();
+    }
+    return false;
+  }
+
+  if (typeof stopPoint === 'undefined' || stopPoint === null || stopPoint === '') {
+    serviceHelper.log('info', 'planJourney', 'Missing param: stopPoint');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: stopPoint');
+      next();
+    }
+    return false;
+  }
+
+  const url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
+  try {
+    serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
+    serviceHelper.log('trace', 'planJourney', url);
+    let apiData = await serviceHelper.requestAPIdata(url);
+    apiData = apiData.body.journeys;
+    if (serviceHelper.isEmptyObject(apiData)) {
+      serviceHelper.log('error', 'planJourney', 'No data was returned from the call to the TFL API');
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, 'No data was returned from the call to the TFL API');
+        next();
+      }
+      return false;
+    }
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, apiData);
+      next();
+    }
+    return apiData;
+  } catch (err) {
+    serviceHelper.log('error', 'planJourney', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, false, err);
+      next();
+    }
+    return err;
+  }
+}
+skill.put('/planjourney', planJourney);
 
 /**
  * @api {put} /travel/getcommute Get commute information
@@ -558,26 +642,21 @@ async function getCommute(req, res, next) {
   switch (user.toUpperCase()) {
     case 'FRAN':
       serviceHelper.log('trace', 'getCommute', 'User is Fran');
-      if (atHome) {
-        commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
-        commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
-        commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
-        commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
-      }
-      serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
+      // if (atHome) {
+      //  commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
+      //  commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
+      //  commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
+      //  commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
+      // }
+      // serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
       break;
     case 'JP':
       serviceHelper.log('trace', 'getCommute', 'User is JP');
 
       if (atHome) {
-        commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
-        commuteOptions.push({ order: 1, type: 'tube', query: { query: { route: 'northern' } } });
-        commuteOptions.push({ order: 2, type: 'bus', query: { query: { route: '486', atHome } } });
-        commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'jubilee' } } });
-        commuteOptions.push({ order: 4, type: 'tube', query: { query: { route: 'northern' } } });
-      } else {
-        commuteOptions.push({ order: 0, type: 'bus', query: { query: { route: '486', atHome } } });
-        commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '161', atHome } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: 1001058, stopPoint: 1001276 } } });
+      } else { // At work
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: 1001276, stopPoint: 1001058 } } });
       }
       serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
       break;
@@ -592,6 +671,11 @@ async function getCommute(req, res, next) {
 
   await Promise.all(commuteOptions.map(async (commuteOption) => {
     switch (commuteOption.type) {
+      case 'journey':
+        tmpResults = await planJourney(commuteOption.query, null, next);
+        tmpResults.order = commuteOption.order;
+        commuteResults.push(tmpResults);
+        break;
       case 'bus':
         tmpResults = await nextbus(commuteOption.query, null, next);
         if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
