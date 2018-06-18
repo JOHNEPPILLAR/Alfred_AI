@@ -540,7 +540,7 @@ async function planJourney(req, res, next) {
     serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
     serviceHelper.log('trace', 'planJourney', url);
     let apiData = await serviceHelper.requestAPIdata(url);
-    apiData = apiData.body.journeys;
+    apiData = apiData.body;
     if (serviceHelper.isEmptyObject(apiData)) {
       serviceHelper.log('error', 'planJourney', 'No data was returned from the call to the TFL API');
       if (typeof res !== 'undefined' && res !== null) {
