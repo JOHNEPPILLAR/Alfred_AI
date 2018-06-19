@@ -651,7 +651,7 @@ async function getCommute(req, res, next) {
       if (atHome) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
         commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.JPWorkPostCode } } });
-        if (walk === 'true') {
+        if (walk === true) {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
           commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: 1001276 } } });
         }
