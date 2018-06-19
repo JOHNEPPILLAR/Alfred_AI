@@ -610,7 +610,9 @@ async function getCommute(req, res, next) {
 
   const commuteOptions = [];
   const commuteResults = [];
-  const { user, lat, long } = req.body;
+  const {
+    user, lat, long, walk,
+  } = req.body;
 
   let anyDisruptions = false;
   let tmpResults = [];
@@ -642,21 +644,17 @@ async function getCommute(req, res, next) {
   switch (user.toUpperCase()) {
     case 'FRAN':
       serviceHelper.log('trace', 'getCommute', 'User is Fran');
-      // if (atHome) {
-      //  commuteOptions.push({ order: 0, type: 'train', query: { query: { route: 'CHX' } } });
-      //  commuteOptions.push({ order: 1, type: 'bus', query: { query: { route: '9' } } });
-      //  commuteOptions.push({ order: 2, type: 'train', query: { query: { route: 'CST' } } });
-      //  commuteOptions.push({ order: 3, type: 'tube', query: { query: { route: 'district' } } });
-      // }
-      // serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
       break;
     case 'JP':
       serviceHelper.log('trace', 'getCommute', 'User is JP');
 
       if (atHome) {
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: 1001058, stopPoint: 1001276 } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.JPWorkPostCode } } });
+        if (walk === 'true') {
+          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: 1001276 } } });
+        }
       } else { // At work
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: 1001276, stopPoint: 1001058 } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
       }
       serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
       break;
