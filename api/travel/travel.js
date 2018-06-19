@@ -514,7 +514,9 @@ async function planJourney(req, res, next) {
   serviceHelper.log('trace', 'planJourney', 'planJourney API called');
 
   const { TFLAPIKey } = process.env;
-  const { startPoint, stopPoint } = req.body;
+  const {
+    startPoint, stopPoint, trainBusOverride, tubeTrainOverride,
+  } = req.body;
 
   serviceHelper.log('trace', 'planJourney', 'Check params are ok');
   if (typeof startPoint === 'undefined' || startPoint === null || startPoint === '') {
@@ -535,7 +537,14 @@ async function planJourney(req, res, next) {
     return false;
   }
 
-  const url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
+  let url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
+  if (trainBusOverride) {
+    url += '&mode=national-rail,bus';
+  }
+  if (tubeTrainOverride) {
+    url += '&mode=tube,national-rail';
+  }
+
   try {
     serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
     serviceHelper.log('trace', 'planJourney', url);
@@ -580,21 +589,7 @@ skill.put('/planjourney', planJourney);
  *     data: {
  *       "anyDisruptions": false,
  *       "commuteResults": [
- *           {
- *               "mode": "bus",
- *               "line": "486",
- *               "destination": "North Greenwich",
- *               "firstTime": "11:41 AM",
- *               "secondTime": "11:48 AM",
- *               "disruptions": "false",
- *               "order": 0
- *           },
- *           {
- *               "mode": "tube",
- *               "line": "Jubilee",
- *               "disruptions": "false",
- *               "order": 1
- *           },
+ *           ...
  *       ]
  *    }
  *
@@ -647,10 +642,10 @@ async function getCommute(req, res, next) {
 
       if (atHome) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode, trainBusOverride: true } } });
       } else {
         serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode, tubeTrainOverride: true } } });
       }
       break;
     case 'JP':
