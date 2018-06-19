@@ -644,6 +644,14 @@ async function getCommute(req, res, next) {
   switch (user.toUpperCase()) {
     case 'FRAN':
       serviceHelper.log('trace', 'getCommute', 'User is Fran');
+
+      if (atHome) {
+        serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode } } });
+      } else {
+        serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
+      }
       break;
     case 'JP':
       serviceHelper.log('trace', 'getCommute', 'User is JP');
@@ -655,9 +663,15 @@ async function getCommute(req, res, next) {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
           commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: 1001276 } } });
         }
-      } else { // At work
+      } else {
         serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
         commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
+
+        const atJPWork = serviceHelper.inJPWorkGeoFence(lat, long);
+        if (walk === 'true' && atJPWork) {
+          serviceHelper.log('trace', 'getCommute', 'Walk from work option selected');
+          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: process.env.JPWalkHomeStart, stopPoint: process.env.HomePostCode } } });
+        }
       }
       serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
       break;
