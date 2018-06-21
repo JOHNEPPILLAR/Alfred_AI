@@ -547,10 +547,10 @@ async function planJourney(req, res, next) {
   }
 
   // Add a 5 minute delay so that results fro TFL are not shown in the past
-  let newTime;
-  newTime.setMinutes(new Date().getMinutes() + 5);
-  newTime = dateFormat(newTime, 'HH:MM');
-  url += `&time=${newTime}`;
+  // let newTime;
+  // newTime.setMinutes(new Date().getMinutes() + 5);
+  // newTime = dateFormat(newTime, 'HH:MM');
+  // url += `&time=${newTime}`;
 
   try {
     serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
