@@ -516,7 +516,7 @@ async function planJourney(req, res, next) {
 
   const { TFLAPIKey } = process.env;
   const {
-    startPoint, stopPoint, trainBusOverride, tubeTrainOverride,
+    startPoint, stopPoint, trainBusOverride, trainTubeOverride, trainWalkOverride,
   } = req.body;
 
   serviceHelper.log('trace', 'planJourney', 'Check params are ok');
@@ -538,18 +538,16 @@ async function planJourney(req, res, next) {
     return false;
   }
 
-  // journeyPreference=LeastTime&
+  serviceHelper.log('trace', 'planJourney', 'Add any default overrides');
   let url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
-  if (trainBusOverride) {
-    url += '&mode=national-rail,bus';
-  }
-  if (tubeTrainOverride) {
-    url += '&mode=tube,national-rail';
-  }
+  if (trainBusOverride) url += '&mode=national-rail,bus';
+  if (trainTubeOverride) url += '&mode=national-rail,tube';
+  if (trainWalkOverride) url += '&mode=national-rail,walking';
+  // Param to think about - journeyPreference=LeastTime&
 
   // Add a 5 minute delay so that results fro TFL are not shown in the past
-  let newTime;
-  newTime.setMinutes(new Date().getMinutes() + 5);
+  let newTime = new Date();
+  newTime.setMinutes(newTime.getMinutes() + 5);
   newTime = dateFormat(newTime, 'HHMM');
   url += `&time=${newTime}`;
 
@@ -649,7 +647,7 @@ async function getCommute(req, res, next) {
       serviceHelper.log('trace', 'getCommute', 'User is Fran');
       if (atHome) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode, tubeTrainOverride: true } } });
+        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode, trainWalkOverride: true } } });
       } else {
         serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
         commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode, tubeTrainOverride: true } } });
