@@ -3,6 +3,7 @@
  */
 const Skills = require('restify-router').Router;
 const serviceHelper = require('../../lib/helper.js');
+const dateFormat = require('dateformat');
 
 const skill = new Skills();
 
@@ -545,6 +546,12 @@ async function planJourney(req, res, next) {
     url += '&mode=tube,national-rail';
   }
 
+  // Add a 5 minute delay so that results fro TFL are not shown in the past
+  let newTime;
+  newTime.setMinutes(new Date().getMinutes() + 5);
+  newTime = dateFormat(newTime, 'HH:MM');
+  url += `&time=${newTime}`;
+
   try {
     serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
     serviceHelper.log('trace', 'planJourney', url);
@@ -682,6 +689,8 @@ async function getCommute(req, res, next) {
     switch (commuteOption.type) {
       case 'journey':
         tmpResults = await planJourney(commuteOption.query, null, next);
+
+
         tmpResults.order = commuteOption.order;
         commuteResults.push(tmpResults);
         break;
