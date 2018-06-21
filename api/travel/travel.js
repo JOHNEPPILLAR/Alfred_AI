@@ -538,7 +538,7 @@ async function planJourney(req, res, next) {
     return false;
   }
 
-  let url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
+  let url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?journeyPreference=LeastTime&${TFLAPIKey}`;
   if (trainBusOverride) {
     url += '&mode=national-rail,bus';
   }
