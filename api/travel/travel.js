@@ -688,8 +688,21 @@ async function getCommute(req, res, next) {
     switch (commuteOption.type) {
       case 'journey':
         tmpResults = await planJourney(commuteOption.query, null, next);
-
-
+        let j = 0;
+        tmpResults.journeys.forEach((journey) => {
+          let l = 0;
+          journey.legs.forEach((leg) => {
+            let d = 0;
+            leg.disruptions.forEach((disruption) => {
+              if (disruption.type === 'routeInfo') {
+                delete tmpResults.journeys[j].legs[l].disruptions[d];
+              } else anyDisruptions = 'true';
+              d += 1;
+            });
+            l += 1;
+          });
+          j += 1;
+        });
         tmpResults.order = commuteOption.order;
         commuteResults.push(tmpResults);
         break;
