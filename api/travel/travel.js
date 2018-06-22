@@ -688,14 +688,16 @@ async function getCommute(req, res, next) {
     switch (commuteOption.type) {
       case 'journey':
         tmpResults = await planJourney(commuteOption.query, null, next);
+        if (!tmpResults) break;
+        serviceHelper.log('trace', 'getCommute', 'Filter out any distruptions that are not servce impacting');
         let j = 0;
         tmpResults.journeys.forEach((journey) => {
           let l = 0;
           journey.legs.forEach((leg) => {
             let d = 0;
             leg.disruptions.forEach((disruption) => {
-              if (disruption.type === 'routeInfo') {
-                delete tmpResults.journeys[j].legs[l].disruptions[d];
+              if (disruption.category === 'PlannedWork' || disruption.category === 'Information') {
+                tmpResults.journeys[j].legs[l].disruptions.splice([d],1);
               } else anyDisruptions = 'true';
               d += 1;
             });
