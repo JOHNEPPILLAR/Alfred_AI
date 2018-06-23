@@ -4,6 +4,7 @@
 const Skills = require('restify-router').Router;
 const serviceHelper = require('../../lib/helper.js');
 const dateFormat = require('dateformat');
+const _ = require('underscore');
 
 const skill = new Skills();
 
@@ -616,7 +617,7 @@ async function getCommute(req, res, next) {
   } = req.body;
 
   let anyDisruptions = false;
-  let tmpResults = [];
+  let apiData;
   let atHome = true;
 
   serviceHelper.log('trace', 'getCommute', 'Checking for params');
@@ -687,44 +688,58 @@ async function getCommute(req, res, next) {
   await Promise.all(commuteOptions.map(async (commuteOption) => {
     switch (commuteOption.type) {
       case 'journey':
-        tmpResults = await planJourney(commuteOption.query, null, next);
-        if (!tmpResults) break;
+        try {
+          serviceHelper.log('trace', 'getCommute', 'Call the TFL API');
+          apiData = await planJourney(commuteOption.query, null, next);
+        } catch (err) {
+          if (typeof res !== 'undefined' && res !== null) {
+            serviceHelper.sendResponse(res, false, err);
+            next();
+          } else {
+            return err;
+          }
+        }
         serviceHelper.log('trace', 'getCommute', 'Filter out any distruptions that are not servce impacting');
         let j = 0;
-        tmpResults.journeys.forEach((journey) => {
+        apiData.journeys.forEach((journey) => {
           let l = 0;
           journey.legs.forEach((leg) => {
+            let tmpDisruptions = _.filter(leg.disruptions,function(disruption){return disruption.category === 'PlannedWork' || disruption.category === 'Information'})
+            if (tmpDisruptions.count > 0) anyDisruptions = 'true';
+            apiData.journeys[j].legs[l].disruptions = tmpDisruptions;
+
+            // TFL sometimes returnes disruptions in a innner-array
             let d = 0;
             leg.disruptions.forEach((disruption) => {
-              if (disruption.category === 'PlannedWork' || disruption.category === 'Information') {
-                tmpResults.journeys[j].legs[l].disruptions.splice([d],1);
-              } else anyDisruptions = 'true';
+              tmpDisruptions = _.filter(disruption,function(disruption){return disruption.category === 'PlannedWork' || disruption.category === 'Information'})
+              if (tmpDisruptions.count > 0) anyDisruptions = 'true';
+              apiData.journeys[j].legs[l].disruptions = tmpDisruptions;
               d += 1;
             });
             l += 1;
           });
           j += 1;
         });
-        tmpResults.order = commuteOption.order;
-        commuteResults.push(tmpResults);
+        apiData.order = commuteOption.order;
+        commuteResults.push(apiData);
         break;
       case 'bus':
-        tmpResults = await nextbus(commuteOption.query, null, next);
-        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-        tmpResults.order = commuteOption.order;
-        commuteResults.push(tmpResults);
+        apiData = await nextbus(commuteOption.query, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = 'true';
+        apiData.order = commuteOption.order;
+        commuteResults.push(apiData);
         break;
       case 'tube':
-        tmpResults = await tubeStatus(commuteOption.query, null, next);
-        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-        tmpResults.order = commuteOption.order;
-        commuteResults.push(tmpResults);
+        apiData = await tubeStatus(commuteOption.query, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = 'true';
+        apiData.order = commuteOption.order;
+        commuteResults.push(apiData);
         break;
       case 'train':
-        tmpResults = await nextTrain(commuteOption.query, null, next);
-        if (tmpResults.disruptions === 'true') anyDisruptions = 'true';
-        tmpResults.order = commuteOption.order;
-        commuteResults.push(tmpResults);
+        apiData = await nextTrain(commuteOption.query, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = 'true';
+        apiData.order = commuteOption.order;
+        commuteResults.push(apiData);
         break;
       default:
         break;

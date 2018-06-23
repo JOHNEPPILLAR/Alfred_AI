@@ -11,14 +11,14 @@
   "dependencies": {
     "dark-sky-api": "*",
     "dateformat": "*",
-    "dotenv": "^6.0.0",
+    "dotenv": "*",
     "fs": "*",
     "geolib": "*",
     "harmonyhubjs-client": "*",
     "ip": "*",
     "netatmo": "*",
     "node-geocoder": "*",
-    "nodemon": "^1.17.5",
+    "nodemon": "*",
     "os": "*",
     "pg": "*",
     "pure-uuid": "*",
@@ -26,7 +26,8 @@
     "request-promise": "*",
     "restify": "*",
     "restify-router": "*",
-    "winston": "*"
+    "winston": "*",
+    "underscore": "*"
   },
   "devDependencies": {
     "eslint": "*",
