@@ -30,7 +30,7 @@
     "underscore": "*"
   },
   "devDependencies": {
-    "eslint": "^5.0.0",
+    "eslint": "^5.0.1",
     "eslint-config-airbnb-base": "*",
     "eslint-plugin-import": "*"
   }

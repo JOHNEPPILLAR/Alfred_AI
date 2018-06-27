@@ -76,4 +76,63 @@ async function reRegister(req, res, next) {
 }
 skill.get('/reregister', reRegister);
 
+/**
+ * @api {get} /display Display log file content
+ * @apiName display
+ * @apiGroup Root
+ *
+ * @apiParam {Number} page Page number to display
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     "data": [
+ *       {
+ *           "time": "2018-06-27T18:00:00.010Z",
+ *           "type": "error",
+ *           "service": "ALFRED - Scheduler Service",
+ *           "function_name": "gardenWater - checkGardenWater",
+ *           "message": "syntax error at or near \"not\""
+ *       },
+ *        ]
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal server error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function display(req, res, next) {
+  serviceHelper.log('trace', 'display', 'display log entry API called');
+  serviceHelper.log('trace', 'display', JSON.stringify(req.query));
+
+  try {
+    let page = 1;
+    if (typeof page !== 'undefined' && page !== null && page !== '') {
+      page = parseInt(req.query.page || 1, 10);
+    }
+
+    const apiURL = `${process.env.LogService}/display`;
+    serviceHelper.log('trace', 'display', `Calling: ${apiURL}`);
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
+
+    if (returnData.sucess !== 'true') throw Error(returnData);
+
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, returnData.data);
+      next();
+    }
+  } catch (err) {
+    serviceHelper.log('error', 'display', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, false, err.message);
+      next();
+    }
+  }
+}
+skill.get('/display', display);
+
 module.exports = skill;
