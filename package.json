@@ -27,7 +27,8 @@
     "restify": "*",
     "restify-router": "*",
     "winston": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "moment": "*"
   },
   "devDependencies": {
     "eslint": "^5.0.1",

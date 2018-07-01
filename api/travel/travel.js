@@ -4,7 +4,6 @@
 const Skills = require('restify-router').Router;
 const serviceHelper = require('../../lib/helper.js');
 const dateFormat = require('dateformat');
-const _ = require('underscore');
 
 const skill = new Skills();
 
@@ -13,17 +12,17 @@ const skill = new Skills();
  * @apiName tubestatus
  * @apiGroup Travel
  *
- * @apiParam {String} route Tube line i.e. Circle line
+ * @apiParam {String} line Tube line i.e. Circle line
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *   "sucess": "true",
- *   "data": {
- *       "mode:": "tube",
- *       "line": "Victoria",
- *       "disruptions": "false"
- *   }
+ *      "sucess": "true",
+ *      "data": {
+ *        "mode": "tube",
+ *        "line": "Northern"
+ *        "disruptions": "false"
+ *      }
  *   }
  *
  * @apiErrorExample {json} Error-Response:
@@ -38,14 +37,14 @@ async function tubeStatus(req, res, next) {
 
   const { TFLAPIKey } = process.env;
 
-  let { route } = req.body;
+  let { line } = req.body;
   let disruptions = 'false';
   let returnJSON;
 
-  if (typeof route === 'undefined' || route === null || route === '') {
-    serviceHelper.log('info', 'tubeStatus', 'Missing param: route');
+  if (typeof line === 'undefined' || line === null || line === '') {
+    serviceHelper.log('info', 'tubeStatus', 'Missing param: line');
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, 400, 'Missing param: route');
+      serviceHelper.sendResponse(res, 400, 'Missing param: line');
       next();
     }
     return false;
@@ -53,19 +52,19 @@ async function tubeStatus(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
-    const url = `https://api.tfl.gov.uk/Line/${route}/Disruption?${TFLAPIKey}`;
+    const url = `https://api.tfl.gov.uk/Line/${line}/Disruption?${TFLAPIKey}`;
     serviceHelper.log('trace', 'tubeStatus', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
 
     if (!serviceHelper.isEmptyObject(apiData)) {
       disruptions = apiData[0].description;
-      route = apiData[0].name;
+      line = apiData[0].name;
     }
 
     returnJSON = {
       mode: 'tube',
-      line: route,
+      line,
       disruptions,
     };
 
@@ -80,10 +79,125 @@ async function tubeStatus(req, res, next) {
       serviceHelper.sendResponse(res, false, err);
       next();
     }
-    return false;
+    return err;
   }
 }
 skill.put('/tubestatus', tubeStatus);
+
+/**
+ * @api {put} /travel/nextTube Get tube info for journey
+ * @apiName nextTube
+ * @apiGroup Travel
+ *
+ * @apiParam {String} line Tube line i.e. Circle line
+ * @apiParam {String} startID Tube line station i.e. London Bridge
+ * @apiParam {String} endID Tube line station i.e. London Bridge
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *      "sucess": "true",
+ *      "data": {
+ *        "mode": "tube",
+ *        "line": "Northern"
+ *        "disruptions": "false"
+ *        "duration": "00:00"
+ *      }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function nextTube(req, res, next) {
+  serviceHelper.log('trace', 'nextTube', 'nextTube API called');
+
+  const { TFLAPIKey } = process.env;
+  const { startID, endID } = req.body;
+
+  let { line } = req.body;
+  let duration = 0;
+  let disruptions = 'false';
+  let returnJSON;
+
+  if (typeof line === 'undefined' || line === null || line === '') {
+    serviceHelper.log('info', 'tubeStatus', 'Missing param: line');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: line');
+      next();
+    }
+    return false;
+  }
+
+  if (typeof startID === 'undefined' || startID === null || startID === '') {
+    serviceHelper.log('info', 'tubeStatus', 'Missing param: startID');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: startID');
+      next();
+    }
+    return false;
+  }
+
+  if (typeof endID === 'undefined' || endID === null || endID === '') {
+    serviceHelper.log('info', 'tubeStatus', 'Missing param: endID');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: endID');
+      next();
+    }
+    return false;
+  }
+
+  try {
+    serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
+    let url = `https://api.tfl.gov.uk/Line/${line}/Timetable/${startID}/to/${endID}?${TFLAPIKey}`;
+    serviceHelper.log('trace', 'tubeStatus', url);
+    let apiData = await serviceHelper.requestAPIdata(url);
+    apiData = apiData.body;
+
+    if (!serviceHelper.isEmptyObject(apiData)) {
+      line = apiData.lineName;
+      let tempRoute = apiData.timetable.routes[0].stationIntervals[0].intervals;
+      tempRoute = tempRoute.filter(a => a.stopId === endID);
+      let { timeToArrival } = tempRoute[0];
+      if (typeof timeToArrival === 'undefined') timeToArrival = 0;
+      duration = `00:${serviceHelper.zeroFill(timeToArrival, 2)}`;
+    }
+
+    serviceHelper.log('trace', 'tubeStatus', 'Get distruptions');
+    url = `https://api.tfl.gov.uk/Line/${line}/Disruption?${TFLAPIKey}`;
+    serviceHelper.log('trace', 'tubeStatus', url);
+    apiData = await serviceHelper.requestAPIdata(url);
+
+    apiData = apiData.body;
+    if (!serviceHelper.isEmptyObject(apiData)) {
+      disruptions = apiData[0].description;
+    }
+
+    returnJSON = {
+      mode: 'tube',
+      line,
+      disruptions,
+      duration,
+    };
+
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, returnJSON);
+      next();
+    }
+    return returnJSON;
+  } catch (err) {
+    serviceHelper.log('error', 'nextTube', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, false, err);
+      next();
+    }
+    return err;
+  }
+}
+skill.put('/nexttube', nextTube);
 
 /**
  * @api {put} /travel/busstatus Get bus status
@@ -332,6 +446,9 @@ skill.put('/nextbus', nextbus);
  * @apiGroup Travel
  *
  * @apiParam {String} train_destination Destination station i.e. CHX
+ * @apiParam {String} startFrom Starting station i.e. CTN
+ * @apiParam {String} departureTimeOffSet Departure time offset in HH:MM
+ * @apiParam {Bool} distruptionOverride Ignore distruption
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -339,13 +456,14 @@ skill.put('/nextbus', nextbus);
  *   "sucess": "true",
  *   "data": {
  *       "mode": "train",
+ *       "line": "Thameslink"
  *       "disruptions": "false",
- *       "firstDestination": "London Charing Cross",
- *       "firstTime": "8:16 PM",
- *       "firstNotes": "early",
- *       "secondDestination": "London Charing Cross",
- *       "secondTime": "8:46 PM",
- *       "secondNotes": "on time"
+ *       "duration": "00:29",
+ *       "departureTime": "10:36",
+ *       "departureToDestination": "London Charing Cross",
+ *       "arrivalTime": "11:05",
+ *       "arrivalDestination": "London Charing Cross",
+ *       "status": "early"
  *   }
  *  }
  *
@@ -360,129 +478,154 @@ async function nextTrain(req, res, next) {
   serviceHelper.log('trace', 'nextTrain', 'nextTrain API called');
 
   const { transportapiKey } = process.env;
+  const { distruptionOverride } = req.body;
 
-  let trainroute = req.body.route;
-  let url = `https://transportapi.com/v3/uk/train/station/CTN/live.json?${transportapiKey}&darwin=false&train_status=passenger&destination=`;
-  let returnJSON;
-  let disruptions = 'false';
-  let destination = '';
-  let firstTime = 'N/A';
-  let firstNotes;
-  let secondTime = 'N/A';
-  let secondNotes;
+  let {
+    startFrom, destination, departureTimeOffSet,
+  } = req.body;
 
-  if (typeof trainroute === 'undefined' || trainroute === null || trainroute === '') {
-    serviceHelper.log('info', 'nextTrain', 'Missing param: route');
+  if (typeof destination === 'undefined' || destination === null || destination === '') {
+    serviceHelper.log('info', 'nextTrain', 'Missing param: destination');
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, 400, 'Missing param: route');
+      serviceHelper.sendResponse(res, 400, 'Missing param: destination');
       next();
     }
     return false;
   }
+  destination = destination.toUpperCase();
 
-  serviceHelper.log('trace', 'nextTrain', `Check is ${trainroute} is a valid route`);
-  trainroute = trainroute.toUpperCase();
-  switch (trainroute.toUpperCase()) {
-    case 'CST':
-      url += trainroute;
-      break;
-    case 'CHX':
-      url += trainroute;
-      break;
-    default:
-      serviceHelper.log('trace', 'nextTrain', `Train route ${trainroute} is not supported`);
-      if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, false, `Train route ${trainroute} is not currently supported`);
-        next();
-      }
-      return false;
+  if (typeof departureTimeOffSet !== 'undefined' && departureTimeOffSet !== null && departureTimeOffSet !== '') {
+    departureTimeOffSet = `PT${departureTimeOffSet}:00`;
+  } else {
+    departureTimeOffSet = '';
   }
+
+  if (typeof startFrom === 'undefined' || startFrom === null || startFrom === '') {
+    serviceHelper.log('info', 'nextTrain', 'Using default start location');
+    startFrom = 'CTN';
+  }
+  startFrom = startFrom.toUpperCase();
+
+  let url = `https://transportapi.com/v3/uk/train/station/${startFrom}/live.json?${transportapiKey}&train_status=passenger&from_offset=${departureTimeOffSet}&calling_at=${destination}`;
+  serviceHelper.log('trace', 'nextTrain', url);
 
   try {
     serviceHelper.log('trace', 'nextTrain', 'Get data from TFL');
-    serviceHelper.log('trace', 'nextTrain', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
+
     if (serviceHelper.isEmptyObject(apiData)) {
       serviceHelper.log('error', 'nextTrain', 'No data was returned from the call to the TFL API');
-      serviceHelper.sendResponse(res, false, 'No data was returned from the call to the TFL API');
-      next();
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, 'No data was returned from the call to the TFL API');
+        next();
+      }
       return false;
     }
-    const trainsWorking = apiData.departures.all;
-    if (serviceHelper.isEmptyObject(trainsWorking)) {
-      serviceHelper.log('error', 'nextTrain', 'No train departure data was returned from the call to the TFL API');
-      disruptions = 'true';
-    } else {
-      let trainData = apiData.departures.all;
-      serviceHelper.log('trace', 'nextTrain', 'Filter to only have London bound trains');
-      trainData = trainData.filter(a => a.platform === '1');
-      serviceHelper.log('trace', 'nextTrain', 'Sort by arrival time');
-      trainData = trainData.sort(serviceHelper.GetSortOrder('best_arrival_estimate_mins'));
-      let numberOfElements = trainData.length;
-      if (numberOfElements > 2) { numberOfElements = 2; }
-      switch (numberOfElements) {
-        case 2:
-          if (trainData[0].status.toLowerCase() === 'it is currently off route' || trainData[0].status.toLowerCase() === 'cancelled') {
-            serviceHelper.log('trace', 'nextTrain', '1st train cancelled');
-            disruptions = 'true';
-            destination = trainData[0].destination_name;
-            firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-            firstNotes = 'Cancelled';
-          } else {
-            serviceHelper.log('trace', 'nextTrain', '1st train ok');
-            destination = trainData[0].destination_name;
-            firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-            firstNotes = trainData[0].status.toLowerCase();
-          }
-          if (trainData[1].status.toLowerCase() === 'it is currently off route' || trainData[1].status.toLowerCase() === 'cancelled') {
-            serviceHelper.log('trace', 'nextTrain', '2nd train cancelled');
-            secondTime = serviceHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-            secondNotes = 'Cancelled';
-          } else {
-            serviceHelper.log('trace', 'nextTrain', '2nd train ok');
-            secondTime = serviceHelper.minutesToStop(trainData[1].best_arrival_estimate_mins * 60);
-            secondNotes = trainData[1].status.toLowerCase();
-          }
-          break;
-        default:
-          serviceHelper.log('trace', 'nextTrain', 'Only one train came back in data');
-          destination = trainData[0].destination_name;
-          firstTime = serviceHelper.minutesToStop(trainData[0].best_arrival_estimate_mins * 60);
-          firstNotes = trainData[0].status.toLowerCase();
-      }
+
+    let trainData = apiData.departures.all;
+
+    if (distruptionOverride) {
+      serviceHelper.log('trace', 'nextTrain', 'Ignore cancelled trains');
+      trainData = trainData.filter(a => a.status !== 'CANCELLED');
     }
 
-    returnJSON = {
-      mode: 'train',
-      disruptions,
-      destination,
-      firstTime,
-      firstNotes,
-      secondTime,
-      secondNotes,
-    };
-
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, returnJSON);
-      next();
-    } else {
+    if (serviceHelper.isEmptyObject(trainData)) {
+      serviceHelper.log('error', 'nextTrain', 'No trains running');
+      const returnJSON = [{
+        mode: 'train',
+        line: 'N/A',
+        disruptions: 'true',
+        duration: 'N/A',
+        departureTime: 'N/A',
+        departureToDestination: 'N/A',
+        departurePlatform: 'N/A',
+        arrivalTime: 'N/A',
+        arrivalDestination: 'N/A',
+        status: 'No trains running',
+      }];
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, true, returnJSON);
+        next();
+      }
       return returnJSON;
+    }
+
+    serviceHelper.log('trace', 'nextTrain', 'Sort by departure time');
+    trainData = trainData.sort(serviceHelper.GetSortOrder('aimed_departure_time'));
+
+    serviceHelper.log('trace', 'nextTrain', 'Construct JSON');
+    const returnJSON = [];
+    let trainStations;
+    let journey;
+    let disruptions = 'false';
+    let line;
+    let duration = '00:00';
+    let departureTime;
+    let departureToDestination;
+    let departurePlatform;
+    let arrivalTime;
+    let arrivalDestination;
+    let status;
+
+    for (let index = 0; index < trainData.length; index++) {
+      line = trainData[index].operator_name;
+      departureTime = trainData[index].aimed_departure_time;
+      departureToDestination = trainData[index].destination_name;
+      departurePlatform = trainData[index].platform;
+      status = trainData[index].status.toLowerCase();
+
+      serviceHelper.log('trace', 'nextTrain', 'Check for cancelled train');
+      if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+        disruptions = 'true';
+      }
+
+      serviceHelper.log('trace', 'nextTrain', 'Get stops info');
+      url = trainData[index].service_timetable.id;
+      trainStations = await serviceHelper.requestAPIdata(url);
+      trainStations = trainStations.body.stops;
+      serviceHelper.log('trace', 'nextTrain', 'Get arrival time at destination station');
+      trainStations = trainStations.filter(a => a.station_code === destination);
+      arrivalTime = trainStations[0].aimed_arrival_time;
+      arrivalDestination = trainStations[0].station_name;
+
+      serviceHelper.log('trace', 'nextTrain', 'Work out duration');
+      duration = serviceHelper.timeDiff(departureTime, arrivalTime);
+
+      serviceHelper.log('trace', 'nextTrain', 'Construct journey JSON');
+      journey = {
+        mode: 'train',
+        line,
+        disruptions,
+        duration,
+        departureTime,
+        departureToDestination,
+        departurePlatform,
+        arrivalTime,
+        arrivalDestination,
+        status,
+      };
+      returnJSON.push(journey);
+
+      if ((index + 1) === trainData.length) {
+        serviceHelper.log('trace', 'nextTrain', 'Send data back to caller');
+        if (typeof res !== 'undefined' && res !== null) {
+          serviceHelper.sendResponse(res, true, returnJSON);
+          next();
+        }
+        return returnJSON;
+      }
     }
   } catch (err) {
     serviceHelper.log('error', 'nextTrain', err);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
-    } else {
-      return err;
     }
-    return false;
+    return err;
   }
-  return true;
 }
 skill.put('/nexttrain', nextTrain);
-
 
 /**
  * @api {put} /travel/planJourney Plan journey from A to B
@@ -610,8 +753,7 @@ skill.put('/planjourney', planJourney);
 async function getCommute(req, res, next) {
   serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
-  const commuteOptions = [];
-  const commuteResults = [];
+  const journeys = [];
   const {
     user, lat, long, walk,
   } = req.body;
@@ -619,6 +761,8 @@ async function getCommute(req, res, next) {
   let anyDisruptions = false;
   let apiData;
   let atHome = true;
+  let atJPWork = false;
+  let legs = [];
 
   serviceHelper.log('trace', 'getCommute', 'Checking for params');
   if (typeof user === 'undefined' || user === null || user === '') {
@@ -648,10 +792,10 @@ async function getCommute(req, res, next) {
       serviceHelper.log('trace', 'getCommute', 'User is Fran');
       if (atHome) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode, trainWalkOverride: true } } });
+        // commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.FranWorkPostCode, trainWalkOverride: true } } });
       } else {
         serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
-        commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode, tubeTrainOverride: true } } });
+        // commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode, tubeTrainOverride: true } } });
       }
       break;
     case 'JP':
@@ -660,21 +804,96 @@ async function getCommute(req, res, next) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
         if (walk === 'true') {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
-          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: 1001276 } } });
-        } else {
-          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.JPWorkPostCode } } });
+          apiData = await nextTrain({
+            body: {
+              destination: 'STP', departureTimeOffSet: '00:10',
+            },
+          }, null, next);
+
+
+          return;
+
+
+          if (apiData.disruptions === 'true') {
+            serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
+            anyDisruptions = 'true';
+            legs.push(apiData);
+            journeys.push({ legs });
+            legs = []; // Clear array
+
+            serviceHelper.log('trace', 'getCommute', '1st leg');
+            apiData = await nextTrain({
+              body: {
+                destination: 'LBG', departureTimeOffSet: '00:10',
+              },
+            }, null, next);
+            if (apiData.disruptions === 'true') anyDisruptions = 'true';
+            legs.push(apiData);
+
+            serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
+            const timeOffset = serviceHelper.timeDiff(null, apiData.arrivalTime, 5);
+
+            serviceHelper.log('trace', 'getCommute', '2nd leg');
+            apiData = await nextTrain({
+              body: {
+                startFrom: 'LBG', destination: 'STP', departureTimeOffSet: timeOffset,
+              },
+            }, null, next);
+            if (apiData.disruptions === 'true') anyDisruptions = 'true';
+          }
+          legs.push(apiData);
+          journeys.push({ legs });
         }
-      } else {
-        serviceHelper.log('trace', 'getCommute', 'Current location is not at home');
-        const atJPWork = serviceHelper.inJPWorkGeoFence(lat, long);
-        if (walk === 'true' && atJPWork) {
+        serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
+
+        serviceHelper.log('trace', 'getCommute', '1st leg');
+        apiData = await nextTrain({
+          body: {
+            destination: 'LBG', departureTimeOffSet: '00:10',
+          },
+        }, null, next);
+        if (apiData instanceof Error) {
+          if (typeof res !== 'undefined' && res !== null) {
+            serviceHelper.sendResponse(res, false, apiData.message);
+            next();
+          }
+          return false;
+        }
+        if (apiData.disruptions === 'true') anyDisruptions = 'true';
+        legs.push(apiData);
+
+        serviceHelper.log('trace', 'getCommute', '2nd leg');
+        apiData = await nextTube({
+          body: {
+            line: 'Northern', startID: '940GZZLULNB', endID: '940GZZLUAGL',
+          },
+        }, null, next);
+        if (apiData instanceof Error) {
+          if (typeof res !== 'undefined' && res !== null) {
+            serviceHelper.sendResponse(res, false, apiData.message);
+            next();
+          }
+          return false;
+        }
+        if (apiData.disruptions === 'true') anyDisruptions = 'true';
+        legs.push(apiData);
+
+        journeys.push({ legs });
+      }
+
+      atJPWork = serviceHelper.inJPWorkGeoFence(lat, long);
+      if (atJPWork) {
+        serviceHelper.log('trace', 'getCommute', 'Current location is close to work');
+        if (walk === 'true') {
           serviceHelper.log('trace', 'getCommute', 'Walk from work option selected');
-          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: process.env.JPWalkHomeStart, stopPoint: process.env.HomePostCode } } });
+          //    commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: process.env.JPWalkHomeStart, stopPoint: process.env.HomePostCode } } });
         } else {
-          commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
+          //    commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
         }
       }
-      serviceHelper.log('trace', 'getCommute', JSON.stringify(commuteOptions));
+
+      // TODO - if not at home or at work
+
       break;
     default:
       serviceHelper.log('trace', 'getCommute', `User ${user} is not supported`);
@@ -685,44 +904,7 @@ async function getCommute(req, res, next) {
       return false;
   }
 
-  await Promise.all(commuteOptions.map(async (commuteOption) => {
-    switch (commuteOption.type) {
-      case 'journey':
-        try {
-          serviceHelper.log('trace', 'getCommute', 'Call the TFL API');
-          apiData = await planJourney(commuteOption.query, null, next);
-        } catch (err) {
-          if (typeof res !== 'undefined' && res !== null) {
-            serviceHelper.sendResponse(res, false, err);
-            next();
-          } else {
-            return err;
-          }
-        }
-        serviceHelper.log('trace', 'getCommute', 'Filter out any distruptions that are not servce impacting');
-        let j = 0;
-        apiData.journeys.forEach((journey) => {
-          let l = 0;
-          journey.legs.forEach((leg) => {
-            let tmpDisruptions = _.filter(leg.disruptions,function(disruption){return disruption.category === 'PlannedWork' || disruption.category === 'Information'})
-            if (tmpDisruptions.count > 0) anyDisruptions = 'true';
-            apiData.journeys[j].legs[l].disruptions = tmpDisruptions;
-
-            // TFL sometimes returnes disruptions in a innner-array
-            let d = 0;
-            leg.disruptions.forEach((disruption) => {
-              tmpDisruptions = _.filter(disruption,function(disruption){return disruption.category === 'PlannedWork' || disruption.category === 'Information'})
-              if (tmpDisruptions.count > 0) anyDisruptions = 'true';
-              apiData.journeys[j].legs[l].disruptions = tmpDisruptions;
-              d += 1;
-            });
-            l += 1;
-          });
-          j += 1;
-        });
-        apiData.order = commuteOption.order;
-        commuteResults.push(apiData);
-        break;
+  /*
       case 'bus':
         apiData = await nextbus(commuteOption.query, null, next);
         if (apiData.disruptions === 'true') anyDisruptions = 'true';
@@ -744,15 +926,13 @@ async function getCommute(req, res, next) {
       default:
         break;
     }
+    return true;
   }));
-
-  // Order commute options correctly
-  serviceHelper.log('trace', 'getCommute', 'Order commute options');
-  commuteResults.sort((a, b) => a.order - b.order);
+*/
 
   const returnJSON = {
     anyDisruptions,
-    commuteResults,
+    journeys,
   };
 
   if (typeof res !== 'undefined' && res !== null) {
