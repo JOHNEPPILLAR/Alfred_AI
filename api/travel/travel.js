@@ -441,6 +441,102 @@ async function nextbus(req, res, next) {
 skill.put('/nextbus', nextbus);
 
 /**
+ * @api {put} /travel/trainstatus Get train status
+ * @apiName trainstatus
+ * @apiGroup Travel
+ *
+ * @apiParam {String} fromStation code i.e. CHX
+ * @apiParam {String} toStation code i.e. CTN
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *      "sucess": "true",
+ *      "data": {
+ *        "mode": "train",
+ *        "line": "Southeastern"
+ *        "disruptions": "false"
+ *      }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function trainStatus(req, res, next) {
+  serviceHelper.log('trace', 'trainStatus', 'trainStatus API called');
+
+  const { transportapiKey } = process.env;
+  const { fromStation, toStation } = req.body;
+  let disruptions = 'false';
+  let returnJSON;
+
+  if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
+    serviceHelper.log('info', 'trainStatus', 'Missing param: fromStation');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: fromStation');
+      next();
+    }
+    return false;
+  }
+
+  if (typeof toStation === 'undefined' || toStation === null || toStation === '') {
+    serviceHelper.log('info', 'trainStatus', 'Missing param: toStation');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: toStation');
+      next();
+    }
+    return false;
+  }
+
+  try {
+    serviceHelper.log('trace', 'trainStatus', 'Getting data from TFL');
+    const url = `https://transportapi.com/v3/uk/train/station/${fromStation}/live.json?${transportapiKey}&train_status=passenger&calling_at=${toStation}`;
+    serviceHelper.log('trace', 'trainStatus', url);
+    let apiData = await serviceHelper.requestAPIdata(url);
+    apiData = apiData.body;
+
+    if (!serviceHelper.isEmptyObject(apiData)) {
+      const trainData = apiData.departures.all;
+      const line = trainData[0].operator_name;
+
+      let maxJourneyCounter = 5;
+      if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
+      for (let index = 0; index < maxJourneyCounter; index++) {
+        serviceHelper.log('trace', 'nextTrain', 'Check for cancelled train');
+        if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+          serviceHelper.log('trace', 'nextTrain', 'Found cancelled train');
+          disruptions = 'true';
+        }
+      }
+    } else disruptions = 'true';
+
+    returnJSON = {
+      mode: 'train',
+      line,
+      disruptions,
+    };
+
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, returnJSON);
+      next();
+    }
+    return returnJSON;
+  } catch (err) {
+    serviceHelper.log('error', 'trainStatus', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, false, err);
+      next();
+    }
+    return err;
+  }
+}
+skill.put('/trainstatus', trainStatus);
+
+/**
  * @api {put} /travel/nexttrain Get next train information
  * @apiName nexttrain
  * @apiGroup Travel
@@ -478,21 +574,31 @@ async function nextTrain(req, res, next) {
   serviceHelper.log('trace', 'nextTrain', 'nextTrain API called');
 
   const { transportapiKey } = process.env;
-  const { distruptionOverride } = req.body;
+  const { nextTrainOnly } = req.body;
 
   let {
-    startFrom, destination, departureTimeOffSet,
+    fromStation, toStation, departureTimeOffSet,
   } = req.body;
 
-  if (typeof destination === 'undefined' || destination === null || destination === '') {
-    serviceHelper.log('info', 'nextTrain', 'Missing param: destination');
+  if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
+    serviceHelper.log('info', 'nextTrain', 'Missing param: fromStation');
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, 400, 'Missing param: destination');
+      serviceHelper.sendResponse(res, 400, 'Missing param: fromStation');
       next();
     }
     return false;
   }
-  destination = destination.toUpperCase();
+  fromStation = fromStation.toUpperCase();
+
+  if (typeof toStation === 'undefined' || toStation === null || toStation === '') {
+    serviceHelper.log('info', 'nextTrain', 'Missing param: toStation');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: toStation');
+      next();
+    }
+    return false;
+  }
+  toStation = toStation.toUpperCase();
 
   if (typeof departureTimeOffSet !== 'undefined' && departureTimeOffSet !== null && departureTimeOffSet !== '') {
     departureTimeOffSet = `PT${departureTimeOffSet}:00`;
@@ -500,13 +606,7 @@ async function nextTrain(req, res, next) {
     departureTimeOffSet = '';
   }
 
-  if (typeof startFrom === 'undefined' || startFrom === null || startFrom === '') {
-    serviceHelper.log('info', 'nextTrain', 'Using default start location');
-    startFrom = 'CTN';
-  }
-  startFrom = startFrom.toUpperCase();
-
-  let url = `https://transportapi.com/v3/uk/train/station/${startFrom}/live.json?${transportapiKey}&train_status=passenger&from_offset=${departureTimeOffSet}&calling_at=${destination}`;
+  let url = `https://transportapi.com/v3/uk/train/station/${fromStation}/live.json?${transportapiKey}&train_status=passenger&from_offset=${departureTimeOffSet}&calling_at=${toStation}`;
   serviceHelper.log('trace', 'nextTrain', url);
 
   try {
@@ -524,12 +624,6 @@ async function nextTrain(req, res, next) {
     }
 
     let trainData = apiData.departures.all;
-
-    if (distruptionOverride) {
-      serviceHelper.log('trace', 'nextTrain', 'Ignore cancelled trains');
-      trainData = trainData.filter(a => a.status !== 'CANCELLED');
-    }
-
     if (serviceHelper.isEmptyObject(trainData)) {
       serviceHelper.log('error', 'nextTrain', 'No trains running');
       const returnJSON = [{
@@ -568,7 +662,11 @@ async function nextTrain(req, res, next) {
     let arrivalDestination;
     let status;
 
-    for (let index = 0; index < trainData.length; index++) {
+    let maxJourneyCounter = 5;
+    if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
+    if (nextTrainOnly === true) maxJourneyCounter = 1;
+
+    for (let index = 0; index < maxJourneyCounter; index++) {
       line = trainData[index].operator_name;
       departureTime = trainData[index].aimed_departure_time;
       departureToDestination = trainData[index].destination_name;
@@ -577,6 +675,7 @@ async function nextTrain(req, res, next) {
 
       serviceHelper.log('trace', 'nextTrain', 'Check for cancelled train');
       if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+        serviceHelper.log('trace', 'nextTrain', 'Found cancelled train');
         disruptions = 'true';
       }
 
@@ -585,7 +684,7 @@ async function nextTrain(req, res, next) {
       trainStations = await serviceHelper.requestAPIdata(url);
       trainStations = trainStations.body.stops;
       serviceHelper.log('trace', 'nextTrain', 'Get arrival time at destination station');
-      trainStations = trainStations.filter(a => a.station_code === destination);
+      trainStations = trainStations.filter(a => a.station_code === toStation);
       arrivalTime = trainStations[0].aimed_arrival_time;
       arrivalDestination = trainStations[0].station_name;
 
@@ -607,7 +706,7 @@ async function nextTrain(req, res, next) {
       };
       returnJSON.push(journey);
 
-      if ((index + 1) === trainData.length) {
+      if ((index + 1) === maxJourneyCounter) {
         serviceHelper.log('trace', 'nextTrain', 'Send data back to caller');
         if (typeof res !== 'undefined' && res !== null) {
           serviceHelper.sendResponse(res, true, returnJSON);
@@ -624,6 +723,7 @@ async function nextTrain(req, res, next) {
     }
     return err;
   }
+  return true;
 }
 skill.put('/nexttrain', nextTrain);
 
@@ -725,6 +825,113 @@ async function planJourney(req, res, next) {
 skill.put('/planjourney', planJourney);
 
 /**
+ * @api {put} /travel/getCommuteStatus Get commute status
+ * @apiName getCommuteStatus
+ * @apiGroup Travel
+ *
+ * @apiParam {String} user
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     sucess: 'true'
+ *     data: {
+ *       "anyDisruptions": false,
+ *    }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function getCommuteStatus(req, res, next) {
+  serviceHelper.log('trace', 'getCommuteStatus', 'getCommuteStatus API called');
+
+  const { user } = req.body;
+  let anyDisruptions = false;
+
+  serviceHelper.log('trace', 'getCommuteStatus', 'Checking for params');
+  if (typeof user === 'undefined' || user === null || user === '') {
+    serviceHelper.log('info', 'getCommuteStatus', 'Missing param: user');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing param: user');
+      next();
+    }
+    return false;
+  }
+
+  switch (user.toUpperCase()) {
+    case 'FRAN':
+      serviceHelper.log('trace', 'getCommuteStatus', 'User is Fran');
+      try {
+        serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
+        const trnStatus = apiData = await trainStatus({
+          body: {
+            fromStation: 'CTN', toStation: 'CHX',
+          },
+        }, null, next);
+        if (trnStatus.disruptions === 'true') anyDisruptions = true;
+
+        const tubStatus = apiData = await tubeStatus({
+          body: {
+            line: 'Piccadilly',
+          },
+        }, null, next);
+        if (tubStatus.disruptions === 'true') anyDisruptions = true;
+
+        const returnJSON = { anyDisruptions };
+        if (typeof res !== 'undefined' && res !== null) {
+          serviceHelper.sendResponse(res, true, returnJSON);
+          next();
+        }
+        return returnJSON;
+      } catch (err) {
+        if (typeof res !== 'undefined' && res !== null) {
+          serviceHelper.sendResponse(res, false, err);
+          next();
+        }
+        return err;
+      }
+    case 'JP':
+      serviceHelper.log('trace', 'getCommuteStatus', 'User is JP');
+      try {
+        serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
+        const trnStatus = apiData = await trainStatus({
+          body: {
+            fromStation: 'CTN', toStation: 'LBG',
+          },
+        }, null, next);
+        if (trnStatus.disruptions === 'true') anyDisruptions = true;
+
+        const tubStatus = apiData = await tubeStatus({
+          body: {
+            line: 'Northern',
+          },
+        }, null, next);
+        if (tubStatus.disruptions === 'true') anyDisruptions = true;
+
+        const returnJSON = { anyDisruptions };
+        if (typeof res !== 'undefined' && res !== null) {
+          serviceHelper.sendResponse(res, true, returnJSON);
+          next();
+        }
+        return returnJSON;
+      } catch (err) {
+        if (typeof res !== 'undefined' && res !== null) {
+          serviceHelper.sendResponse(res, false, err);
+          next();
+        }
+        return err;
+      }
+    default:
+      break;
+  }
+}
+skill.put('/getcommutestatus', getCommuteStatus);
+
+/**
  * @api {put} /travel/getcommute Get commute information
  * @apiName getcommute
  * @apiGroup Travel
@@ -806,81 +1013,114 @@ async function getCommute(req, res, next) {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
           apiData = await nextTrain({
             body: {
-              destination: 'STP', departureTimeOffSet: '00:10',
+//              fromStation: 'CTN', toStation: 'STP', departureTimeOffSet: '00:10',
+              fromStation: 'CTN', toStation: 'CHX', departureTimeOffSet: '00:10',
             },
           }, null, next);
 
-
-          return;
-
-
-          if (apiData.disruptions === 'true') {
-            serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
-            anyDisruptions = 'true';
-            legs.push(apiData);
+          for (let index = 0; index < apiData.length; index += 1) {
+            legs.push(apiData[index]);
             journeys.push({ legs });
+                        
             legs = []; // Clear array
+            if (index === 0) {
+            //if (apiData[index].disruptions === 'true' && index === 0) {
+              serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
+              anyDisruptions = 'true';
 
-            serviceHelper.log('trace', 'getCommute', '1st leg');
-            apiData = await nextTrain({
-              body: {
-                destination: 'LBG', departureTimeOffSet: '00:10',
-              },
-            }, null, next);
-            if (apiData.disruptions === 'true') anyDisruptions = 'true';
-            legs.push(apiData);
+              serviceHelper.log('trace', 'getCommute', '1st leg');
+              let backupData = await nextTrain({
+                body: {
+                  fromStation: 'CTN', toStation: 'LBG', departureTimeOffSet: '00:10', nextTrainOnly: true,
+                },
+              }, null, next);
+              legs.push(backupData);
 
-            serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-            const timeOffset = serviceHelper.timeDiff(null, apiData.arrivalTime, 5);
+              serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
+              const timeOffset = serviceHelper.timeDiff(null, backupData.arrivalTime, 5);
 
-            serviceHelper.log('trace', 'getCommute', '2nd leg');
-            apiData = await nextTrain({
-              body: {
-                startFrom: 'LBG', destination: 'STP', departureTimeOffSet: timeOffset,
-              },
-            }, null, next);
-            if (apiData.disruptions === 'true') anyDisruptions = 'true';
+              serviceHelper.log('trace', 'getCommute', '2nd leg');
+              backupData = await nextTrain({
+                body: {
+                  fromStation: 'LBG', toStation: 'STP', departureTimeOffSet: timeOffset,
+                },
+              }, null, next);
+              legs.push(backupData);
+              journeys.push({ legs });
+            }
           }
-          legs.push(apiData);
-          journeys.push({ legs });
         }
-        serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
-
-        serviceHelper.log('trace', 'getCommute', '1st leg');
-        apiData = await nextTrain({
-          body: {
-            destination: 'LBG', departureTimeOffSet: '00:10',
-          },
-        }, null, next);
-        if (apiData instanceof Error) {
-          if (typeof res !== 'undefined' && res !== null) {
-            serviceHelper.sendResponse(res, false, apiData.message);
-            next();
-          }
-          return false;
-        }
-        if (apiData.disruptions === 'true') anyDisruptions = 'true';
-        legs.push(apiData);
-
-        serviceHelper.log('trace', 'getCommute', '2nd leg');
-        apiData = await nextTube({
-          body: {
-            line: 'Northern', startID: '940GZZLULNB', endID: '940GZZLUAGL',
-          },
-        }, null, next);
-        if (apiData instanceof Error) {
-          if (typeof res !== 'undefined' && res !== null) {
-            serviceHelper.sendResponse(res, false, apiData.message);
-            next();
-          }
-          return false;
-        }
-        if (apiData.disruptions === 'true') anyDisruptions = 'true';
-        legs.push(apiData);
-
-        journeys.push({ legs });
       }
+      break;
+    default:
+      serviceHelper.log('trace', 'getCommute', `User ${user} is not supported`);
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, false, `User ${user} is not supported`);
+        next();
+      }
+      return false;
+  }
 
+  const returnJSON = {
+    anyDisruptions,
+    journeys,
+  };
+
+  if (typeof res !== 'undefined' && res !== null) {
+    serviceHelper.sendResponse(res, true, returnJSON);
+    next();
+  } else {
+    return returnJSON;
+  }
+
+
+
+
+
+
+
+
+
+      /*
+         else {
+          serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
+          serviceHelper.log('trace', 'getCommute', '1st leg');
+          apiData = await nextTrain({
+            body: {
+              destination: 'LBG', departureTimeOffSet: '00:10',
+            },
+          }, null, next);
+          if (apiData instanceof Error) {
+            if (typeof res !== 'undefined' && res !== null) {
+              serviceHelper.sendResponse(res, false, apiData.message);
+              next();
+            }
+            return false;
+          }
+          if (apiData.disruptions === 'true') anyDisruptions = 'true';
+          legs.push(apiData);
+
+          serviceHelper.log('trace', 'getCommute', '2nd leg');
+          apiData = await nextTube({
+            body: {
+              line: 'Northern', startID: '940GZZLULNB', endID: '940GZZLUAGL',
+            },
+          }, null, next);
+          if (apiData instanceof Error) {
+            if (typeof res !== 'undefined' && res !== null) {
+              serviceHelper.sendResponse(res, false, apiData.message);
+              next();
+            }
+            return false;
+          }
+          if (apiData.disruptions === 'true') anyDisruptions = 'true';
+          legs.push(apiData);
+
+          journeys.push({ legs });
+        } */
+
+
+      /*
       atJPWork = serviceHelper.inJPWorkGeoFence(lat, long);
       if (atJPWork) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to work');
@@ -891,18 +1131,8 @@ async function getCommute(req, res, next) {
           //    commuteOptions.push({ order: 0, type: 'journey', query: { body: { startPoint: `${lat},${long}`, stopPoint: process.env.HomePostCode } } });
         }
       }
-
+*/
       // TODO - if not at home or at work
-
-      break;
-    default:
-      serviceHelper.log('trace', 'getCommute', `User ${user} is not supported`);
-      if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, false, `User ${user} is not supported`);
-        next();
-      }
-      return false;
-  }
 
   /*
       case 'bus':
@@ -930,17 +1160,7 @@ async function getCommute(req, res, next) {
   }));
 */
 
-  const returnJSON = {
-    anyDisruptions,
-    journeys,
-  };
-
-  if (typeof res !== 'undefined' && res !== null) {
-    serviceHelper.sendResponse(res, true, returnJSON);
-    next();
-  } else {
-    return returnJSON;
-  }
+ 
   return null;
 }
 skill.put('/getcommute', getCommute);

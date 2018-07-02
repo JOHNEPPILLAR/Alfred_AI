@@ -16,9 +16,10 @@
     "geolib": "*",
     "harmonyhubjs-client": "*",
     "ip": "*",
+    "moment": "*",
     "netatmo": "*",
     "node-geocoder": "*",
-    "nodemon": "*",
+    "nodemon": "^1.17.5",
     "os": "*",
     "pg": "*",
     "pure-uuid": "*",
@@ -26,9 +27,8 @@
     "request-promise": "*",
     "restify": "*",
     "restify-router": "*",
-    "winston": "*",
     "underscore": "*",
-    "moment": "*"
+    "winston": "*"
   },
   "devDependencies": {
     "eslint": "^5.0.1",
