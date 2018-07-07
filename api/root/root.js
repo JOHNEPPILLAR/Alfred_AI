@@ -14,7 +14,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'pong'
  *   }
  *
@@ -50,9 +50,9 @@ skill.get('/ping', ping);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: {
- *       sucess or filure return message
+ *       success or filure return message
  *     }
  *   }
  *
@@ -86,7 +86,7 @@ skill.get('/reregister', reRegister);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     "data": [
  *       {
  *           "time": "2018-06-27T18:00:00.010Z",
@@ -119,7 +119,7 @@ async function display(req, res, next) {
     serviceHelper.log('trace', 'display', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-    if (returnData.sucess !== 'true') throw Error(returnData);
+    if (returnData.success !== 'true') throw Error(returnData);
 
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, true, returnData.data);

@@ -14,7 +14,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: Hue bridge API response
  *   }
  *
@@ -57,7 +57,7 @@ skill.get('/listlights', listLights);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: Hue bridge API response
  *   }
  *
@@ -99,7 +99,7 @@ skill.get('/listlightgroups', listLightGroups);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: Hue bridge API response
  *   }
  *
@@ -148,7 +148,7 @@ skill.get('/alloff', allOff);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "The light was turned on."
  *   }
  *
@@ -214,7 +214,7 @@ skill.put('/lightonoff', lightOnOff);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "The light was turned on."
  *   }
  *
@@ -276,7 +276,7 @@ skill.put('/lightgrouponoff', lightGroupOnOff);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "The light group was updated."
  *   }
  *
@@ -338,7 +338,7 @@ skill.put('/lightbrightness', lightBrightness);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "The light group was updated."
  *   }
  *

@@ -26,7 +26,7 @@ const options = {
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "18:23"
  *   }
  *
@@ -88,7 +88,7 @@ skill.get('/sunset', sunSet);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: "06:23"
  *   }
  *
@@ -153,7 +153,7 @@ skill.get('/sunrise', sunRise);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     "data": {
         "locationName": "london",
         "icon": "partly-cloudy-night",
@@ -259,7 +259,7 @@ skill.put('/today', CurrentWeather);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     "data": {
         "insideTemp": 20,
         "insideCO2": 742

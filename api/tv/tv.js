@@ -15,7 +15,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'Turned on Fire TV'
  *   }
  *
@@ -60,7 +60,7 @@ skill.get('/watchfiretv', watchFireTv);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'Turned on Virgin TV'
  *   }
  *
@@ -105,7 +105,7 @@ skill.get('/watchvirgintv', watchVirginTv);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'Turned on Plat station'
  *   }
  *
@@ -150,7 +150,7 @@ skill.get('/playps4', playPS4);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'Turned off TV'
  *   }
  *
@@ -195,7 +195,7 @@ skill.get('/turnoff', turnOffTV);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'Turned on Apple TV'
  *   }
  *

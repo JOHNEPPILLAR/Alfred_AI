@@ -14,7 +14,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: [
  *       {
  *           "id": 1,
@@ -76,7 +76,7 @@ skill.get('/lightsensors', lightSensorSettings);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: [
  *       {
  *           "id": 1,
