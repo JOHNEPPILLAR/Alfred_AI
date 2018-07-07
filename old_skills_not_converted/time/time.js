@@ -25,7 +25,7 @@ const geocoder = NodeGeocoder(options);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'cleared'
  *   }
  *

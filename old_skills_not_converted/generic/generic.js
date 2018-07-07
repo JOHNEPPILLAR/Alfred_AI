@@ -18,7 +18,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: Hello message
  *   }
  *
@@ -68,7 +68,7 @@ skill.get('/hello', hello);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: Help message
  *   }
  *
@@ -106,7 +106,7 @@ skill.get('/help', help);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: 'pong'
  *   }
  *
@@ -140,7 +140,7 @@ skill.get('/ping', ping);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data:
  *      "currentpage": 1,
  *       "prevpage": 0,

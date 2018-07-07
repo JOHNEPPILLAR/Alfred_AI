@@ -22,7 +22,7 @@ const entities = new Entities();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     sucess: 'true'
+ *     success: 'true'
  *     data: google search results
  *   }
  *
