@@ -102,8 +102,8 @@ skill.put('/tubestatus', tubeStatus);
  *         "line": "Northern",
  *         "disruptions": "false",
  *         "duration": "8",
- *         "departureStation": "London Bridge Underground Station",
- *         "arrivalStation": "Angel Underground Station"
+ *         "departureStation": "London Bridge",
+ *         "arrivalStation": "Angel"
  *      }
  *   }
  *
@@ -1176,9 +1176,9 @@ async function getCommute(req, res, next) {
             WalkToUndergroundLeg.disruptions = 'false';
             WalkToUndergroundLeg.duration = '10';
             WalkToUndergroundLeg.departureTime = apiData[index].arrivalTime;
-            WalkToUndergroundLeg.departureStation = 'Arrival platform';
+            WalkToUndergroundLeg.departureStation = 'Change ';
             WalkToUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkToUndergroundLeg.departureTime, WalkToUndergroundLeg.duration);
-            WalkToUndergroundLeg.arrivalStation = 'Underground';
+            WalkToUndergroundLeg.arrivalStation = 'underground';
             legs.push(WalkToUndergroundLeg);
   
             serviceHelper.log('trace', 'getCommute', 'Add tube departure & arrival times');
@@ -1323,9 +1323,9 @@ async function getCommute(req, res, next) {
           WalkFromUndergroundLeg.disruptions = 'false';
           WalkFromUndergroundLeg.duration = '00:10';
           WalkFromUndergroundLeg.departureTime = backupData.arrivalTime;
-          WalkFromUndergroundLeg.departureStation = 'Underground';
+          WalkFromUndergroundLeg.departureStation = 'Change';
           WalkFromUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkFromUndergroundLeg.departureTime, WalkFromUndergroundLeg.duration);
-          WalkFromUndergroundLeg.arrivalStation = 'Train station';
+          WalkFromUndergroundLeg.arrivalStation = 'train station';
           serviceHelper.log('trace', 'getCommute', 'Add walking leg');
           legs.push(WalkFromUndergroundLeg);
 
