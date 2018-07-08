@@ -999,14 +999,6 @@ async function getCommute(req, res, next) {
     user, lat, long, walk,
   } = req.body;
   const journeys = [];
-  const walkLeg = {
-    mode: 'walk',
-    line: 'Person',
-    disruptions: 'false',
-    duration: '0',
-    departureTime: '00:00',
-    arrivalTime: '00:00',
-  };
 
   let apiData;
   let atHome = true;
@@ -1064,6 +1056,19 @@ async function getCommute(req, res, next) {
           for (let index = 0; index < apiData.length; index += 1) {
             let legs = [];
             legs.push(apiData[index]);
+
+            if (apiData[index].disruptions === 'false' && index === 0) {
+              const WalkToWorkLeg = {};
+              WalkToWorkLeg.mode = 'Walk';
+              WalkToWorkLeg.line = 'Person';
+              WalkToWorkLeg.duration = '35';
+              WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
+              WalkToWorkLeg.departureStation = 'St Pancras International';
+              WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
+              WalkToWorkLeg.arrivalStation = 'Work';
+              legs.push(WalkToWorkLeg);
+            }
+
             journeys.push({ legs });
             legs = []; // Clear array
 
@@ -1085,15 +1090,17 @@ async function getCommute(req, res, next) {
               legs.push(backupData[0]);
 
               serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              const tmpWalkLeg = walkLeg;
-              tmpWalkLeg.duration = '5';
-              tmpWalkLeg.departureTime = backupData[0].arrivalTime;
-              tmpWalkLeg.arrivalTime = serviceHelper.addTime(tmpWalkLeg.departureTime, tmpWalkLeg.duration);
-              legs.push(tmpWalkLeg);
+              const WaitAtStationLeg = {};
+              WaitAtStationLeg.duration = '5';
+              WaitAtStationLeg.departureTime = backupData[0].arrivalTime;
+              WaitAtStationLeg.departureStation = 'Arrival platform';
+              WaitAtStationLeg.arrivalTime = serviceHelper.addTime(WaitAtStationLeg.departureTime, WaitAtStationLeg.duration);
+              WaitAtStationLeg.arrivalStation = 'Next platform';
+              legs.push(WaitAtStationLeg);
 
               serviceHelper.log('trace', 'getCommute', '2nd leg');
               serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-              const timeOffset = serviceHelper.timeDiff(null, tmpWalkLeg.arrivalTime);
+              const timeOffset = serviceHelper.timeDiff(null, WaitAtStationLeg.arrivalTime);
               backupData = await nextTrain({
                 body: {
                   fromStation: 'LBG', toStation: 'STP', departureTimeOffSet: timeOffset, nextTrainOnly: true,
@@ -1107,6 +1114,19 @@ async function getCommute(req, res, next) {
                 return false;
               }
               legs.push(backupData[0]);
+
+              serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
+              const WalkToWorkLeg = {};
+              WalkToWorkLeg.mode = 'Walk';
+              WalkToWorkLeg.line = 'Person';
+              WalkToWorkLeg.duration = '35';
+              WalkToWorkLeg.departureTime = backupData[0].arrivalTime;
+              WalkToWorkLeg.departureStation = 'St Pancras International';
+              WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
+              WalkToWorkLeg.arrivalStation = 'Work';
+              legs.push(WalkToWorkLeg);
+
+              serviceHelper.log('trace', 'getCommute', 'Add journey');
               journeys.push({ legs });
             }
           }
@@ -1143,32 +1163,37 @@ async function getCommute(req, res, next) {
           for (let index = 0; index < apiData.length; index += 1) {
             const tmpBackupData = {};
             const legs = [];
-            const tmpWalkLeg = {};
 
-            serviceHelper.log('trace', 'getCommute', 'Push train data');
+            serviceHelper.log('trace', 'getCommute', 'Add train leg');
             legs.push(apiData[index]); // train
 
             serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-            tmpWalkLeg.mode = 'walk';
-            tmpWalkLeg.line = 'Person';
-            tmpWalkLeg.disruptions = 'false';
-            tmpWalkLeg.duration = '10';
-            tmpWalkLeg.departureTime = apiData[index].arrivalTime;
-            tmpWalkLeg.arrivalTime = serviceHelper.addTime(tmpWalkLeg.departureTime, tmpWalkLeg.duration);
-            legs.push(tmpWalkLeg);
+            
+            const WalkToUndergroundLeg = {};
+            WalkToUndergroundLeg.mode = 'walk';
+            WalkToUndergroundLeg.line = 'Person';
+            WalkToUndergroundLeg.disruptions = 'false';
+            WalkToUndergroundLeg.duration = '10';
+            WalkToUndergroundLeg.departureTime = apiData[index].arrivalTime;
+            WalkToUndergroundLeg.departureStation = 'Arrival platform';
+            WalkToUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkToUndergroundLeg.departureTime, WalkToUndergroundLeg.duration);
+            WalkToUndergroundLeg.arrivalStation = 'Underground';
+            legs.push(WalkToUndergroundLeg);
   
             serviceHelper.log('trace', 'getCommute', 'Add tube departure & arrival times');
             tmpBackupData.mode = backupData.mode;
             tmpBackupData.line = backupData.line;
             tmpBackupData.disruptions = backupData.disruptions;
             tmpBackupData.duration = backupData.duration;
-            tmpBackupData.departureTime = tmpWalkLeg.arrivalTime;
+            tmpBackupData.departureTime = WalkToUndergroundLeg.arrivalTime;
             tmpBackupData.departureStation = backupData.departureStation;
             tmpBackupData.arrivalTime = serviceHelper.addTime(tmpBackupData.departureTime, tmpBackupData.duration);
             tmpBackupData.arrivalStation = backupData.arrivalStation;
 
-            serviceHelper.log('trace', 'getCommute', 'Construct journey JSON');
+            serviceHelper.log('trace', 'getCommute', 'Add tube leg');
             legs.push(tmpBackupData); // tube
+
+            serviceHelper.log('trace', 'getCommute', 'Add journey');
             journeys.push({ legs });
           }
         }
@@ -1196,24 +1221,30 @@ async function getCommute(req, res, next) {
             let legs = [];
 
             serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-            const tmpWalkLeg = {};
-            tmpWalkLeg.mode = 'walk';
-            tmpWalkLeg.line = 'Person';
-            tmpWalkLeg.disruptions = 'false';
-            tmpWalkLeg.duration = '00:35';
-            tmpWalkLeg.departureTime = serviceHelper.addTime(null, '00:05');
-            tmpWalkLeg.arrivalTime = serviceHelper.addTime(null, '00:40');
-            legs.push(tmpWalkLeg);
+            const walkToStationLeg = {};
+            walkToStationLeg.mode = 'walk';
+            walkToStationLeg.line = 'Person';
+            walkToStationLeg.disruptions = 'false';
+            walkToStationLeg.duration = '00:35';
+            walkToStationLeg.departureTime = serviceHelper.addTime(null, '00:05');
+            walkToStationLeg.departureStation = 'Work';
+            walkToStationLeg.arrivalTime = serviceHelper.addTime(null, '00:40');
+            walkToStationLeg.arrivalStation = 'St Pancras International';
+
+            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+            legs.push(walkToStationLeg);
 
             serviceHelper.log('trace', 'getCommute', 'Add train leg');
             legs.push(apiData[index]);
+
+            serviceHelper.log('trace', 'getCommute', 'Add journey');
             journeys.push({ legs });
             legs = []; // Clear array
 
             if (apiData[index].disruptions === 'true' && index === 0) {
               serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
               serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              legs.push(tmpWalkLeg);
+              legs.push(walkToStationLeg);
 
               let backupData = await nextTrain({
                 body: {
@@ -1230,19 +1261,20 @@ async function getCommute(req, res, next) {
               serviceHelper.log('trace', 'getCommute', 'Add train leg');
               legs.push(backupData[0]);
 
+              const waitAtStationLeg = {};
+              waitAtStationLeg.mode = 'walk';
+              waitAtStationLeg.line = 'Person';
+              waitAtStationLeg.duration = '00:05';
+              waitAtStationLeg.disruptions = 'false';
+              waitAtStationLeg.departureTime = backupData[0].arrivalTime;
+              waitAtStationLeg.departureStation = 'Arrival platform';
+              waitAtStationLeg.arrivalTime = serviceHelper.addTime(waitAtStationLeg.departureTime, waitAtStationLeg.duration);
+              waitAtStationLeg.arrivalStation = 'Next platform';
               serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              const tmpWaitLeg = {};
-
-              tmpWaitLeg.mode = 'walk';
-              tmpWaitLeg.line = 'Person';
-              tmpWaitLeg.duration = '00:05';
-              tmpWaitLeg.disruptions = 'false';
-              tmpWaitLeg.departureTime = backupData[0].arrivalTime;
-              tmpWaitLeg.arrivalTime = serviceHelper.addTime(tmpWaitLeg.departureTime, tmpWaitLeg.duration);
-              legs.push(tmpWaitLeg);
+              legs.push(waitAtStationLeg);
 
               serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-              const timeOffset = serviceHelper.timeDiff(null, tmpWaitLeg.arrivalTime);
+              const timeOffset = serviceHelper.timeDiff(null, waitAtStationLeg.arrivalTime);
               serviceHelper.log('trace', 'getCommute', '2nd leg');
               backupData = await nextTrain({
                 body: {
@@ -1256,7 +1288,11 @@ async function getCommute(req, res, next) {
                 }
                 return false;
               }
+
+              serviceHelper.log('trace', 'getCommute', 'Add train leg');
               legs.push(backupData[0]);
+
+              serviceHelper.log('trace', 'getCommute', 'Add journey');
               journeys.push({ legs });
             }
           }
@@ -1280,18 +1316,20 @@ async function getCommute(req, res, next) {
           backupData.arrivalTime = serviceHelper.addTime(backupData.departureTime, backupData.duration);
           legs.push(backupData);
 
+          const WalkFromUndergroundLeg = {};
+          WalkFromUndergroundLeg.mode = 'walk';
+          WalkFromUndergroundLeg.line = 'Person';
+          WalkFromUndergroundLeg.disruptions = 'false';
+          WalkFromUndergroundLeg.duration = '00:10';
+          WalkFromUndergroundLeg.departureTime = backupData.arrivalTime;
+          WalkFromUndergroundLeg.departureStation = 'Underground';
+          WalkFromUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkFromUndergroundLeg.departureTime, WalkFromUndergroundLeg.duration);
+          WalkFromUndergroundLeg.arrivalStation = 'Train station';
           serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-          const tmpWalkLeg = {};
-          tmpWalkLeg.mode = 'walk';
-          tmpWalkLeg.line = 'Person';
-          tmpWalkLeg.disruptions = 'false';
-          tmpWalkLeg.duration = '00:10';
-          tmpWalkLeg.departureTime = backupData.arrivalTime;
-          tmpWalkLeg.arrivalTime = serviceHelper.addTime(tmpWalkLeg.departureTime, tmpWalkLeg.duration);
-          legs.push(tmpWalkLeg);
+          legs.push(WalkFromUndergroundLeg);
 
           serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-          const timeOffset = serviceHelper.timeDiff(null, tmpWalkLeg.arrivalTime);
+          const timeOffset = serviceHelper.timeDiff(null, WalkFromUndergroundLeg.arrivalTime);
 
           apiData = await nextTrain({
             body: {
@@ -1305,7 +1343,11 @@ async function getCommute(req, res, next) {
             }
             return false;
           }
+
+          serviceHelper.log('trace', 'getCommute', 'Add train leg');
           legs.push(apiData[0]);
+          
+          serviceHelper.log('trace', 'getCommute', 'Add journey');
           journeys.push({ legs });
         }
       }
