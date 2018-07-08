@@ -1168,7 +1168,6 @@ async function getCommute(req, res, next) {
             legs.push(apiData[index]); // train
 
             serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-            
             const WalkToUndergroundLeg = {};
             WalkToUndergroundLeg.mode = 'walk';
             WalkToUndergroundLeg.line = 'Person';
