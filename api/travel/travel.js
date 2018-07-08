@@ -1176,7 +1176,7 @@ async function getCommute(req, res, next) {
             WalkToUndergroundLeg.disruptions = 'false';
             WalkToUndergroundLeg.duration = '10';
             WalkToUndergroundLeg.departureTime = apiData[index].arrivalTime;
-            WalkToUndergroundLeg.departureStation = 'Change ';
+            WalkToUndergroundLeg.departureStation = 'Change';
             WalkToUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkToUndergroundLeg.departureTime, WalkToUndergroundLeg.duration);
             WalkToUndergroundLeg.arrivalStation = 'underground';
             legs.push(WalkToUndergroundLeg);
