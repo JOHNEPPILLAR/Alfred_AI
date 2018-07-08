@@ -1119,7 +1119,7 @@ async function getCommute(req, res, next) {
 
               serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
               const WalkToWorkLeg = {};
-              WalkToWorkLeg.mode = 'Walk';
+              WalkToWorkLeg.mode = 'walk';
               WalkToWorkLeg.line = 'Person';
               WalkToWorkLeg.duration = '35';
               WalkToWorkLeg.departureTime = backupData[0].arrivalTime;
