@@ -1095,9 +1095,9 @@ async function getCommute(req, res, next) {
               WaitAtStationLeg.line = 'Person';
               WaitAtStationLeg.duration = '5';
               WaitAtStationLeg.departureTime = backupData[0].arrivalTime;
-              WaitAtStationLeg.departureStation = 'Arrival platform';
+              WaitAtStationLeg.departureStation = 'Change';
               WaitAtStationLeg.arrivalTime = serviceHelper.addTime(WaitAtStationLeg.departureTime, WaitAtStationLeg.duration);
-              WaitAtStationLeg.arrivalStation = 'Next platform';
+              WaitAtStationLeg.arrivalStation = 'next platform';
               legs.push(WaitAtStationLeg);
 
               serviceHelper.log('trace', 'getCommute', '2nd leg');
@@ -1268,9 +1268,9 @@ async function getCommute(req, res, next) {
               waitAtStationLeg.duration = '00:05';
               waitAtStationLeg.disruptions = 'false';
               waitAtStationLeg.departureTime = backupData[0].arrivalTime;
-              waitAtStationLeg.departureStation = 'Arrival platform';
+              waitAtStationLeg.departureStation = 'Change';
               waitAtStationLeg.arrivalTime = serviceHelper.addTime(waitAtStationLeg.departureTime, waitAtStationLeg.duration);
-              waitAtStationLeg.arrivalStation = 'Next platform';
+              waitAtStationLeg.arrivalStation = 'next platform';
               serviceHelper.log('trace', 'getCommute', 'Add walking leg');
               legs.push(waitAtStationLeg);
 
