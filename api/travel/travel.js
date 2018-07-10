@@ -1139,7 +1139,6 @@ async function getCommute(req, res, next) {
           }
         } else {
           serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
-          serviceHelper.log('trace', 'getCommute', '1st leg');
           apiData = await nextTrain({
             body: {
               fromStation: 'CTN', toStation: 'LBG', departureTimeOffSet: '00:10',
@@ -1153,7 +1152,6 @@ async function getCommute(req, res, next) {
             return false;
           }
 
-          serviceHelper.log('trace', 'getCommute', '2nd leg');
           const backupData = await nextTube({
             body: {
               line: 'Northern', startID: '940GZZLULNB', endID: '940GZZLUAGL',
@@ -1168,13 +1166,11 @@ async function getCommute(req, res, next) {
           }
 
           for (let index = 0; index < apiData.length; index += 1) {
-            const tmpBackupData = {};
             const legs = [];
 
             serviceHelper.log('trace', 'getCommute', 'Add train leg');
-            legs.push(apiData[index]); // train
+            legs.push(apiData[index]);
 
-            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
             const WalkToUndergroundLeg = {};
             WalkToUndergroundLeg.mode = 'walk';
             WalkToUndergroundLeg.line = 'Person';
@@ -1184,9 +1180,11 @@ async function getCommute(req, res, next) {
             WalkToUndergroundLeg.departureStation = 'Change';
             WalkToUndergroundLeg.arrivalTime = serviceHelper.addTime(WalkToUndergroundLeg.departureTime, WalkToUndergroundLeg.duration);
             WalkToUndergroundLeg.arrivalStation = 'underground';
+            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
             legs.push(WalkToUndergroundLeg);
   
             serviceHelper.log('trace', 'getCommute', 'Add tube departure & arrival times');
+            const tmpBackupData = {};
             tmpBackupData.mode = backupData.mode;
             tmpBackupData.line = backupData.line;
             tmpBackupData.disruptions = backupData.disruptions;
@@ -1195,9 +1193,8 @@ async function getCommute(req, res, next) {
             tmpBackupData.departureStation = backupData.departureStation;
             tmpBackupData.arrivalTime = serviceHelper.addTime(tmpBackupData.departureTime, tmpBackupData.duration);
             tmpBackupData.arrivalStation = backupData.arrivalStation;
-
             serviceHelper.log('trace', 'getCommute', 'Add tube leg');
-            legs.push(tmpBackupData); // tube
+            legs.push(tmpBackupData);
 
             serviceHelper.log('trace', 'getCommute', 'Add journey');
             journeys.push({ legs });
