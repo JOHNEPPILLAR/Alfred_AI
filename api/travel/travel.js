@@ -619,7 +619,7 @@ async function nextTrain(req, res, next) {
   toStation = toStation.toUpperCase();
 
   if (typeof departureTimeOffSet !== 'undefined' && departureTimeOffSet !== null && departureTimeOffSet !== '') {
-    departureTimeOffSet = `PT${departureTimeOffSet}:00`;
+    departureTimeOffSet = `PT${departureTimeOffSet}`;
   } else {
     departureTimeOffSet = '';
   }
@@ -678,7 +678,7 @@ async function nextTrain(req, res, next) {
     let arrivalStation;
     let status;
 
-    let maxJourneyCounter = 5;
+    let maxJourneyCounter = 3;
     if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
     if (nextTrainOnly === true) maxJourneyCounter = 1;
 
@@ -1040,9 +1040,11 @@ async function getCommute(req, res, next) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
         if (walk === 'true') {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
+
+          serviceHelper.log('trace', 'getCommute', 'Get next direct train');
           apiData = await nextTrain({
             body: {
-              fromStation: 'CTN', toStation: 'STP', departureTimeOffSet: '00:10',
+              fromStation: 'CTN', toStation: 'STP', departureTimeOffSet: '00:10', nextTrainOnly: true,
             },
           }, null, next);
           if (apiData instanceof Error) {
@@ -1053,84 +1055,87 @@ async function getCommute(req, res, next) {
             return false;
           }
 
+          let WalkToWorkLeg = {};
+          let legs = [];
+
+          serviceHelper.log('trace', 'getCommute', 'Add train leg');
+          legs.push(apiData[0]);
+
+          WalkToWorkLeg.mode = 'walk';
+          WalkToWorkLeg.line = 'Person';
+          WalkToWorkLeg.duration = '35';
+          WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
+          WalkToWorkLeg.departureStation = 'St Pancras International';
+          WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
+          WalkToWorkLeg.arrivalStation = 'Work';
+          serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
+          legs.push(WalkToWorkLeg);
+
+          serviceHelper.log('trace', 'getCommute', 'Add journey');
+          journeys.push({ legs });
+
+          serviceHelper.log('trace', 'getCommute', 'Getting Alt journey');
+
+          serviceHelper.log('trace', 'getCommute', 'Get next trains');
+          apiData = await nextTrain({
+            body: {
+              fromStation: 'CTN', toStation: 'LBG', departureTimeOffSet: '00:10',
+            },
+          }, null, next);
+          if (apiData instanceof Error) {
+            if (typeof res !== 'undefined' && res !== null) {
+              serviceHelper.sendResponse(res, false, apiData.message);
+              next();
+            }
+            return false;
+          }
           for (let index = 0; index < apiData.length; index += 1) {
-            let legs = [];
+            legs = [];
+            serviceHelper.log('trace', 'getCommute', 'Add train leg');
             legs.push(apiData[index]);
 
-            if (apiData[index].disruptions === 'false' && index === 0) {
-              const WalkToWorkLeg = {};
-              WalkToWorkLeg.mode = 'Walk';
-              WalkToWorkLeg.line = 'Person';
-              WalkToWorkLeg.duration = '35';
-              WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
-              WalkToWorkLeg.departureStation = 'St Pancras International';
-              WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
-              WalkToWorkLeg.arrivalStation = 'Work';
-              legs.push(WalkToWorkLeg);
+            const WaitAtStationLeg = {};
+            WaitAtStationLeg.mode = 'walk';
+            WaitAtStationLeg.line = 'Person';
+            WaitAtStationLeg.duration = '5';
+            WaitAtStationLeg.departureTime = apiData[index].arrivalTime;
+            WaitAtStationLeg.departureStation = 'Change';
+            WaitAtStationLeg.arrivalTime = serviceHelper.addTime(WaitAtStationLeg.departureTime, WaitAtStationLeg.duration);
+            WaitAtStationLeg.arrivalStation = 'next platform';
+            serviceHelper.log('trace', 'getCommute', 'Add wait at station leg');
+            legs.push(WaitAtStationLeg);
+
+            serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
+            const timeOffset = serviceHelper.timeDiff(null, WaitAtStationLeg.arrivalTime, null, true);
+            const backupData = await nextTrain({
+              body: {
+                fromStation: 'LBG', toStation: 'STP', departureTimeOffSet: timeOffset, nextTrainOnly: true,
+              },
+            }, null, next);
+            if (backupData instanceof Error) {
+              if (typeof res !== 'undefined' && res !== null) {
+                serviceHelper.sendResponse(res, false, backupData.message);
+                next();
+              }
+              return false;
             }
 
+            serviceHelper.log('trace', 'getCommute', 'Add train leg');
+            legs.push(backupData[0]);
+
+            WalkToWorkLeg = {};
+            WalkToWorkLeg.mode = 'walk';
+            WalkToWorkLeg.line = 'Person';
+            WalkToWorkLeg.duration = '35';
+            WalkToWorkLeg.departureTime = backupData[0].arrivalTime;
+            WalkToWorkLeg.departureStation = 'St Pancras International';
+            WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
+            WalkToWorkLeg.arrivalStation = 'Work';
+            serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
+            legs.push(WalkToWorkLeg);
+
+            serviceHelper.log('trace', 'getCommute', 'Add journey');
             journeys.push({ legs });
-            legs = []; // Clear array
-
-            if (apiData[index].disruptions === 'true' && index === 0) {
-              serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
-              serviceHelper.log('trace', 'getCommute', '1st leg');
-              let backupData = await nextTrain({
-                body: {
-                  fromStation: 'CTN', toStation: 'LBG', departureTimeOffSet: '00:10', nextTrainOnly: true,
-                },
-              }, null, next);
-              if (backupData instanceof Error) {
-                if (typeof res !== 'undefined' && res !== null) {
-                  serviceHelper.sendResponse(res, false, backupData.message);
-                  next();
-                }
-                return false;
-              }
-              legs.push(backupData[0]);
-
-              serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              const WaitAtStationLeg = {};
-              WaitAtStationLeg.mode = 'walk';
-              WaitAtStationLeg.line = 'Person';
-              WaitAtStationLeg.duration = '5';
-              WaitAtStationLeg.departureTime = backupData[0].arrivalTime;
-              WaitAtStationLeg.departureStation = 'Change';
-              WaitAtStationLeg.arrivalTime = serviceHelper.addTime(WaitAtStationLeg.departureTime, WaitAtStationLeg.duration);
-              WaitAtStationLeg.arrivalStation = 'next platform';
-              legs.push(WaitAtStationLeg);
-
-              serviceHelper.log('trace', 'getCommute', '2nd leg');
-              serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-              const timeOffset = serviceHelper.timeDiff(null, WaitAtStationLeg.arrivalTime);
-              backupData = await nextTrain({
-                body: {
-                  fromStation: 'LBG', toStation: 'STP', departureTimeOffSet: timeOffset, nextTrainOnly: true,
-                },
-              }, null, next);
-              if (backupData instanceof Error) {
-                if (typeof res !== 'undefined' && res !== null) {
-                  serviceHelper.sendResponse(res, false, backupData.message);
-                  next();
-                }
-                return false;
-              }
-              legs.push(backupData[0]);
-
-              serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
-              const WalkToWorkLeg = {};
-              WalkToWorkLeg.mode = 'walk';
-              WalkToWorkLeg.line = 'Person';
-              WalkToWorkLeg.duration = '35';
-              WalkToWorkLeg.departureTime = backupData[0].arrivalTime;
-              WalkToWorkLeg.departureStation = 'St Pancras International';
-              WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
-              WalkToWorkLeg.arrivalStation = 'Work';
-              legs.push(WalkToWorkLeg);
-
-              serviceHelper.log('trace', 'getCommute', 'Add journey');
-              journeys.push({ legs });
-            }
           }
         } else {
           serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
@@ -1205,9 +1210,48 @@ async function getCommute(req, res, next) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to work');
         if (walk === 'true') {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
+          let legs = [];
           apiData = await nextTrain({
             body: {
-              fromStation: 'STP', toStation: 'CTN', departureTimeOffSet: '00:40',
+              fromStation: 'STP', toStation: 'CTN', departureTimeOffSet: '00:40', nextTrainOnly: true,
+            },
+          }, null, next);
+          if (apiData instanceof Error) {
+            if (typeof res !== 'undefined' && res !== null) {
+              serviceHelper.sendResponse(res, false, apiData.message);
+              next();
+            }
+            return false;
+          }
+
+          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          const walkToStationLeg = {};
+          walkToStationLeg.mode = 'walk';
+          walkToStationLeg.line = 'Person';
+          walkToStationLeg.disruptions = 'false';
+          walkToStationLeg.duration = '00:35';
+          walkToStationLeg.departureTime = serviceHelper.addTime(null, '00:05');
+          walkToStationLeg.departureStation = 'Work';
+          walkToStationLeg.arrivalTime = serviceHelper.addTime(null, '00:40');
+          walkToStationLeg.arrivalStation = 'St Pancras International';
+          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          legs.push(walkToStationLeg);
+
+          serviceHelper.log('trace', 'getCommute', 'Add train leg');
+          legs.push(apiData[0]);
+
+          serviceHelper.log('trace', 'getCommute', 'Add journey');
+          journeys.push({ legs });
+
+          serviceHelper.log('trace', 'getCommute', 'Getting Alt journey');
+
+          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          legs.push(walkToStationLeg);
+          journeys.push({ legs });
+
+          apiData = await nextTrain({
+            body: {
+              fromStation: 'STP', toStation: 'LBG', departureTimeOffSet: '00:40'
             },
           }, null, next);
           if (apiData instanceof Error) {
@@ -1219,88 +1263,48 @@ async function getCommute(req, res, next) {
           }
 
           for (let index = 0; index < apiData.length; index += 1) {
-            let legs = [];
-
-            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-            const walkToStationLeg = {};
-            walkToStationLeg.mode = 'walk';
-            walkToStationLeg.line = 'Person';
-            walkToStationLeg.disruptions = 'false';
-            walkToStationLeg.duration = '00:35';
-            walkToStationLeg.departureTime = serviceHelper.addTime(null, '00:05');
-            walkToStationLeg.departureStation = 'Work';
-            walkToStationLeg.arrivalTime = serviceHelper.addTime(null, '00:40');
-            walkToStationLeg.arrivalStation = 'St Pancras International';
-
-            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-            legs.push(walkToStationLeg);
+            legs = [];
 
             serviceHelper.log('trace', 'getCommute', 'Add train leg');
-            legs.push(apiData[index]);
+            legs.push(apiData[0]);
+
+            const waitAtStationLeg = {};
+            waitAtStationLeg.mode = 'walk';
+            waitAtStationLeg.line = 'Person';
+            waitAtStationLeg.duration = '00:05';
+            waitAtStationLeg.disruptions = 'false';
+            waitAtStationLeg.departureTime = apiData[0].arrivalTime;
+            waitAtStationLeg.departureStation = 'Change';
+            waitAtStationLeg.arrivalTime = serviceHelper.addTime(waitAtStationLeg.departureTime, waitAtStationLeg.duration);
+            waitAtStationLeg.arrivalStation = 'next platform';
+            serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+            legs.push(waitAtStationLeg);
+
+            serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
+            const timeOffset = serviceHelper.timeDiff(null, waitAtStationLeg.arrivalTime, null, true);
+            let backupData = await nextTrain({
+              body: {
+                fromStation: 'LBG', toStation: 'CTN', departureTimeOffSet: timeOffset, nextTrainOnly: true,
+              },
+            }, null, next);
+            if (backupData instanceof Error) {
+              if (typeof res !== 'undefined' && res !== null) {
+                serviceHelper.sendResponse(res, false, backupData.message);
+                next();
+              }
+              return false;
+            }
+
+            serviceHelper.log('trace', 'getCommute', 'Add train leg');
+            legs.push(backupData[0]);
 
             serviceHelper.log('trace', 'getCommute', 'Add journey');
             journeys.push({ legs });
-            legs = []; // Clear array
-
-            if (apiData[index].disruptions === 'true' && index === 0) {
-              serviceHelper.log('trace', 'getCommute', 'Getting backup journey');
-              serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              legs.push(walkToStationLeg);
-
-              let backupData = await nextTrain({
-                body: {
-                  fromStation: 'STP', toStation: 'LBG', departureTimeOffSet: '00:40', nextTrainOnly: true,
-                },
-              }, null, next);
-              if (backupData instanceof Error) {
-                if (typeof res !== 'undefined' && res !== null) {
-                  serviceHelper.sendResponse(res, false, backupData.message);
-                  next();
-                }
-                return false;
-              }
-              serviceHelper.log('trace', 'getCommute', 'Add train leg');
-              legs.push(backupData[0]);
-
-              const waitAtStationLeg = {};
-              waitAtStationLeg.mode = 'walk';
-              waitAtStationLeg.line = 'Person';
-              waitAtStationLeg.duration = '00:05';
-              waitAtStationLeg.disruptions = 'false';
-              waitAtStationLeg.departureTime = backupData[0].arrivalTime;
-              waitAtStationLeg.departureStation = 'Change';
-              waitAtStationLeg.arrivalTime = serviceHelper.addTime(waitAtStationLeg.departureTime, waitAtStationLeg.duration);
-              waitAtStationLeg.arrivalStation = 'next platform';
-              serviceHelper.log('trace', 'getCommute', 'Add walking leg');
-              legs.push(waitAtStationLeg);
-
-              serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-              const timeOffset = serviceHelper.timeDiff(null, waitAtStationLeg.arrivalTime);
-              serviceHelper.log('trace', 'getCommute', '2nd leg');
-              backupData = await nextTrain({
-                body: {
-                  fromStation: 'LBG', toStation: 'CTN', departureTimeOffSet: timeOffset, nextTrainOnly: true,
-                },
-              }, null, next);
-              if (backupData instanceof Error) {
-                if (typeof res !== 'undefined' && res !== null) {
-                  serviceHelper.sendResponse(res, false, backupData.message);
-                  next();
-                }
-                return false;
-              }
-
-              serviceHelper.log('trace', 'getCommute', 'Add train leg');
-              legs.push(backupData[0]);
-
-              serviceHelper.log('trace', 'getCommute', 'Add journey');
-              journeys.push({ legs });
-            }
           }
         } else {
-          const legs = [];
+          let legs = [];
           serviceHelper.log('trace', 'getCommute', 'Non walk option selected');
-          serviceHelper.log('trace', 'getCommute', '1st leg');
+
           const backupData = await nextTube({
             body: {
               line: 'Northern', startID: '940GZZLUAGL', endID: '940GZZLULNB',
@@ -1315,6 +1319,8 @@ async function getCommute(req, res, next) {
           }
           backupData.departureTime = serviceHelper.addTime(null, '00:05');
           backupData.arrivalTime = serviceHelper.addTime(backupData.departureTime, backupData.duration);
+
+          serviceHelper.log('trace', 'getCommute', 'Add tube leg');
           legs.push(backupData);
 
           const WalkFromUndergroundLeg = {};
@@ -1329,12 +1335,15 @@ async function getCommute(req, res, next) {
           serviceHelper.log('trace', 'getCommute', 'Add walking leg');
           legs.push(WalkFromUndergroundLeg);
 
+          serviceHelper.log('trace', 'getCommute', 'Add journey');
+          journeys.push({ legs });
+
           serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
           const timeOffset = serviceHelper.timeDiff(null, WalkFromUndergroundLeg.arrivalTime);
 
           apiData = await nextTrain({
             body: {
-              fromStation: 'LBG', toStation: 'CTN', departureTimeOffSet: timeOffset, nextTrainOnly: true,
+              fromStation: 'LBG', toStation: 'CTN', departureTimeOffSet: timeOffset,
             },
           }, null, next);
           if (apiData instanceof Error) {
@@ -1345,11 +1354,15 @@ async function getCommute(req, res, next) {
             return false;
           }
 
-          serviceHelper.log('trace', 'getCommute', 'Add train leg');
-          legs.push(apiData[0]);
-          
-          serviceHelper.log('trace', 'getCommute', 'Add journey');
-          journeys.push({ legs });
+          for (let index = 0; index < apiData.length; index += 1) {
+            legs = [];
+
+            serviceHelper.log('trace', 'getCommute', 'Add train leg');
+            legs.push(apiData[0]);
+
+            serviceHelper.log('trace', 'getCommute', 'Add journey');
+            journeys.push({ legs });
+          }
         }
       }
       break;
