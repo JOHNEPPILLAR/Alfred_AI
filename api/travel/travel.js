@@ -3,7 +3,6 @@
  */
 const Skills = require('restify-router').Router;
 const serviceHelper = require('../../lib/helper.js');
-const dateFormat = require('dateformat');
 
 const skill = new Skills();
 
@@ -660,6 +659,9 @@ async function nextTrain(req, res, next) {
     const cleanData = trainData.filter(a => a.origin_name !== a.destination_name);
     trainData = null;
 
+// ** TODO **
+// Make sure first train is not before departureTimeOffSet
+
     serviceHelper.log('trace', 'nextTrain', 'Sort by departure time');
     trainData = cleanData.sort(serviceHelper.GetSortOrder('aimed_departure_time'));
 
@@ -760,103 +762,6 @@ async function nextTrain(req, res, next) {
   return true;
 }
 skill.put('/nexttrain', nextTrain);
-
-/**
- * @api {put} /travel/planJourney Plan journey from A to B
- * @apiName planJourney
- * @apiGroup Travel
- *
- * @apiParam {String} startPoint Where journey will start from
- * @apiParam {String} stopPoint Where journey will end
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *   "success": "true",
- *   "data": {
- *      "$type": "Tfl.Api.Presentation.Entities.JourneyPlanner.....",
- *      "journeys": [
- *        {
- *           .....
- *        }
- *   }
- *  }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 500 Internal error
- *   {
- *     data: Error message
- *   }
- *
- */
-async function planJourney(req, res, next) {
-  serviceHelper.log('trace', 'planJourney', 'planJourney API called');
-
-  const { TFLAPIKey } = process.env;
-  const {
-    startPoint, stopPoint, trainBusOverride, trainTubeOverride, trainWalkOverride,
-  } = req.body;
-
-  serviceHelper.log('trace', 'planJourney', 'Check params are ok');
-  if (typeof startPoint === 'undefined' || startPoint === null || startPoint === '') {
-    serviceHelper.log('info', 'planJourney', 'Missing param: startPoint');
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, 400, 'Missing param: startPoint');
-      next();
-    }
-    return false;
-  }
-
-  if (typeof stopPoint === 'undefined' || stopPoint === null || stopPoint === '') {
-    serviceHelper.log('info', 'planJourney', 'Missing param: stopPoint');
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, 400, 'Missing param: stopPoint');
-      next();
-    }
-    return false;
-  }
-
-  serviceHelper.log('trace', 'planJourney', 'Add any default overrides');
-  let url = `https://api.tfl.gov.uk/journey/journeyresults/${startPoint}/to/${stopPoint}?${TFLAPIKey}`;
-  if (trainBusOverride) url += '&mode=national-rail,bus';
-  if (trainTubeOverride) url += '&mode=national-rail,tube';
-  if (trainWalkOverride) url += '&mode=national-rail,walking';
-  // Param to think about - journeyPreference=LeastTime&
-
-  // Add a 5 minute delay so that results fro TFL are not shown in the past
-  let newTime = new Date();
-  newTime.setMinutes(newTime.getMinutes() + 5);
-  newTime = dateFormat(newTime, 'HHMM');
-  url += `&time=${newTime}`;
-
-  try {
-    serviceHelper.log('trace', 'planJourney', 'Get data from TFL');
-    serviceHelper.log('trace', 'planJourney', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
-    apiData = apiData.body;
-    if (serviceHelper.isEmptyObject(apiData)) {
-      serviceHelper.log('error', 'planJourney', 'No data was returned from the call to the TFL API');
-      if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, false, 'No data was returned from the call to the TFL API');
-        next();
-      }
-      return false;
-    }
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, apiData);
-      next();
-    }
-    return apiData;
-  } catch (err) {
-    serviceHelper.log('error', 'planJourney', err);
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, false, err);
-      next();
-    }
-    return err;
-  }
-}
-skill.put('/planjourney', planJourney);
 
 /**
  * @api {put} /travel/getCommuteStatus Get commute status
@@ -992,6 +897,26 @@ skill.put('/getcommutestatus', getCommuteStatus);
  *   }
  *
  */
+function returnCommuteError(req, res, next) {
+  const legs = [];
+  const journeys = [];
+  legs.push({
+    mode: 'error',
+    disruptions: 'true',
+    status: 'Unable to obtain commute data for location',
+  });
+  serviceHelper.log('trace', 'returnCommuteError', 'Add no data journey');
+  journeys.push({ legs });
+
+  const returnJSON = { journeys };
+
+  if (typeof res !== 'undefined' && res !== null) {
+    serviceHelper.sendResponse(res, true, returnJSON);
+    next();
+  }
+  return returnJSON;
+}
+
 async function getCommute(req, res, next) {
   serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
@@ -1048,9 +973,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1083,9 +1008,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1106,16 +1031,16 @@ async function getCommute(req, res, next) {
             legs.push(WaitAtStationLeg);
 
             serviceHelper.log('trace', 'getCommute', 'Work out next departure time');
-            const timeOffset = serviceHelper.timeDiff(null, WaitAtStationLeg.arrivalTime, null, true);
+            const timeOffset = serviceHelper.timeDiff(null, WaitAtStationLeg.arrivalTime, null, true);            
             const backupData = await nextTrain({
               body: {
                 fromStation: 'LBG', toStation: 'STP', departureTimeOffSet: timeOffset, nextTrainOnly: true,
               },
             }, null, next);
             if (backupData instanceof Error) {
+              serviceHelper.log('error', 'getCommute', backupData.message);
               if (typeof res !== 'undefined' && res !== null) {
-                serviceHelper.sendResponse(res, false, backupData.message);
-                next();
+                returnCommuteError(req, res, next);
               }
               return false;
             }
@@ -1145,9 +1070,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1158,9 +1083,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (backupData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', backupData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, backupData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1214,9 +1139,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1252,9 +1177,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1285,9 +1210,9 @@ async function getCommute(req, res, next) {
               },
             }, null, next);
             if (backupData instanceof Error) {
+              serviceHelper.log('error', 'getCommute', backupData.message);
               if (typeof res !== 'undefined' && res !== null) {
-                serviceHelper.sendResponse(res, false, backupData.message);
-                next();
+                returnCommuteError(req, res, next);
               }
               return false;
             }
@@ -1308,9 +1233,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (backupData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', backupData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, backupData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1344,9 +1269,9 @@ async function getCommute(req, res, next) {
             },
           }, null, next);
           if (apiData instanceof Error) {
+            serviceHelper.log('error', 'getCommute', apiData.message);
             if (typeof res !== 'undefined' && res !== null) {
-              serviceHelper.sendResponse(res, false, apiData.message);
-              next();
+              returnCommuteError(req, res, next);
             }
             return false;
           }
@@ -1362,9 +1287,17 @@ async function getCommute(req, res, next) {
           }
         }
       }
+
+      if (!atHome && !atJPWork) {
+        serviceHelper.log('trace', 'getCommute', 'Add not at home or work leg');
+        if (typeof res !== 'undefined' && res !== null) {
+          returnCommuteError(req, res, next);
+        }
+        return false;
+      }
       break;
     default:
-      serviceHelper.log('trace', 'getCommute', `User ${user} is not supported`);
+      serviceHelper.log('error', 'getCommute', `User ${user} is not supported`);
       if (typeof res !== 'undefined' && res !== null) {
         serviceHelper.sendResponse(res, false, `User ${user} is not supported`);
         next();
@@ -1372,6 +1305,7 @@ async function getCommute(req, res, next) {
       return false;
   }
 
+  serviceHelper.log('trace', 'getCommute', 'Send data back to caller');
   const returnJSON = {
     journeys,
   };
