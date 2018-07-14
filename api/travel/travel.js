@@ -618,7 +618,7 @@ async function nextTrain(req, res, next) {
   toStation = toStation.toUpperCase();
 
   if (typeof departureTimeOffSet !== 'undefined' && departureTimeOffSet !== null && departureTimeOffSet !== '') {
-    departureTimeOffSet = `PT${departureTimeOffSet}`;
+    departureTimeOffSet = `PT${departureTimeOffSet}:00`;
   } else {
     departureTimeOffSet = '';
   }
@@ -657,10 +657,6 @@ async function nextTrain(req, res, next) {
 
     serviceHelper.log('trace', 'nextTrain', 'Remove results that start and end at same station');
     const cleanData = trainData.filter(a => a.origin_name !== a.destination_name);
-    trainData = null;
-
-// ** TODO **
-// Make sure first train is not before departureTimeOffSet
 
     serviceHelper.log('trace', 'nextTrain', 'Sort by departure time');
     trainData = cleanData.sort(serviceHelper.GetSortOrder('aimed_departure_time'));
@@ -801,24 +797,20 @@ async function getCommuteStatus(req, res, next) {
     return false;
   }
 
+  let apiData;
   switch (user.toUpperCase()) {
     case 'FRAN':
       serviceHelper.log('trace', 'getCommuteStatus', 'User is Fran');
       try {
         serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
-        const trnStatus = apiData = await trainStatus({
-          body: {
-            fromStation: 'CTN', toStation: 'CHX',
-          },
-        }, null, next);
-        if (trnStatus.disruptions === 'true') anyDisruptions = true;
+        apiData = await trainStatus({ body: { fromStation: 'CTN', toStation: 'CHX' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
 
-        const tubStatus = apiData = await tubeStatus({
-          body: {
-            line: 'Piccadilly',
-          },
-        }, null, next);
-        if (tubStatus.disruptions === 'true') anyDisruptions = true;
+        apiData = await trainStatus({ body: { fromStation: 'CHX', toStation: 'CTN' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
+
+        apiData = await tubeStatus({ body: { line: 'Piccadilly' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
 
         const returnJSON = { anyDisruptions };
         if (typeof res !== 'undefined' && res !== null) {
@@ -837,19 +829,20 @@ async function getCommuteStatus(req, res, next) {
       serviceHelper.log('trace', 'getCommuteStatus', 'User is JP');
       try {
         serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
-        const trnStatus = apiData = await trainStatus({
-          body: {
-            fromStation: 'CTN', toStation: 'LBG',
-          },
-        }, null, next);
-        if (trnStatus.disruptions === 'true') anyDisruptions = true;
+        apiData = await trainStatus({ body: { fromStation: 'CTN', toStation: 'STP' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
 
-        const tubStatus = apiData = await tubeStatus({
-          body: {
-            line: 'Northern',
-          },
-        }, null, next);
-        if (tubStatus.disruptions === 'true') anyDisruptions = true;
+        apiData = await trainStatus({ body: { fromStation: 'STP', toStation: 'CTN' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
+
+        apiData = await trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
+
+        apiData = await trainStatus({ body: { fromStation: 'LBG', toStation: 'CTN' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
+
+        apiData = await tubeStatus({ body: { line: 'Northern' } }, null, next);
+        if (apiData.disruptions === 'true') anyDisruptions = true;
 
         const returnJSON = { anyDisruptions };
         if (typeof res !== 'undefined' && res !== null) {
@@ -988,7 +981,7 @@ async function getCommute(req, res, next) {
 
           WalkToWorkLeg.mode = 'walk';
           WalkToWorkLeg.line = 'Person';
-          WalkToWorkLeg.duration = '35';
+          WalkToWorkLeg.duration = '40';
           WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
           WalkToWorkLeg.departureStation = 'St Pancras International';
           WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
@@ -1051,7 +1044,7 @@ async function getCommute(req, res, next) {
             WalkToWorkLeg = {};
             WalkToWorkLeg.mode = 'walk';
             WalkToWorkLeg.line = 'Person';
-            WalkToWorkLeg.duration = '35';
+            WalkToWorkLeg.duration = '40';
             WalkToWorkLeg.departureTime = backupData[0].arrivalTime;
             WalkToWorkLeg.departureStation = 'St Pancras International';
             WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
@@ -1135,7 +1128,7 @@ async function getCommute(req, res, next) {
           let legs = [];
           apiData = await nextTrain({
             body: {
-              fromStation: 'STP', toStation: 'CTN', departureTimeOffSet: '00:40', nextTrainOnly: true,
+              fromStation: 'STP', toStation: 'CTN', departureTimeOffSet: '00:45', nextTrainOnly: true,
             },
           }, null, next);
           if (apiData instanceof Error) {
@@ -1151,7 +1144,7 @@ async function getCommute(req, res, next) {
           walkToStationLeg.mode = 'walk';
           walkToStationLeg.line = 'Person';
           walkToStationLeg.disruptions = 'false';
-          walkToStationLeg.duration = '00:35';
+          walkToStationLeg.duration = '00:40';
           walkToStationLeg.departureTime = serviceHelper.addTime(null, '00:05');
           walkToStationLeg.departureStation = 'Work';
           walkToStationLeg.arrivalTime = serviceHelper.addTime(null, '00:40');
@@ -1173,7 +1166,7 @@ async function getCommute(req, res, next) {
 
           apiData = await nextTrain({
             body: {
-              fromStation: 'STP', toStation: 'LBG', departureTimeOffSet: '00:40'
+              fromStation: 'STP', toStation: 'LBG', departureTimeOffSet: '00:45',
             },
           }, null, next);
           if (apiData instanceof Error) {
