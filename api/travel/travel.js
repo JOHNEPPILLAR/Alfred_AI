@@ -896,7 +896,7 @@ function returnCommuteError(req, res, next) {
   legs.push({
     mode: 'error',
     disruptions: 'true',
-    status: 'Unable to obtain commute data for location',
+    status: 'Error obtaining commute data',
   });
   serviceHelper.log('trace', 'returnCommuteError', 'Add no data journey');
   journeys.push({ legs });
@@ -914,7 +914,7 @@ async function getCommute(req, res, next) {
   serviceHelper.log('trace', 'getCommute', 'getCommute API called');
 
   const {
-    user, lat, long, walk,
+    user, lat, long, walk, full,
   } = req.body;
   const journeys = [];
 
@@ -959,6 +959,9 @@ async function getCommute(req, res, next) {
         if (walk === 'true') {
           serviceHelper.log('trace', 'getCommute', 'Walk option selected');
 
+          let WalkToWorkLeg = {};
+          let legs = [];
+
           serviceHelper.log('trace', 'getCommute', 'Get next direct train');
           apiData = await nextTrain({
             body: {
@@ -972,9 +975,6 @@ async function getCommute(req, res, next) {
             }
             return false;
           }
-
-          let WalkToWorkLeg = {};
-          let legs = [];
 
           serviceHelper.log('trace', 'getCommute', 'Add train leg');
           legs.push(apiData[0]);
@@ -991,7 +991,7 @@ async function getCommute(req, res, next) {
 
           serviceHelper.log('trace', 'getCommute', 'Add journey');
           journeys.push({ legs });
-
+          
           serviceHelper.log('trace', 'getCommute', 'Getting Alt journey');
 
           serviceHelper.log('trace', 'getCommute', 'Get next trains');
