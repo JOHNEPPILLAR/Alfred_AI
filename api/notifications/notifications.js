@@ -45,7 +45,7 @@ async function register(req, res, next) {
   }
 
   try {
-    const SQL = 'INSERT INTO ios_devices("time", device_token, "user") VALUES ($1, $2, $3)';
+    const SQL = 'INSERT INTO ios_devices("time", device_token, app_user) VALUES ($1, $2, $3)';
     const SQLValues = [
       new Date(),
       deviceToken,
