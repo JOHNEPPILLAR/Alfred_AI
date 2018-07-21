@@ -979,19 +979,20 @@ async function getCommute(req, res, next) {
           serviceHelper.log('trace', 'getCommute', 'Add train leg');
           legs.push(apiData[0]);
 
-          WalkToWorkLeg.mode = 'walk';
-          WalkToWorkLeg.line = 'Person';
-          WalkToWorkLeg.duration = '40';
-          WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
-          WalkToWorkLeg.departureStation = 'St Pancras International';
-          WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
-          WalkToWorkLeg.arrivalStation = 'Work';
-          serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
-          legs.push(WalkToWorkLeg);
-
-          serviceHelper.log('trace', 'getCommute', 'Add journey');
+          if (apiData[0].status !== 'No trains running') {
+            WalkToWorkLeg.mode = 'walk';
+            WalkToWorkLeg.line = 'Person';
+            WalkToWorkLeg.duration = '40';
+            WalkToWorkLeg.departureTime = apiData[0].arrivalTime;
+            WalkToWorkLeg.departureStation = 'St Pancras International';
+            WalkToWorkLeg.arrivalTime = serviceHelper.addTime(WalkToWorkLeg.departureTime, WalkToWorkLeg.duration);
+            WalkToWorkLeg.arrivalStation = 'Work';
+            serviceHelper.log('trace', 'getCommute', 'Add walk to work leg');
+            legs.push(WalkToWorkLeg);
+          }
+          serviceHelper.log('trace', 'getCommute', 'Add walk journey');
           journeys.push({ legs });
-          
+
           serviceHelper.log('trace', 'getCommute', 'Getting Alt journey');
 
           serviceHelper.log('trace', 'getCommute', 'Get next trains');
