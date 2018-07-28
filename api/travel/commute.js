@@ -84,12 +84,6 @@ async function getCommuteStatus(req, res, next) {
         apiData = await travelHelper.trainStatus({ body: { fromStation: 'STP', toStation: 'CTN' } }, null, next);
         if (apiData.disruptions === 'true') anyDisruptions = true;
 
-        apiData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
-        if (apiData.disruptions === 'true') anyDisruptions = true;
-
-        apiData = await travelHelper.trainStatus({ body: { fromStation: 'LBG', toStation: 'CTN' } }, null, next);
-        if (apiData.disruptions === 'true') anyDisruptions = true;
-
         apiData = await travelHelper.tubeStatus({ body: { line: 'Northern' } }, null, next);
         if (apiData.disruptions === 'true') anyDisruptions = true;
 
