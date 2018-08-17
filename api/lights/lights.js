@@ -48,7 +48,6 @@ async function listLights(req, res, next) {
 }
 skill.get('/listlights', listLights);
 
-
 /**
  * @api {get} /lights/listlightgroups Lists all of the light groups
  * @apiName listlightgroups
