@@ -119,7 +119,7 @@ async function display(req, res, next) {
     serviceHelper.log('trace', 'display', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-    if (returnData.success !== 'true') throw Error(returnData);
+    if (returnData instanceof Error) throw Error(returnData.message);
 
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, true, returnData.data);
