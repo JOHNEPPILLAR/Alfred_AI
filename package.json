@@ -19,7 +19,6 @@
     "moment": "*",
     "netatmo": "*",
     "node-geocoder": "*",
-    "nodemon": "^1.17.5",
     "os": "*",
     "pg": "*",
     "pure-uuid": "*",
@@ -31,7 +30,7 @@
     "winston": "*"
   },
   "devDependencies": {
-    "eslint": "^5.4.0",
+    "eslint": "^5.5.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0"
   }
