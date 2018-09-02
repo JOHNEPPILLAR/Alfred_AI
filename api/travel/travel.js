@@ -515,7 +515,9 @@ async function trainStatus(req, res, next) {
     apiData = apiData.body;
     let line = '';
 
-    if (!serviceHelper.isEmptyObject(apiData)) {
+    if (serviceHelper.isEmptyObject(apiData) || !serviceHelper.isEmptyObject(apiData.departures)) {
+      disruptions = 'true';
+    } else {
       const trainData = apiData.departures.all;
       line = trainData[0].operator_name;
 
@@ -528,7 +530,7 @@ async function trainStatus(req, res, next) {
           disruptions = 'true';
         }
       }
-    } else disruptions = 'true';
+    }
 
     returnJSON = {
       mode: 'train',
@@ -642,7 +644,7 @@ async function nextTrain(req, res, next) {
 
     let trainData = apiData.departures.all;
     if (serviceHelper.isEmptyObject(trainData)) {
-      serviceHelper.log('error', 'nextTrain', 'No trains running');
+      serviceHelper.log('info', 'nextTrain', 'No trains running');
       const returnJSON = [{
         mode: 'train',
         disruptions: 'true',
