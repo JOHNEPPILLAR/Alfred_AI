@@ -513,12 +513,16 @@ async function trainStatus(req, res, next) {
     serviceHelper.log('trace', 'trainStatus', url);
     let apiData = await serviceHelper.requestAPIdata(url);
     apiData = apiData.body;
+
     let line = '';
 
-    if (serviceHelper.isEmptyObject(apiData) || !serviceHelper.isEmptyObject(apiData.departures)) {
+    if (serviceHelper.isEmptyObject(apiData)) {
+      disruptions = 'true';
+    } else if (serviceHelper.isEmptyObject(apiData.departures)) {
       disruptions = 'true';
     } else {
       const trainData = apiData.departures.all;
+
       line = trainData[0].operator_name;
 
       let maxJourneyCounter = 5;
