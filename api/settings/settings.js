@@ -7,8 +7,8 @@ const serviceHelper = require('../../lib/helper.js');
 const skill = new Skills();
 
 /**
- * @api {get} /lightsensors
- * @apiName lightsensors
+ * @api {get} /listSchedules
+ * @apiName listSchedules
  * @apiGroup Settings
  *
  * @apiSuccessExample {json} Success-Response:
@@ -38,27 +38,22 @@ const skill = new Skills();
  *   }
  *
  */
-async function lightSensorSettings(req, res, next) {
-  serviceHelper.log('trace', 'sensorSettings', 'sensorSettings API called');
+async function listSchedules(req, res, next) {
+  serviceHelper.log('trace', 'listSchedules', 'listSchedules API called');
 
   try {
-    const SQL = 'SELECT * FROM sensor_settings';
-    serviceHelper.log('trace', 'sensorSettings', 'Connect to data store connection pool');
-    const dbClient = await global.lightsDataClient.connect(); // Connect to data store
-    serviceHelper.log('trace', 'sensorSettings', 'Get light sensor settings data');
-    const results = await dbClient.query(SQL);
-    serviceHelper.log('trace', 'sensorSettings', 'Release the data store connection back to the pool');
-    await dbClient.release(); // Return data store connection back to pool
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/list`;
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-    if (results.rowCount === 0) {
-      serviceHelper.log('error', 'sensorSettings', 'Failed to get lights sensor settings data');
-      serviceHelper.sendResponse(res, false, 'Failed to get lights sensor settings data');
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', 'listSchedules', returnData.message);
+      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return;
     }
-    serviceHelper.log('trace', 'sensorSettings', 'Sending data back to client');
-    const returnData = results.rows.sort(serviceHelper.GetSortOrder('id'));
-    serviceHelper.sendResponse(res, true, returnData);
+
+    serviceHelper.log('trace', 'listSchedules', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', 'sensorSettings', err);
@@ -66,7 +61,7 @@ async function lightSensorSettings(req, res, next) {
     next();
   }
 }
-skill.get('/lightsensors', lightSensorSettings);
+skill.get('/listSchedules', listSchedules);
 
 /**
  * @api {get} /lighttimers
