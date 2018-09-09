@@ -14,20 +14,21 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
- *     data: [
- *       {
- *           "id": 1,
- *           "sensor_id": 1,
- *           "start_time": "00:00",
- *           "end_time": "08:30",
- *           "light_group_number": 7,
- *           "light_action": "on",
- *           "brightness": 60,
- *           "active": true,
- *           "ct": null,
- *           "turn_off": "TRUE"
- *       }
+ *     "data": {
+ *       "command": "SELECT",
+ *       "rowCount": 7,
+ *       "oid": null,
+ *       "rows": [
+ *           {
+ *               "id": 1,
+ *               "name": "Morning lights off",
+ *               "hour": 8,
+ *               "minute": 30,
+ *               "ai_override": false,
+ *               "active": true
+ *           },
+ *           ...
+ *         }
  *     ]
  *   }
  *

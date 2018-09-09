@@ -518,7 +518,7 @@ async function trainStatus(req, res, next) {
 
     if (serviceHelper.isEmptyObject(apiData)) {
       disruptions = 'true';
-    } else if (serviceHelper.isEmptyObject(apiData.departures)) {
+    } else if (serviceHelper.isEmptyObject(apiData.departures.all)) {
       disruptions = 'true';
     } else {
       const trainData = apiData.departures.all;
