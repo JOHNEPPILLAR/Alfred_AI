@@ -65,6 +65,51 @@ async function listSchedules(req, res, next) {
 skill.get('/listSchedules', listSchedules);
 
 /**
+ * @api {get} /saveSchedule
+ * @apiName saveSchedule
+ * @apiGroup Settings
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     "data": {
+ *       "saved": "true"
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 400 Bad Request
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function saveSchedule(req, res, next) {
+  serviceHelper.log('trace', 'saveSchedule', 'saveSchedule API called');
+  try {
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/save`;
+    serviceHelper.log('error', 'saveSchedule', `Saving schedule data: ${req.body}`);
+    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', 'saveSchedule', returnData.message);
+      serviceHelper.sendResponse(res, false, 'Unable to save data to Alfred');
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'saveSchedule', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, true, returnData.data);
+    next();
+  } catch (err) {
+    serviceHelper.log('error', 'sensorSettings', err);
+    serviceHelper.sendResponse(res, false, err);
+    next();
+  }
+}
+skill.get('/saveSchedule', saveSchedule);
+
+/**
  * @api {get} /lighttimers
  * @apiName lighttimers
  * @apiGroup Settings
