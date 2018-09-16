@@ -65,7 +65,7 @@ async function listSchedules(req, res, next) {
 skill.get('/listSchedules', listSchedules);
 
 /**
- * @api {get} /saveSchedule
+ * @api {put} /saveSchedule
  * @apiName saveSchedule
  * @apiGroup Settings
  *
@@ -107,7 +107,7 @@ async function saveSchedule(req, res, next) {
     next();
   }
 }
-skill.get('/saveSchedule', saveSchedule);
+skill.put('/saveSchedule', saveSchedule);
 
 /**
  * @api {get} /lighttimers
