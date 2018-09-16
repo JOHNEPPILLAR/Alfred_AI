@@ -88,7 +88,7 @@ async function saveSchedule(req, res, next) {
   serviceHelper.log('trace', 'saveSchedule', 'saveSchedule API called');
   try {
     const apiURL = `${process.env.AlfredScheduleService}/schedule/save`;
-    serviceHelper.log('info', 'saveSchedule', `Saving schedule data: ${JSON.stringify(req.body)}`);
+    serviceHelper.log('trace', 'saveSchedule', `Saving schedule data: ${JSON.stringify(req.body)}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
 
     if (returnData instanceof Error) {
