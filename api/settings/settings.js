@@ -146,7 +146,7 @@ async function listSensors(req, res, next) {
   serviceHelper.log('trace', 'listSensors', 'list Sensors API called');
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/schedule/list`;
+    const apiURL = `${process.env.AlfredLightsService}/sensors/list`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
