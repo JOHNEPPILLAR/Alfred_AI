@@ -40,7 +40,7 @@ const skill = new Skills();
  *
  */
 async function listSchedules(req, res, next) {
-  serviceHelper.log('trace', 'listSchedules', 'listSchedules API called');
+  serviceHelper.log('trace', 'listSchedules', 'list Schedules API called');
 
   try {
     const apiURL = `${process.env.AlfredScheduleService}/schedule/list`;
@@ -85,7 +85,7 @@ skill.get('/listSchedules', listSchedules);
  *
  */
 async function saveSchedule(req, res, next) {
-  serviceHelper.log('trace', 'saveSchedule', 'saveSchedule API called');
+  serviceHelper.log('trace', 'saveSchedule', 'save Schedule API called');
   try {
     const apiURL = `${process.env.AlfredScheduleService}/schedule/save`;
     serviceHelper.log('trace', 'saveSchedule', `Saving schedule data: ${JSON.stringify(req.body)}`);
@@ -110,28 +110,30 @@ async function saveSchedule(req, res, next) {
 skill.put('/saveSchedule', saveSchedule);
 
 /**
- * @api {get} /lighttimers
- * @apiName lighttimers
+ * @api {get} /listSensors
+ * @apiName listSensors
  * @apiGroup Settings
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
- *     data: [
- *       {
- *           "id": 1,
- *           "type": 4,
- *           "light_group_number": 8,
- *           "brightness": 200,
- *           "ct": null,
- *           "x": null,
- *           "y": null,
- *           "color_loop": false,
- *           "active": true
- *       }
+ *     "data": {
+ *       "command": "SELECT",
+ *       "rowCount": 7,
+ *       "oid": null,
+ *       "rows": [
+ *           {
+ *               "id": 1,
+ *               "name": "Morning lights off",
+ *               "hour": 8,
+ *               "minute": 30,
+ *               "ai_override": false,
+ *               "active": true
+ *           },
+ *           ...
+ *         }
  *     ]
- * }
+ *   }
  *
  * @apiErrorExample {json} Error-Response:
  *   HTTPS/1.1 400 Bad Request
@@ -140,34 +142,29 @@ skill.put('/saveSchedule', saveSchedule);
  *   }
  *
  */
-async function lightTimersSettings(req, res, next) {
-  serviceHelper.log('trace', 'lightTimersSettings', 'lightTimersSettings API called');
+async function listSensors(req, res, next) {
+  serviceHelper.log('trace', 'listSensors', 'list Sensors API called');
 
   try {
-    const SQL = 'SELECT * FROM light_timers';
-    serviceHelper.log('trace', 'lightTimersSettings', 'Connect to data store connection pool');
-    const dbClient = await global.schedulesDataClient.connect(); // Connect to data store
-    serviceHelper.log('trace', 'lightTimersSettings', 'Get light sensor settings data');
-    const results = await dbClient.query(SQL);
-    serviceHelper.log('trace', 'lightTimersSettings', 'Release the data store connection back to the pool');
-    await dbClient.release(); // Return data store connection back to pool
+    const apiURL = `${process.env.AlfredLightsService}/schedule/list`;
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-    if (results.rowCount === 0) {
-      serviceHelper.log('error', 'lightTimersSettings', 'Failed to get lights sensor settings data');
-      serviceHelper.sendResponse(res, false, 'Failed to get lights sensor settings data');
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', 'listSensors', returnData.message);
+      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return;
     }
-    serviceHelper.log('trace', 'lightTimersSettings', 'Sending data back to client');
-    const returnData = results.rows.sort(serviceHelper.GetSortOrder('id'));
-    serviceHelper.sendResponse(res, true, returnData);
+
+    serviceHelper.log('trace', 'listSensors', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightTimersSettings', err);
+    serviceHelper.log('error', 'listSensors', err);
     serviceHelper.sendResponse(res, false, err);
     next();
   }
 }
-skill.get('/lighttimers', lightTimersSettings);
+skill.get('/listSensors', listSensors);
 
 module.exports = skill;
