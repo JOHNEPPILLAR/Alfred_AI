@@ -167,4 +167,49 @@ async function listSensors(req, res, next) {
 }
 skill.get('/listSensors', listSensors);
 
+/**
+ * @api {put} /saveSensor
+ * @apiName saveSensor
+ * @apiGroup Settings
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     "data": {
+ *       "saved": "true"
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 400 Bad Request
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function saveSensor(req, res, next) {
+  serviceHelper.log('trace', 'saveSensor', 'save Sensor API called');
+  try {
+    const apiURL = `${process.env.AlfredLightsService}/sensors/save`;
+    serviceHelper.log('trace', 'saveSensor', `Saving schedule data: ${JSON.stringify(req.body)}`);
+    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', 'saveSensor', returnData.message);
+      serviceHelper.sendResponse(res, false, 'Unable to save data to Alfred');
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'saveSensor', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, true, returnData.data);
+    next();
+  } catch (err) {
+    serviceHelper.log('error', 'saveSensor', err);
+    serviceHelper.sendResponse(res, false, err);
+    next();
+  }
+}
+skill.put('/saveSensor', saveSensor);
+
 module.exports = skill;
