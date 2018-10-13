@@ -16,7 +16,6 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *      "success": "true",
  *      "data": {
  *        "mode": "tube",
  *        "line": "Northern"
@@ -95,7 +94,6 @@ skill.put('/tubestatus', tubeStatus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *      "success": "true",
  *      "data": {
  *         "mode": "tube",
  *         "line": "Northern",
@@ -224,7 +222,6 @@ skill.put('/nexttube', nextTube);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *   "success": "true",
  *   "data": {
  *       "mode": "bus",
  *       "line": "486",
@@ -303,7 +300,6 @@ skill.put('/busstatus', busStatus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *   "success": "true",
  *   "data": {
  *       "mode": "bus",
  *       "line": "486",
@@ -466,7 +462,6 @@ skill.put('/nextbus', nextbus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *      "success": "true",
  *      "data": {
  *        "mode": "train",
  *        "line": "Southeastern"
@@ -571,7 +566,6 @@ skill.put('/trainstatus', trainStatus);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *   "success": "true",
  *   "data": {
  *       "mode": "train",
  *       "line": "Southeastern",

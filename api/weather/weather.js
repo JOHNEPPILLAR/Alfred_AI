@@ -26,7 +26,6 @@ const options = {
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     data: "18:23"
  *   }
  *
@@ -88,7 +87,6 @@ skill.get('/sunset', sunSet);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     data: "06:23"
  *   }
  *
@@ -153,7 +151,6 @@ skill.get('/sunrise', sunRise);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     "data": {
         "locationName": "london",
         "icon": "partly-cloudy-night",
@@ -181,8 +178,8 @@ async function CurrentWeather(req, res, next) {
   darkSky.units = 'uk2';
 
   const { lat, long } = req.body;
-  if ((typeof lat === 'undefined' || lat === null || lat === '') ||
-    (typeof long === 'undefined' || long === null || long === '')) {
+  if ((typeof lat === 'undefined' || lat === null || lat === '')
+    || (typeof long === 'undefined' || long === null || long === '')) {
     serviceHelper.log('info', 'CurrentWeather', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
@@ -212,8 +209,7 @@ async function CurrentWeather(req, res, next) {
     const { summary } = currentWeather;
     let { temperature } = currentWeather;
     let { apparentTemperature } = currentWeather;
-    let { temperatureHigh } = forcastWeather.daily.data[0];
-    let { temperatureLow } = forcastWeather.daily.data[0];
+    let { temperatureHigh, temperatureLow } = forcastWeather.daily.data[0];
 
     // Construct the returning message
     temperature = Math.floor(temperature);
@@ -250,6 +246,103 @@ async function CurrentWeather(req, res, next) {
 skill.put('/today', CurrentWeather);
 
 /**
+ * @api {post} /weather/willitrain4h Will it rain in the next 4 hrs
+ * @apiName willitrain4h
+ * @apiGroup Weather
+ *
+ * @apiParam {String} lat
+ * @apiParam {String} long
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     "data": {
+        "probability": false,
+    }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function willItRain(req, res, next) {
+  serviceHelper.log('trace', 'willItRain', 'Will It Rain 4h API called');
+
+  // Configure darksky
+  darkSky.apiKey = process.env.DarkSkyKey;
+  darkSky.proxy = true;
+  darkSky.units = 'uk2';
+
+  const { lat, long } = req.body;
+  let { forcastDuration } = req.body;
+
+  if ((typeof lat === 'undefined' || lat === null || lat === '')
+    || (typeof long === 'undefined' || long === null || long === '')) {
+    serviceHelper.log('info', 'willItRain', 'Missing params: lat/long');
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
+      next();
+    }
+    return false;
+  }
+
+  if (typeof forcastDuration === 'undefined' || forcastDuration === null || forcastDuration === '') forcastDuration = 5;
+
+  try {
+    serviceHelper.log('trace', 'willItRain', 'Calling geocoder to get location name');
+    const geocoder = NodeGeocoder(options);
+    const apiData = await geocoder.reverse({ lat, lon: long });
+    const position = {
+      latitude: lat,
+      longitude: long,
+    };
+    const locationNeighborhood = apiData[0].extra.neighborhood;
+    const locationCity = apiData[0].city;
+    const locationCountry = apiData[0].country;
+
+    serviceHelper.log('trace', 'willItRain', 'Get forcast from DarkSky');
+    const weatherData = await darkSky.loadItAll('currently,minutely,daily,alerts', position);
+
+    serviceHelper.log('trace', 'willItRain', 'Filter data for only next x hours and only if chance of rain is greater than x%');
+    const cleanWeatherData = weatherData.hourly.data.slice(0, forcastDuration);
+
+    let { precipProbability, precipIntensity } = cleanWeatherData[0];
+
+    for (let i = 1, len = cleanWeatherData.length; i < len; i += 1) {
+      const probability = cleanWeatherData[i].precipProbability;
+      const intensity = cleanWeatherData[i].precipIntensity;
+      precipProbability = (probability > precipProbability) ? probability : precipProbability;
+      precipIntensity = (intensity > precipIntensity) ? intensity : precipIntensity;
+    }
+
+    const jsonDataObj = {
+      locationNeighborhood,
+      locationCity,
+      locationCountry,
+      precipProbability,
+      precipIntensity,
+    };
+
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, jsonDataObj);
+      next();
+    }
+    return jsonDataObj;
+  } catch (err) {
+    serviceHelper.log('error', 'willItRain', err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, null, err);
+      next();
+    }
+    return err;
+  }
+}
+skill.put('/willitrain', willItRain);
+
+/**
  * @api {get} /weather/inside Get the weather from the house weather station
  * @apiName inside
  * @apiGroup Weather
@@ -259,7 +352,6 @@ skill.put('/today', CurrentWeather);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     "data": {
         "insideTemp": 20,
         "insideCO2": 742

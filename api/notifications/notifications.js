@@ -14,7 +14,7 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
+ *     data: Registered device: xxx
  *   }
  *
  * @apiErrorExample {json} Error-Response:

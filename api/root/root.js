@@ -14,7 +14,6 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     data: 'pong'
  *   }
  *
@@ -50,7 +49,6 @@ skill.get('/ping', ping);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     data: {
  *       success or filure return message
  *     }
@@ -86,7 +84,6 @@ skill.get('/reregister', reRegister);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     success: 'true'
  *     "data": [
  *       {
  *           "time": "2018-06-27T18:00:00.010Z",
