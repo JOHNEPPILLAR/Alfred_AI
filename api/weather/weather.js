@@ -246,7 +246,7 @@ async function CurrentWeather(req, res, next) {
 skill.put('/today', CurrentWeather);
 
 /**
- * @api {post} /weather/willitrain4h Will it rain in the next 4 hrs
+ * @api {get} /weather/willitrain4h Will it rain in the next 4 hrs
  * @apiName willitrain4h
  * @apiGroup Weather
  *
@@ -340,7 +340,7 @@ async function willItRain(req, res, next) {
     return err;
   }
 }
-skill.put('/willitrain', willItRain);
+skill.get('/willitrain', willItRain);
 
 /**
  * @api {get} /weather/inside Get the weather from the house weather station
