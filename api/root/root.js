@@ -112,7 +112,7 @@ async function display(req, res, next) {
       page = parseInt(req.query.page || 1, 10);
     }
 
-    const apiURL = `${process.env.LogService}/display`;
+    const apiURL = `${process.env.AlfredLogService}/display`;
     serviceHelper.log('trace', 'display', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
