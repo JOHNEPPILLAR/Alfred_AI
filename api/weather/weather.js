@@ -380,7 +380,7 @@ async function houseWeather(req, res, next) {
   };
 
   serviceHelper.log('trace', 'houseWeather', 'Getting latest Dyson data');
-  const apiURL = `${process.env.AlfredIoTService}/display/displaydysonpurecool`;
+  const apiURL = `${process.env.AlfredIoTService}/display/dysonpurecoollatest`;
   const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
   return new Promise(((resolve, reject) => {
@@ -412,23 +412,19 @@ async function houseWeather(req, res, next) {
             Humidity: apiData[0].modules[0].dashboard_data.Humidity,
             Battery: apiData[0].modules[0].battery_percent,
           },
-          LivingRoom: {
+          Kitchen: {
             Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
             CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
             Humidity: apiData[0].modules[1].dashboard_data.Humidity,
             Battery: apiData[0].modules[1].battery_percent,
           },
           MainBedRoom: {
-            Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
-            CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
-            Humidity: apiData[0].modules[1].dashboard_data.Humidity,
+            Temperature: Math.floor(mainBedRoomData.data.Temperature),
+            CO2: null,
+            Humidity: Math.floor(mainBedRoomData.data.Humidity),
             Battery: 100,
           },
         };
-
-
-console.log(mainBedRoomData)
-
 
         if (typeof res !== 'undefined' && res !== null) {
           serviceHelper.sendResponse(res, true, jsonDataObj);
