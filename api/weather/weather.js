@@ -205,15 +205,15 @@ async function currentWeather(req, res, next) {
     const locationCountry = apiData[0].country;
 
     serviceHelper.log('trace', 'CurrentWeather', 'Get forcast from DarkSky');
-    const currentWeather = await darkSky.loadCurrent(position);
-    const forcastWeather = await darkSky.loadForecast(position);
+    const currentWeatherData = await darkSky.loadCurrent(position);
+    const forcastWeatherData = await darkSky.loadForecast(position);
 
     // Setup weather data
-    const { icon } = currentWeather;
-    const { summary } = currentWeather;
-    let { temperature } = currentWeather;
-    let { apparentTemperature } = currentWeather;
-    let { temperatureHigh, temperatureLow } = forcastWeather.daily.data[0];
+    const { icon } = currentWeatherData;
+    const { summary } = currentWeatherData;
+    let { temperature } = currentWeatherData;
+    let { apparentTemperature } = currentWeatherData;
+    let { temperatureHigh, temperatureLow } = forcastWeatherData.daily.data[0];
 
     // Construct the returning message
     temperature = Math.floor(temperature);
