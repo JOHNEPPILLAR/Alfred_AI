@@ -2,6 +2,10 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -40,7 +44,7 @@ async function listLights(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'listLights', err);
+    serviceHelper.log('error', 'listLights', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -81,7 +85,7 @@ async function listLightGroups(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'listLightGroups', err);
+    serviceHelper.log('error', 'listLightGroups', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -122,7 +126,7 @@ async function allOff(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'allOff', err);
+    serviceHelper.log('error', 'allOff', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -182,11 +186,10 @@ async function lightOnOff(req, res, next) {
       next();
       return false;
     }
-
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightOnOff', err);
+    serviceHelper.log('error', 'lightOnOff', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -251,7 +254,7 @@ async function lightGroupOnOff(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightGroupOnOff', err);
+    serviceHelper.log('error', 'lightGroupOnOff', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -312,7 +315,7 @@ async function lightBrightness(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightBrightness', err);
+    serviceHelper.log('error', 'lightBrightness', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -373,7 +376,7 @@ async function lightGroupBrightness(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightGroupBrightness', err);
+    serviceHelper.log('error', 'lightGroupBrightness', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }

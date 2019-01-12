@@ -1,8 +1,12 @@
 /**
- * Setup includes
+ * Import external libraries
  */
 const Skills = require('restify-router').Router;
 const harmony = require('harmonyhubjs-client');
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -40,7 +44,7 @@ async function watchFireTv(req, res, next) {
       return 'Turned on Fire TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchFireTv', err);
+    serviceHelper.log('trace', 'watchFireTv', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -48,6 +52,7 @@ async function watchFireTv(req, res, next) {
       return err;
     }
   }
+  return true;
 }
 skill.get('/watchfiretv', watchFireTv);
 
@@ -84,7 +89,7 @@ async function watchVirginTv(req, res, next) {
       return 'Turned on Virgin TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchVirginTv', err);
+    serviceHelper.log('trace', 'watchVirginTv', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -92,6 +97,7 @@ async function watchVirginTv(req, res, next) {
       return err;
     }
   }
+  return true;
 }
 skill.get('/watchvirgintv', watchVirginTv);
 
@@ -128,7 +134,7 @@ async function playPS4(req, res, next) {
       return 'Turned on PS4';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'playPS4', err);
+    serviceHelper.log('trace', 'playPS4', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -136,6 +142,7 @@ async function playPS4(req, res, next) {
       return err;
     }
   }
+  return true;
 }
 skill.get('/playps4', playPS4);
 
@@ -172,7 +179,7 @@ async function turnOffTV(req, res, next) {
       return 'Turned off living room TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'turnOffTV', err);
+    serviceHelper.log('trace', 'turnOffTV', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -180,6 +187,7 @@ async function turnOffTV(req, res, next) {
       return err;
     }
   }
+  return true;
 }
 skill.get('/turnoff', turnOffTV);
 
@@ -216,7 +224,7 @@ async function watchAppleTV(req, res, next) {
       return 'Turned on Apple TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchAppleTV', err);
+    serviceHelper.log('trace', 'watchAppleTV', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -224,6 +232,7 @@ async function watchAppleTV(req, res, next) {
       return err;
     }
   }
+  return true;
 }
 skill.get('/watchappletv', watchAppleTV);
 

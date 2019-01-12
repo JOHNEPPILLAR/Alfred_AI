@@ -2,6 +2,10 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -26,7 +30,6 @@ const skill = new Skills();
  */
 function ping(req, res, next) {
   serviceHelper.log('trace', 'ping', 'Ping API called');
-
   const ackJSON = {
     service: process.env.ServiceName,
     reply: 'pong',
@@ -35,7 +38,6 @@ function ping(req, res, next) {
     os: serviceHelper.getOsInfo(),
     process: serviceHelper.getProcessInfo(),
   };
-
   serviceHelper.sendResponse(res, true, ackJSON); // Send response back to caller
   next();
 }
@@ -63,11 +65,8 @@ skill.get('/ping', ping);
  */
 async function reRegister(req, res, next) {
   serviceHelper.log('trace', 'reRegister', 'reRegister API called');
-
   let returnMessage = 'Re-registered service';
-
   if (!serviceHelper.registerService()) returnMessage = 'Unable to re-register service';
-
   serviceHelper.log('trace', 'reRegister', returnMessage);
   serviceHelper.sendResponse(res, false, returnMessage);
   next();
@@ -123,7 +122,7 @@ async function display(req, res, next) {
       next();
     }
   } catch (err) {
-    serviceHelper.log('error', 'display', err);
+    serviceHelper.log('error', 'display', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err.message);
       next();

@@ -1,11 +1,15 @@
 /**
- * Setup includes
+ * Import external libraries
  */
 const Skills = require('restify-router').Router;
 const dateFormat = require('dateformat');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
 const Netatmo = require('netatmo');
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -69,7 +73,7 @@ async function sunSet(req, res, next) {
     }
     return dateFormat(sunSetTime, 'HH:MM');
   } catch (err) {
-    serviceHelper.log('error', 'sunSet', err);
+    serviceHelper.log('error', 'sunSet', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -130,7 +134,7 @@ async function sunRise(req, res, next) {
     }
     return dateFormat(sunriseTime, 'HH:MM');
   } catch (err) {
-    serviceHelper.log('error', 'sunRise', err);
+    serviceHelper.log('error', 'sunRise', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -141,7 +145,7 @@ async function sunRise(req, res, next) {
 skill.get('/sunrise', sunRise);
 
 /**
- * @api {post} /weather/today Get todays weather
+ * @api {get} /weather/today Get todays weather
  * @apiName today
  * @apiGroup Weather
  *
@@ -169,7 +173,7 @@ skill.get('/sunrise', sunRise);
  *   }
  *
  */
-async function CurrentWeather(req, res, next) {
+async function currentWeather(req, res, next) {
   serviceHelper.log('trace', 'CurrentWeather', 'CurrentWeather API called');
 
   // Configure darksky
@@ -177,7 +181,7 @@ async function CurrentWeather(req, res, next) {
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  const { lat, long } = req.body;
+  const { lat, long } = req.query;
   if ((typeof lat === 'undefined' || lat === null || lat === '')
     || (typeof long === 'undefined' || long === null || long === '')) {
     serviceHelper.log('info', 'CurrentWeather', 'Missing params: lat/long');
@@ -235,7 +239,7 @@ async function CurrentWeather(req, res, next) {
     }
     return jsonDataObj;
   } catch (err) {
-    serviceHelper.log('error', 'CurrentWeather', err);
+    serviceHelper.log('error', 'CurrentWeather', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -243,7 +247,7 @@ async function CurrentWeather(req, res, next) {
     return err;
   }
 }
-skill.put('/today', CurrentWeather);
+skill.get('/today', currentWeather);
 
 /**
  * @api {get} /weather/willitrain4h Will it rain in the next 4 hrs
@@ -276,8 +280,8 @@ async function willItRain(req, res, next) {
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  const { lat, long } = req.body;
-  let { forcastDuration } = req.body;
+  const { lat, long } = req.query;
+  let { forcastDuration } = req.query;
 
   if ((typeof lat === 'undefined' || lat === null || lat === '')
     || (typeof long === 'undefined' || long === null || long === '')) {
@@ -332,7 +336,7 @@ async function willItRain(req, res, next) {
     }
     return jsonDataObj;
   } catch (err) {
-    serviceHelper.log('error', 'willItRain', err);
+    serviceHelper.log('error', 'willItRain', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -353,8 +357,8 @@ skill.get('/willitrain', willItRain);
  *   HTTPS/1.1 200 OK
  *   {
  *     "data": {
-        "insideTemp": 20,
-        "insideCO2": 742
+        "KidsRoomTemperature": 20,
+        "KidsRoomCO2": 742
       }
  *   }
  *
@@ -375,41 +379,77 @@ async function houseWeather(req, res, next) {
     password: process.env.NetatmoPassword,
   };
 
-  try {
-    serviceHelper.log('trace', 'houseWeather', 'Get data from netatmo API');
-    const api = new Netatmo(auth); // Connect to api service
-    api.getStationsData((err, apiData) => { // Get data from device
-      if (err) {
-        serviceHelper.log('error', 'houseWeather', err);
+  serviceHelper.log('trace', 'houseWeather', 'Getting latest Dyson data');
+  const apiURL = `${process.env.AlfredIoTService}/display/displaydysonpurecool`;
+  const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+
+  return new Promise(((resolve, reject) => {
+    try {
+      serviceHelper.log('trace', 'houseWeather', 'Get data from netatmo API');
+
+      const api = new Netatmo(auth); // Connect to api service
+      api.getStationsData((err, apiData) => { // Get data from device
+        if (err) {
+          serviceHelper.log('error', 'houseWeather', err.message);
+          if (typeof res !== 'undefined' && res !== null) {
+            serviceHelper.sendResponse(res, true, err);
+            next();
+          }
+          reject(err);
+        }
+
+        // Setup data
+        const jsonDataObj = {
+          KidsRoom: {
+            Temperature: Math.floor(apiData[0].dashboard_data.Temperature),
+            CO2: Math.ceil(apiData[0].dashboard_data.CO2),
+            Humidity: apiData[0].dashboard_data.Humidity,
+            Battery: 100,
+          },
+          Garden: {
+            Temperature: Math.floor(apiData[0].modules[0].dashboard_data.Temperature),
+            CO2: Math.ceil(apiData[0].modules[0].dashboard_data.CO2),
+            Humidity: apiData[0].modules[0].dashboard_data.Humidity,
+            Battery: apiData[0].modules[0].battery_percent,
+          },
+          LivingRoom: {
+            Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
+            CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
+            Humidity: apiData[0].modules[1].dashboard_data.Humidity,
+            Battery: apiData[0].modules[1].battery_percent,
+          },
+          MainBedRoom: {
+            Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
+            CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
+            Humidity: apiData[0].modules[1].dashboard_data.Humidity,
+            Battery: 100,
+          },
+        };
+
+
+console.log(mainBedRoomData)
+
+
         if (typeof res !== 'undefined' && res !== null) {
-          serviceHelper.sendResponse(res, true, err);
+          serviceHelper.sendResponse(res, true, jsonDataObj);
           next();
         }
-        return err;
-      }
-
-      // Setup data
-      const jsonDataObj = {
-        insideTemp: Math.floor(apiData[0].dashboard_data.Temperature),
-        insideCO2: Math.ceil(apiData[0].dashboard_data.CO2),
-      };
-
+        resolve(jsonDataObj);
+      });
+    } catch (err) {
+      serviceHelper.log('error', 'houseWeather', err.message);
       if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, true, jsonDataObj);
+        serviceHelper.sendResponse(res, null, err);
         next();
       }
-      return jsonDataObj;
-    });
-  } catch (err) {
-    serviceHelper.log('error', 'houseWeather', err);
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
-      next();
+      reject(err);
     }
-    return err;
-  }
-  return false;
+  }));
 }
 skill.get('/inside', houseWeather);
 
-module.exports = skill;
+module.exports = {
+  skill,
+  currentWeather,
+  houseWeather,
+};

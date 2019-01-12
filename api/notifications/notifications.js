@@ -1,7 +1,11 @@
 /**
- * Setup includes
+ * Import external libraries
  */
 const Skills = require('restify-router').Router;
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -69,7 +73,7 @@ async function register(req, res, next) {
     serviceHelper.sendResponse(res, true, `Registered device : ${deviceToken}`);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'register', err);
+    serviceHelper.log('error', 'register', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }

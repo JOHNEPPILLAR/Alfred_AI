@@ -1,7 +1,11 @@
 /**
- * Setup includes
+ * Import external libraries
  */
 const Skills = require('restify-router').Router;
+
+/**
+ * Import helper libraries
+ */
 const serviceHelper = require('../../lib/helper.js');
 
 const skill = new Skills();
@@ -52,7 +56,7 @@ async function tubeStatus(req, res, next) {
     serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
     const url = `https://api.tfl.gov.uk/Line/${line}/Disruption?${TFLAPIKey}`;
     serviceHelper.log('trace', 'tubeStatus', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
+    let apiData = await serviceHelper.callAPIService(url);
     apiData = apiData.body;
 
     if (!serviceHelper.isEmptyObject(apiData)) {
@@ -72,7 +76,7 @@ async function tubeStatus(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
-    serviceHelper.log('error', 'tubeStatus', err);
+    serviceHelper.log('error', 'tubeStatus', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
@@ -125,7 +129,7 @@ async function nextTube(req, res, next) {
   let returnJSON;
 
   if (typeof line === 'undefined' || line === null || line === '') {
-    serviceHelper.log('info', 'tubeStatus', 'Missing param: line');
+    serviceHelper.log('info', 'nextTube', 'Missing param: line');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: line');
       next();
@@ -134,7 +138,7 @@ async function nextTube(req, res, next) {
   }
 
   if (typeof startID === 'undefined' || startID === null || startID === '') {
-    serviceHelper.log('info', 'tubeStatus', 'Missing param: startID');
+    serviceHelper.log('info', 'nextTube', 'Missing param: startID');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: startID');
       next();
@@ -143,7 +147,7 @@ async function nextTube(req, res, next) {
   }
 
   if (typeof endID === 'undefined' || endID === null || endID === '') {
-    serviceHelper.log('info', 'tubeStatus', 'Missing param: endID');
+    serviceHelper.log('info', 'nextTube', 'Missing param: endID');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: endID');
       next();
@@ -152,11 +156,10 @@ async function nextTube(req, res, next) {
   }
 
   try {
-    serviceHelper.log('trace', 'tubeStatus', 'Getting data from TFL');
+    serviceHelper.log('trace', 'nextTube', 'Getting data from TFL');
     let url = `https://api.tfl.gov.uk/Line/${line}/Timetable/${startID}/to/${endID}?${TFLAPIKey}`;
-    serviceHelper.log('trace', 'tubeStatus', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
-    apiData = apiData.body;
+    serviceHelper.log('trace', 'nextTube', url);
+    let apiData = await serviceHelper.callAPIService(url);
 
     if (!serviceHelper.isEmptyObject(apiData)) {
       line = apiData.lineName;
@@ -165,22 +168,20 @@ async function nextTube(req, res, next) {
       let { timeToArrival } = tempRoute[0];
       if (typeof timeToArrival === 'undefined') timeToArrival = 0;
       duration = `${timeToArrival}`;
-
-      serviceHelper.log('trace', 'tubeStatus', 'Get departure station');
+      serviceHelper.log('trace', 'nextTube', 'Get departure station');
       tempRoute = apiData.stops;
       tempRoute = tempRoute.filter(a => a.stationId === startID);
       departureStation = tempRoute[0].name.replace(' Underground Station', '');
-
-      serviceHelper.log('trace', 'tubeStatus', 'Get arrival station');
-      tempRoute = apiData.stations;
+      serviceHelper.log('trace', 'nextTube', 'Get arrival station');
+      tempRoute = apiData.stops;
       tempRoute = tempRoute.filter(a => a.stationId === endID);
       arrivalStation = tempRoute[0].name.replace(' Underground Station', '');
     }
 
-    serviceHelper.log('trace', 'tubeStatus', 'Get distruptions');
+    serviceHelper.log('trace', 'nextTube', 'Get distruptions');
     url = `https://api.tfl.gov.uk/Line/${line}/Disruption?${TFLAPIKey}`;
-    serviceHelper.log('trace', 'tubeStatus', url);
-    apiData = await serviceHelper.requestAPIdata(url);
+    serviceHelper.log('trace', 'nextTube', url);
+    apiData = await serviceHelper.callAPIService(url);
 
     apiData = apiData.body;
     if (!serviceHelper.isEmptyObject(apiData)) {
@@ -202,7 +203,7 @@ async function nextTube(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
-    serviceHelper.log('error', 'nextTube', err);
+    serviceHelper.log('error', 'nextTube', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
@@ -258,7 +259,7 @@ async function busStatus(req, res, next) {
     serviceHelper.log('trace', 'busStatus', 'Getting data from TFL');
     const url = `https://api.tfl.gov.uk/Line/${route}/Status?detail=true&${TFLAPIKey}`;
     serviceHelper.log('trace', 'busStatus', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
+    let apiData = await serviceHelper.callAPIService(url);
     apiData = apiData.body;
 
     if (!serviceHelper.isEmptyObject(apiData)) {
@@ -280,7 +281,7 @@ async function busStatus(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
-    serviceHelper.log('error', 'busStatus', err);
+    serviceHelper.log('error', 'busStatus', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
@@ -386,7 +387,7 @@ async function nextbus(req, res, next) {
 
     serviceHelper.log('trace', 'nextbus', 'Get data from TFL');
     serviceHelper.log('trace', 'nextbus', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
+    let apiData = await serviceHelper.callAPIService(url);
     apiData = apiData.body;
     if (serviceHelper.isEmptyObject(apiData)) {
       returnJSON = {
@@ -441,7 +442,7 @@ async function nextbus(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
-    serviceHelper.log('error', 'nextbus', err);
+    serviceHelper.log('error', 'nextbus', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
@@ -506,20 +507,15 @@ async function trainStatus(req, res, next) {
     serviceHelper.log('trace', 'trainStatus', 'Getting data from TFL');
     const url = `https://transportapi.com/v3/uk/train/station/${fromStation}/live.json?${transportapiKey}&train_status=passenger&calling_at=${toStation}`;
     serviceHelper.log('trace', 'trainStatus', url);
-    let apiData = await serviceHelper.requestAPIdata(url);
-    apiData = apiData.body;
-
+    const apiData = await serviceHelper.callAPIService(url);
     let line = '';
-
     if (serviceHelper.isEmptyObject(apiData)) {
       disruptions = 'true';
     } else if (serviceHelper.isEmptyObject(apiData.departures.all)) {
       disruptions = 'true';
     } else {
       const trainData = apiData.departures.all;
-
       line = trainData[0].operator_name;
-
       let maxJourneyCounter = 5;
       if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
       for (let index = 0; index < maxJourneyCounter; index += 1) {
@@ -543,7 +539,7 @@ async function trainStatus(req, res, next) {
     }
     return returnJSON;
   } catch (err) {
-    serviceHelper.log('error', 'trainStatus', err);
+    serviceHelper.log('error', 'trainStatus', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();
@@ -628,8 +624,7 @@ async function nextTrain(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'nextTrain', 'Get data from API');
-    let apiData = await serviceHelper.requestAPIdata(url);
-    apiData = apiData.body;
+    const apiData = await serviceHelper.callAPIService(url);
 
     if (serviceHelper.isEmptyObject(apiData)) {
       serviceHelper.log('error', 'nextTrain', 'No data was returned from the call to the API');
@@ -713,8 +708,8 @@ async function nextTrain(req, res, next) {
 
       serviceHelper.log('trace', 'nextTrain', 'Get stops info');
       url = trainData[index].service_timetable.id;
-      trainStations = await serviceHelper.requestAPIdata(url);
-      trainStations = trainStations.body.stops;
+      trainStations = await serviceHelper.callAPIService(url);
+      trainStations = trainStations.stops;
       serviceHelper.log('trace', 'nextTrain', 'Get arrival time at destination station');
       trainStations = trainStations.filter(a => a.station_code === toStation);
       arrivalTime = trainStations[0].aimed_arrival_time;
@@ -748,7 +743,7 @@ async function nextTrain(req, res, next) {
       }
     }
   } catch (err) {
-    serviceHelper.log('error', 'nextTrain', err);
+    serviceHelper.log('error', 'nextTrain', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err);
       next();

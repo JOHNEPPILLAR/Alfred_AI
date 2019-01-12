@@ -57,7 +57,7 @@ async function listSchedules(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'sensorSettings', err);
+    serviceHelper.log('error', 'sensorSettings', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }
@@ -102,7 +102,7 @@ async function saveSchedule(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'sensorSettings', err);
+    serviceHelper.log('error', 'sensorSettings', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }
@@ -160,7 +160,7 @@ async function listSensors(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'listSensors', err);
+    serviceHelper.log('error', 'listSensors', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }
@@ -205,7 +205,7 @@ async function saveSensor(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'saveSensor', err);
+    serviceHelper.log('error', 'saveSensor', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }
