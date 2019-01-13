@@ -204,8 +204,9 @@ async function getCommute(req, res, next) {
         serviceHelper.log('trace', 'getCommute', 'Checking train and tube status');
         const trainData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
 
+        // trainData.disruptions = 'true' // Force to debug and see what tube would look like 
+
         // Work out main commute
-        trainData.disruptions = 'true' // // // // 
         if (trainData.disruptions === 'false') {
           // Add train leg
           apiData = await travelHelper.nextTrain({
@@ -303,8 +304,6 @@ async function getCommute(req, res, next) {
 
       if (atJPWork) {
         serviceHelper.log('trace', 'getCommute', 'Current location is close to work');
-
-        serviceHelper.log('trace', 'getCommute', 'Checking train and tube status');
         const legs = [];
 
         // Add walking leg

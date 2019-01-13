@@ -410,18 +410,21 @@ async function houseWeather(req, res, next) {
             Temperature: Math.floor(apiData[0].modules[0].dashboard_data.Temperature),
             CO2: Math.ceil(apiData[0].modules[0].dashboard_data.CO2),
             Humidity: apiData[0].modules[0].dashboard_data.Humidity,
+            AirQuality: null,
             Battery: apiData[0].modules[0].battery_percent,
           },
           Kitchen: {
             Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
             CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
             Humidity: apiData[0].modules[1].dashboard_data.Humidity,
+            AirQuality: null,
             Battery: apiData[0].modules[1].battery_percent,
           },
           MainBedRoom: {
             Temperature: Math.floor(mainBedRoomData.data.Temperature),
             CO2: null,
             Humidity: Math.floor(mainBedRoomData.data.Humidity),
+            AirQuality: Math.ceil(mainBedRoomData.data.AirQuality),
             Battery: 100,
           },
         };
