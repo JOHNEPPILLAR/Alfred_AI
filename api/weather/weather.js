@@ -5,7 +5,6 @@ const Skills = require('restify-router').Router;
 const dateFormat = require('dateformat');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
-const Netatmo = require('netatmo');
 
 /**
  * Import helper libraries
@@ -347,11 +346,9 @@ async function willItRain(req, res, next) {
 skill.get('/willitrain', willItRain);
 
 /**
- * @api {get} /weather/inside Get the weather from the house weather station
- * @apiName inside
+ * @api {get} /weather/houseWeather Get the temp and other weather information from inside the house
+ * @apiName houseWeather
  * @apiGroup Weather
- *
- * @apiParam {String} location Location i.e. London
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -371,81 +368,43 @@ skill.get('/willitrain', willItRain);
  */
 async function houseWeather(req, res, next) {
   serviceHelper.log('trace', 'houseWeather', 'houseWeather API called');
+  try {
+    // Dyson purecool fan
+    serviceHelper.log('trace', 'houseWeather', 'Getting latest Dyson data');
+    let apiURL = `${process.env.AlfredIoTService}/display/dysonpurecoollatest`;
+    const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-  const auth = {
-    client_id: process.env.NetatmoClientKey,
-    client_secret: process.env.NetatmoClientSecret,
-    username: process.env.NetatmpUserName,
-    password: process.env.NetatmoPassword,
-  };
+    // Netatmo sensors
+    serviceHelper.log('trace', 'houseWeather', 'Getting latest Netatmo data');
+    apiURL = `${process.env.AlfredIoTService}/display/netatmolatest`;
+    const restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-  serviceHelper.log('trace', 'houseWeather', 'Getting latest Dyson data');
-  const apiURL = `${process.env.AlfredIoTService}/display/dysonpurecoollatest`;
-  const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+    // Inkbird sensors
+    serviceHelper.log('trace', 'houseWeather', 'Getting latest Living room data');
+    apiURL = `${process.env.AlfredInkBirdService}/display/inkbirdlatest`;
+    const livingRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
-  return new Promise(((resolve, reject) => {
-    try {
-      serviceHelper.log('trace', 'houseWeather', 'Get data from netatmo API');
+    // Construct returning data
+    let jsonDataObj = [];
+    if (mainBedRoomData.data.length > 0) jsonDataObj = mainBedRoomData.data;
+    if (restOfTheHouseData.data.length > 0) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
+    if (typeof livingRoomData.data !== 'undefined') jsonDataObj.push(livingRoomData.data);
 
-      const api = new Netatmo(auth); // Connect to api service
-      api.getStationsData((err, apiData) => { // Get data from device
-        if (err) {
-          serviceHelper.log('error', 'houseWeather', err.message);
-          if (typeof res !== 'undefined' && res !== null) {
-            serviceHelper.sendResponse(res, true, err);
-            next();
-          }
-          reject(err);
-        }
-
-        // Setup data
-        const jsonDataObj = {
-          KidsRoom: {
-            Temperature: Math.floor(apiData[0].dashboard_data.Temperature),
-            CO2: Math.ceil(apiData[0].dashboard_data.CO2),
-            Humidity: apiData[0].dashboard_data.Humidity,
-            Battery: 100,
-          },
-          Garden: {
-            Temperature: Math.floor(apiData[0].modules[0].dashboard_data.Temperature),
-            CO2: Math.ceil(apiData[0].modules[0].dashboard_data.CO2),
-            Humidity: apiData[0].modules[0].dashboard_data.Humidity,
-            AirQuality: null,
-            Battery: apiData[0].modules[0].battery_percent,
-          },
-          Kitchen: {
-            Temperature: Math.floor(apiData[0].modules[1].dashboard_data.Temperature),
-            CO2: Math.ceil(apiData[0].modules[1].dashboard_data.CO2),
-            Humidity: apiData[0].modules[1].dashboard_data.Humidity,
-            AirQuality: null,
-            Battery: apiData[0].modules[1].battery_percent,
-          },
-          MainBedRoom: {
-            Temperature: Math.floor(mainBedRoomData.data.Temperature),
-            CO2: null,
-            Humidity: Math.floor(mainBedRoomData.data.Humidity),
-            AirQuality: Math.ceil(mainBedRoomData.data.AirQuality),
-            Battery: 100,
-          },
-        };
-
-        if (typeof res !== 'undefined' && res !== null) {
-          serviceHelper.sendResponse(res, true, jsonDataObj);
-          next();
-        }
-        resolve(jsonDataObj);
-      });
-    } catch (err) {
-      serviceHelper.log('error', 'houseWeather', err.message);
-      if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, null, err);
-        next();
-      }
-      reject(err);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, true, jsonDataObj);
+      next();
     }
-  }));
+    return jsonDataObj;
+  } catch (err) {
+    serviceHelper.log('error', 'houseWeather', err.message);
+    if (typeof res !== 'undefined' && res !== null) {
+      serviceHelper.sendResponse(res, null, err);
+      next();
+    }
+    return err;
+  }
 }
-skill.get('/inside', houseWeather);
+skill.get('/houseWeather', houseWeather);
 
 module.exports = {
   skill,
