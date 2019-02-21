@@ -41,6 +41,7 @@ async function listLights(req, res, next) {
       return;
     }
 
+    serviceHelper.log('trace', 'listLights', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
@@ -82,6 +83,7 @@ async function listLightGroups(req, res, next) {
       return;
     }
 
+    serviceHelper.log('trace', 'listLightGroups', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
@@ -123,6 +125,7 @@ async function allOff(req, res, next) {
       return;
     }
 
+    serviceHelper.log('trace', 'allOff', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
