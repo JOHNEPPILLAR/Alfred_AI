@@ -1,17 +1,9 @@
 FROM node:11
 
 RUN ln -snf /usr/share/zoneinfo/Europe/London /etc/localtime && echo Europe/London > /etc/timezone \
+  && apt-get update \
   && mkdir -p /home/nodejs/app \
-  && apk --no-cache --virtual build-dependencies add \
-	g++ \
-	gcc \
-	libgcc \
-	libstdc++ \
-	linux-headers \
-	make \
-	python \
-  && npm install --quiet node-gyp -g \
-  && rm -rf /var/cache/apk/*
+  && npm install --quiet node-gyp -g
 
 WORKDIR /home/nodejs/app
 
