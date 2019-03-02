@@ -2,8 +2,6 @@ FROM node:11-alpine
 
 RUN ln -snf /usr/share/zoneinfo/Europe/London /etc/localtime && echo Europe/London > /etc/timezone \
 	&& apk update \
-	&& apk add \
-	&& apt-get -y update \
 	&& mkdir -p /home/nodejs/app 
 
 WORKDIR /home/nodejs/app
