@@ -1,10 +1,7 @@
 node_modules/
 .env
-dev.env
 localDevDocker.sh
 certs/
-*.log
-scheduleSettings.json
 geoHome.json
 geoJPWork.json
 geoFranWork.json
