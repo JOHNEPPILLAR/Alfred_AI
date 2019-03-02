@@ -12,7 +12,7 @@ RUN ln -snf /usr/share/zoneinfo/Europe/London /etc/localtime && echo Europe/Lond
 	python \
   && npm install --quiet node-gyp -g \
   && rm -rf /var/cache/apk/*
-  
+
 WORKDIR /home/nodejs/app
 
 COPY . /home/nodejs/app
@@ -21,6 +21,8 @@ RUN rm -rf node_modules \
     && npm update
 
 RUN npm install --production
+
+RUN npm install pino-elasticsearch -g
 
 CMD [ "npm", "start" ]
 
