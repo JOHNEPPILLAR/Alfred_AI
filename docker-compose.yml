@@ -4,14 +4,14 @@ services:
 
   alfred_lights_service:
     build: .
-    image: alfred_lights_service:latest
-    container_name: alfred_lights_service
+    image: alfred_digital_assistant_service:latest
+    container_name: alfred_digital_assistant_service
     restart: always
     ports:
       - "3981:3981"
     extra_hosts:
       - "alfred_elk_elasticsearch_1:192.168.1.4"
-    hostname: alfred_lights_service
+    hostname: alfred_digital_assistant_service
     networks:
       - alfred
 
