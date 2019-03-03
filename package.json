@@ -4,8 +4,8 @@
   "description": "Alfred Digital Assistant Service",
   "main": "lib/server.js",
   "scripts": {
-    "start": "node lib/server.js | pino-elasticsearch -i alfred -H alfred_elk_elasticsearch_1 -p 9200",
-    "dev": "node lib/server.js"
+    "start": "node lib/server.js | pino-elasticsearch -i alfred -H alfred_elk_elasticsearch_1 -l info",
+    "dev": "nodemon lib/server.js"
   },
   "author": "JP",
   "dependencies": {
