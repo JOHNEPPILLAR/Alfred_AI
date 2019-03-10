@@ -76,7 +76,6 @@ async function listLightGroups(req, res, next) {
     const apiURL = `${process.env.AlfredLightsService}/lights/listlightgroups`;
     serviceHelper.log('trace', 'listLightGroups', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
-
     if (returnData instanceof Error) {
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
