@@ -7,8 +7,8 @@ const serviceHelper = require('../../lib/helper.js');
 const skill = new Skills();
 
 /**
- * @api {get} /roomTempChart
- * @apiName roomTempChart
+ * @api {get} /displayRoomCharts
+ * @apiName displayRoomCharts
  * @apiGroup IoT
  *
  * @apiSuccessExample {json} Success-Response:
@@ -56,9 +56,10 @@ async function displayRoomCharts(req, res, next) {
     let returnData;
 
     switch (roomID) {
-      case '4': // Kids room
+      case '4': // Lottie bed room
+      case '9': // Kitchen / Netatmo
         serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for kids bed room');
-        apiURL = `${process.env.AlfredIoTService}/display/displaynetatmodata?durationSpan=${durationSpan}&roomID=${roomID}`;
+        apiURL = `${process.env.AlfredNetatmoService}/display/displaynetatmodata?durationSpan=${durationSpan}&roomID=${roomID}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', 'displayRoomCharts', returnData.message);
@@ -70,9 +71,9 @@ async function displayRoomCharts(req, res, next) {
         serviceHelper.sendResponse(res, true, returnData.data);
         next();
         break;
-      case '5': // Main bed room
+      case '5': // Main bed room / Dyson
         serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for main bed room');
-        apiURL = `${process.env.AlfredIoTService}/display/displaydysonpurecooldata?durationSpan=${durationSpan}`;
+        apiURL = `${process.env.AlfredDysonService}/display/displaydysonpurecooldata?durationSpan=${durationSpan}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', 'displayRoomCharts', returnData.message);
@@ -84,23 +85,9 @@ async function displayRoomCharts(req, res, next) {
         serviceHelper.sendResponse(res, true, returnData.data);
         next();
         break;
-      case '8': // Living area
+      case '8': // Living area / Inkbird
         serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for living area');
         apiURL = `${process.env.AlfredInkBirdService}/display/inkbirddata?durationSpan=${durationSpan}`;
-        returnData = await serviceHelper.callAlfredServiceGet(apiURL);
-        if (returnData instanceof Error) {
-          serviceHelper.log('error', 'displayRoomCharts', returnData.message);
-          serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
-          next();
-          return;
-        }
-        serviceHelper.log('trace', 'displayRoomCharts', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, true, returnData.data);
-        next();
-        break;
-      case '9': // Kitchen
-        serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for kitchen');
-        apiURL = `${process.env.AlfredIoTService}/display/displaynetatmodata?durationSpan=${durationSpan}&roomID=${roomID}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', 'displayRoomCharts', returnData.message);

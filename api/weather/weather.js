@@ -371,37 +371,44 @@ async function houseWeather(req, res, next) {
   try {
     // Dyson purecool fan
     serviceHelper.log('trace', 'houseWeather', 'Getting latest Dyson data');
-    let apiURL = `${process.env.AlfredIoTService}/display/dysonpurecoollatest`;
+    let apiURL = `${process.env.AlfredDysonService}/display/dysonpurecoollatest`;
     const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     // Netatmo sensors
     serviceHelper.log('trace', 'houseWeather', 'Getting latest Netatmo data');
-    apiURL = `${process.env.AlfredIoTService}/display/netatmolatest`;
+    apiURL = `${process.env.AlfredNetatmoService}/display/netatmolatest`;
     const restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     // Inkbird sensors
-    serviceHelper.log('trace', 'houseWeather', 'Getting latest Living room data');
+    serviceHelper.log('trace', 'houseWeather', 'Getting latest inkBird data');
     apiURL = `${process.env.AlfredInkBirdService}/display/inkbirdlatest`;
     const livingRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     // Construct returning data
+    serviceHelper.log('trace', 'houseWeather', 'Construct returning data');
     let jsonDataObj = [];
-    if (mainBedRoomData.data.length > 0) jsonDataObj = mainBedRoomData.data;
-    if (restOfTheHouseData.data.length > 0) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
-    if (typeof livingRoomData.data !== 'undefined') jsonDataObj.push(livingRoomData.data);
+    if (mainBedRoomData instanceof Error === false) jsonDataObj = mainBedRoomData.data;
+    if (restOfTheHouseData instanceof Error === false) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
+    if (livingRoomData instanceof Error === false) jsonDataObj.push(livingRoomData.data);
 
+    if (jsonDataObj.length === 0) {
+      serviceHelper.log('error', 'houseWeather', 'No results');
+      serviceHelper.sendResponse(res, null, 'No results');
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'houseWeather', 'Send data back to user');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, true, jsonDataObj);
       next();
     }
-    return jsonDataObj;
   } catch (err) {
     serviceHelper.log('error', 'houseWeather', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
     }
-    return err;
   }
 }
 skill.get('/houseWeather', houseWeather);
