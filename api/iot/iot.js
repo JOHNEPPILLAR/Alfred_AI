@@ -44,12 +44,14 @@ async function displayRoomCharts(req, res, next) {
   try {
     serviceHelper.log('trace', 'displayRoomCharts', JSON.stringify(req.query));
 
-    const { durationSpan } = req.query;
-    let { roomID } = req.query;
+    const { durationSpan, roomID } = req.query;
 
     // Check key params are valid
     if (typeof roomID === 'undefined' || roomID === null || roomID === '') {
-      roomID = '8'; // Living room
+      // roomID = '8'; // Living room
+      serviceHelper.sendResponse(res, 400, 'Missing param: roomID');
+      next();
+      return;
     }
 
     let apiURL;
@@ -57,6 +59,7 @@ async function displayRoomCharts(req, res, next) {
 
     switch (roomID) {
       case '4': // Lottie bed room
+      case '8': // Living room / Netatmo
       case '9': // Kitchen / Netatmo
         serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for kids bed room');
         apiURL = `${process.env.AlfredNetatmoService}/display/displaynetatmodata?durationSpan=${durationSpan}&roomID=${roomID}`;
@@ -74,20 +77,6 @@ async function displayRoomCharts(req, res, next) {
       case '5': // Main bed room / Dyson
         serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for main bed room');
         apiURL = `${process.env.AlfredDysonService}/display/displaydysonpurecooldata?durationSpan=${durationSpan}`;
-        returnData = await serviceHelper.callAlfredServiceGet(apiURL);
-        if (returnData instanceof Error) {
-          serviceHelper.log('error', 'displayRoomCharts', returnData.message);
-          serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
-          next();
-          return;
-        }
-        serviceHelper.log('trace', 'displayRoomCharts', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, true, returnData.data);
-        next();
-        break;
-      case '8': // Living area / Inkbird
-        serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for living area');
-        apiURL = `${process.env.AlfredInkBirdService}/display/inkbirddata?durationSpan=${durationSpan}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', 'displayRoomCharts', returnData.message);

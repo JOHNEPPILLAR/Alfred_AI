@@ -2,14 +2,14 @@ version: '3.5'
 
 services:
 
-  alfred_digital_assistant_service:
+  alfred_controller_service:
     build: .
-    image: alfred_digital_assistant_service:latest
-    container_name: alfred_digital_assistant_service
+    image: alfred_controller_service:latest
+    container_name: alfred_controller_service
     restart: always
     ports:
-      - "3981:3981"
-    hostname: alfred_digital_assistant_service
+      - "3981:3978"
+    hostname: alfred_controller_service
     networks:
       - alfred
 

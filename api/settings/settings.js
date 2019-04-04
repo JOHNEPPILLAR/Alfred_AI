@@ -14,21 +14,21 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     "data": {
- *       "command": "SELECT",
- *       "rowCount": 7,
- *       "oid": null,
- *       "rows": [
- *           {
- *               "id": 1,
- *               "name": "Morning lights off",
- *               "hour": 8,
- *               "minute": 30,
- *               "ai_override": false,
- *               "active": true
- *           },
- *           ...
- *         }
+ *      "data": [
+ *       {
+ *           "id": 1,
+ *           "type": 0,
+ *           "name": "Morning all lights off",
+ *           "hour": 8,
+ *           "minute": 30,
+ *           "ai_override": false,
+ *           "active": true,
+ *           "light_group_number": 0,
+ *           "brightness": null,
+ *           "scene": null,
+ *           "color_loop": false
+ *       },
+ *       ...
  *     ]
  *   }
  *
@@ -42,8 +42,10 @@ const skill = new Skills();
 async function listSchedules(req, res, next) {
   serviceHelper.log('trace', 'listSchedules', 'list Schedules API called');
 
+  const { roomNumber } = req.query;
+
   try {
-    const apiURL = `${process.env.AlfredScheduleService}/schedule/list`;
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/list?roomNumber=${roomNumber}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
@@ -63,6 +65,66 @@ async function listSchedules(req, res, next) {
   }
 }
 skill.get('/listSchedules', listSchedules);
+
+/**
+ * @api {get} /getSchedule
+ * @apiName getSchedule
+ * @apiGroup Settings
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *      "data": [
+ *       {
+ *           "id": 1,
+ *           "type": 0,
+ *           "name": "Morning all lights off",
+ *           "hour": 8,
+ *           "minute": 30,
+ *           "ai_override": false,
+ *           "active": true,
+ *           "light_group_number": 0,
+ *           "brightness": null,
+ *           "scene": null,
+ *           "color_loop": false
+ *       },
+ *       ...
+ *     ]
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 400 Bad Request
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function getSchedule(req, res, next) {
+  serviceHelper.log('trace', 'getSchedule', 'get Schedule API called');
+
+  const { scheduleID } = req.query;
+
+  try {
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/get?scheduleID=${scheduleID}`;
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
+
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', 'getSchedule', returnData.message);
+      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'getSchedule', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, true, returnData.data);
+    next();
+  } catch (err) {
+    serviceHelper.log('error', 'getSchedule', err.message);
+    serviceHelper.sendResponse(res, false, err);
+    next();
+  }
+}
+skill.get('/getSchedule', getSchedule);
 
 /**
  * @api {put} /saveSchedule

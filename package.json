@@ -1,7 +1,7 @@
 {
-  "name": "alfred_digital_assistant_service",
+  "name": "alfred_controller_service",
   "version": "2.0.0",
-  "description": "Alfred Digital Assistant Service",
+  "description": "Alfred Controller Service",
   "main": "lib/server.js",
   "scripts": {
     "start": "node lib/server.js | pino-elasticsearch -i alfred -H alfred_elk_elasticsearch_1 -l info",
