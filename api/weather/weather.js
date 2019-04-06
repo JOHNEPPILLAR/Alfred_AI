@@ -380,16 +380,16 @@ async function houseWeather(req, res, next) {
     const restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     // Inkbird sensors
-    //serviceHelper.log('trace', 'houseWeather', 'Getting latest inkBird data');
-    //apiURL = `${process.env.AlfredInkBirdService}/display/inkbirdlatest`;
-    //const livingRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+    // serviceHelper.log('trace', 'houseWeather', 'Getting latest inkBird data');
+    // apiURL = `${process.env.AlfredInkBirdService}/display/inkbirdlatest`;
+    // const livingRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     // Construct returning data
     serviceHelper.log('trace', 'houseWeather', 'Construct returning data');
     let jsonDataObj = [];
     if (mainBedRoomData instanceof Error === false) jsonDataObj = mainBedRoomData.data;
     if (restOfTheHouseData instanceof Error === false) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
-    //if (livingRoomData instanceof Error === false) jsonDataObj.push(livingRoomData.data);
+    // if (livingRoomData instanceof Error === false) jsonDataObj.push(livingRoomData.data);
 
     if (jsonDataObj.length === 0) {
       serviceHelper.log('error', 'houseWeather', 'No results');
