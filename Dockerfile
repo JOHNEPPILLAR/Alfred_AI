@@ -17,7 +17,8 @@ WORKDIR /home/nodejs/app
 
 COPY . /home/nodejs/app
 
-RUN npm install --production \
+RUN rm -rf node_modules \
+	&& npm install --production \
 	&& npm install pino-elasticsearch -g
 
 CMD [ "npm", "start" ]
