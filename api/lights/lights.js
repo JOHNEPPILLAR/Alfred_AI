@@ -29,23 +29,24 @@ const skill = new Skills();
  *
  */
 async function listLights(req, res, next) {
-  serviceHelper.log('trace', 'listLights', 'listLights API called');
+  serviceHelper.log('trace', 'listLights API called');
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/listlights`;
-    serviceHelper.log('trace', 'listLights', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return;
     }
 
-    serviceHelper.log('trace', 'listLights', 'Sending data back to caller');
+    serviceHelper.log('trace', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'listLights', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -71,22 +72,23 @@ skill.get('/listlights', listLights);
  *
  */
 async function listLightGroups(req, res, next) {
-  serviceHelper.log('trace', 'listLightGroups', 'listLightGroups API called');
+  serviceHelper.log('trace', 'listLightGroups API called');
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/listlightgroups`;
-    serviceHelper.log('trace', 'listLightGroups', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return;
     }
 
-    serviceHelper.log('trace', 'listLightGroups', 'Sending data back to caller');
+    serviceHelper.log('trace', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'listLightGroups', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -112,23 +114,24 @@ skill.get('/listlightgroups', listLightGroups);
  *
  */
 async function allOff(req, res, next) {
-  serviceHelper.log('trace', 'allOff', 'allOff API called');
+  serviceHelper.log('trace', 'allOff API called');
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/alloff`;
-    serviceHelper.log('trace', 'allOff', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return;
     }
 
-    serviceHelper.log('trace', 'allOff', 'Sending data back to caller');
+    serviceHelper.log('trace', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'allOff', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -161,8 +164,8 @@ skill.get('/alloff', allOff);
  *
  */
 async function lightOnOff(req, res, next) {
-  serviceHelper.log('trace', 'lightOnOff', 'lightOnOff API called');
-  serviceHelper.log('trace', 'lightOnOff', JSON.stringify(req.body));
+  serviceHelper.log('trace', 'lightOnOff API called');
+  serviceHelper.log('trace', JSON.stringify(req.body));
 
   const { lightNumber, lightAction } = req.body;
 
@@ -180,10 +183,11 @@ async function lightOnOff(req, res, next) {
 
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightonoff`;
-    serviceHelper.log('trace', 'lightOnOff', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return false;
@@ -191,7 +195,7 @@ async function lightOnOff(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightOnOff', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -225,8 +229,8 @@ skill.put('/lightonoff', lightOnOff);
  *
  */
 async function lightGroupOnOff(req, res, next) {
-  serviceHelper.log('trace', 'lightGroupOnOff', 'lightGroupOnOff API called');
-  serviceHelper.log('trace', 'lightGroupOnOff', JSON.stringify(req.body));
+  serviceHelper.log('trace', 'lightGroupOnOff API called');
+  serviceHelper.log('trace', JSON.stringify(req.body));
 
   const { lightGroupNumber, lightAction } = req.body;
 
@@ -244,10 +248,11 @@ async function lightGroupOnOff(req, res, next) {
 
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightgrouponoff`;
-    serviceHelper.log('trace', 'lightGroupOnOff', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return false;
@@ -256,7 +261,7 @@ async function lightGroupOnOff(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightGroupOnOff', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -286,8 +291,8 @@ skill.put('/lightgrouponoff', lightGroupOnOff);
  *
  */
 async function lightBrightness(req, res, next) {
-  serviceHelper.log('trace', 'lightBrightness', 'lightBrightness API called');
-  serviceHelper.log('trace', 'lightBrightness', JSON.stringify(req.body));
+  serviceHelper.log('trace', 'lightBrightness API called');
+  serviceHelper.log('trace', JSON.stringify(req.body));
 
   const { lightNumber, brightness } = req.body;
 
@@ -305,10 +310,11 @@ async function lightBrightness(req, res, next) {
 
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightbrightness`;
-    serviceHelper.log('trace', 'lightBrightness', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return false;
@@ -317,7 +323,7 @@ async function lightBrightness(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightBrightness', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }
@@ -347,8 +353,8 @@ skill.put('/lightbrightness', lightBrightness);
  *
  */
 async function lightGroupBrightness(req, res, next) {
-  serviceHelper.log('trace', 'lightGroupBrightness', 'lightGroupBrightness API called');
-  serviceHelper.log('trace', 'lightGroupBrightness', JSON.stringify(req.body));
+  serviceHelper.log('trace', 'lightGroupBrightness API called');
+  serviceHelper.log('trace', JSON.stringify(req.body));
 
   const { lightGroupNumber, brightness } = req.body;
 
@@ -366,10 +372,11 @@ async function lightGroupBrightness(req, res, next) {
 
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightgroupbrightness`;
-    serviceHelper.log('trace', 'lightGroupBrightness', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
 
     if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
       serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
       next();
       return false;
@@ -378,7 +385,7 @@ async function lightGroupBrightness(req, res, next) {
     serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'lightGroupBrightness', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
     next();
   }

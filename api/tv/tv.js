@@ -30,21 +30,21 @@ const skill = new Skills();
  *
  */
 async function watchFireTv(req, res, next) {
-  serviceHelper.log('trace', 'watchFireTv', 'watchFireTv API called');
+  serviceHelper.log('trace', 'watchFireTv API called');
   try {
     const harmonyClient = await harmony(process.env.HarmonyIP);
-    serviceHelper.log('trace', 'watchFireTv', 'Performing harmony task');
+    serviceHelper.log('trace', 'Performing harmony task');
     harmonyClient.startActivity(25026204); // Fire TV ID
     harmonyClient.end();
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.log('trace', 'watchFireTv', 'Turned on Fire TV');
+      serviceHelper.log('trace', 'Turned on Fire TV');
       serviceHelper.sendResponse(res, true, 'Turned on Fire TV');
       next();
     } else {
       return 'Turned on Fire TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchFireTv', err.message);
+    serviceHelper.log('trace', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -75,21 +75,21 @@ skill.get('/watchfiretv', watchFireTv);
  *
  */
 async function watchVirginTv(req, res, next) {
-  serviceHelper.log('trace', 'watchVirginTv', 'watchVirginTv API called');
+  serviceHelper.log('trace', 'watchVirginTv API called');
   try {
     const harmonyClient = await harmony(process.env.HarmonyIP);
-    serviceHelper.log('trace', 'watchVirginTv', 'Performing harmony task');
+    serviceHelper.log('trace', 'Performing harmony task');
     harmonyClient.startActivity(22797599); // Virgin TV ID
     harmonyClient.end();
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.log('trace', 'watchVirginTv', 'Turned on Virgin TV');
+      serviceHelper.log('trace', 'Turned on Virgin TV');
       serviceHelper.sendResponse(res, true, 'Turned on Virgin TV');
       next();
     } else {
       return 'Turned on Virgin TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchVirginTv', err.message);
+    serviceHelper.log('trace', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -120,21 +120,21 @@ skill.get('/watchvirgintv', watchVirginTv);
  *
  */
 async function playPS4(req, res, next) {
-  serviceHelper.log('trace', 'playPS4', 'playPS4 API called');
+  serviceHelper.log('trace', 'playPS4 API called');
   try {
     const harmonyClient = await harmony(process.env.HarmonyIP);
-    serviceHelper.log('trace', 'playPS4', 'Performing harmony task');
+    serviceHelper.log('trace', 'Performing harmony task');
     harmonyClient.startActivity(23898791); // PS4 ID
     harmonyClient.end();
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.log('trace', 'playPS4', 'Turned on PS4');
+      serviceHelper.log('trace', 'Turned on PS4');
       serviceHelper.sendResponse(res, true, 'Turned on PS4');
       next();
     } else {
       return 'Turned on PS4';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'playPS4', err.message);
+    serviceHelper.log('trace', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -165,21 +165,21 @@ skill.get('/playps4', playPS4);
  *
  */
 async function turnOffTV(req, res, next) {
-  serviceHelper.log('trace', 'turnOffTV', 'turnOffTV API called');
+  serviceHelper.log('trace', 'turnOffTV API called');
   try {
     const harmonyClient = await harmony(process.env.HarmonyIP);
-    serviceHelper.log('trace', 'turnOffTV', 'Performing harmony task');
+    serviceHelper.log('trace', 'Performing harmony task');
     harmonyClient.startActivity(-1); // All off ID
     harmonyClient.end();
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.log('trace', 'turnOffTV', 'Turned off living room TV');
+      serviceHelper.log('trace', 'Turned off living room TV');
       serviceHelper.sendResponse(res, true, 'Turned off living room TV');
       next();
     } else {
       return 'Turned off living room TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'turnOffTV', err.message);
+    serviceHelper.log('trace', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();
@@ -210,21 +210,21 @@ skill.get('/turnoff', turnOffTV);
  *
  */
 async function watchAppleTV(req, res, next) {
-  serviceHelper.log('trace', 'watchAppleTV', 'watchAppleTV API called');
+  serviceHelper.log('trace', 'watchAppleTV API called');
   try {
     const harmonyClient = await harmony(process.env.HarmonyIP);
-    serviceHelper.log('trace', 'watchAppleTV', 'Performing harmony task');
+    serviceHelper.log('trace', 'Performing harmony task');
     harmonyClient.startActivity(22797639); // Apple TV ID
     harmonyClient.end();
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.log('trace', 'watchAppleTV', 'Turned on Apple TV');
+      serviceHelper.log('trace', 'Turned on Apple TV');
       serviceHelper.sendResponse(res, true, 'Turned on Apple TV');
       next();
     } else {
       return 'Turned on Apple TV';
     }
   } catch (err) {
-    serviceHelper.log('trace', 'watchAppleTV', err.message);
+    serviceHelper.log('trace', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, null, err);
       next();

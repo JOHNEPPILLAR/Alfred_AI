@@ -29,7 +29,7 @@ const skill = new Skills();
  *
  */
 function ping(req, res, next) {
-  serviceHelper.log('trace', 'ping', 'Ping API called');
+  serviceHelper.log('trace', 'Ping API called');
   const ackJSON = {
     service: process.env.ServiceName,
     reply: 'pong',
@@ -82,7 +82,7 @@ async function display(req, res, next) {
     }
 
     const apiURL = `${process.env.AlfredLogService}/display`;
-    serviceHelper.log('trace', 'display', `Calling: ${apiURL}`);
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) throw Error(returnData.message);
@@ -92,7 +92,7 @@ async function display(req, res, next) {
       next();
     }
   } catch (err) {
-    serviceHelper.log('error', 'display', err.message);
+    serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, false, err.message);
       next();

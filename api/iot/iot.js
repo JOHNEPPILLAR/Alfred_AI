@@ -39,10 +39,10 @@ const skill = new Skills();
  *
  */
 async function displayRoomCharts(req, res, next) {
-  serviceHelper.log('trace', 'displayRoomCharts', 'Display room temp data API called');
+  serviceHelper.log('trace', 'Display room temp data API called');
 
   try {
-    serviceHelper.log('trace', 'displayRoomCharts', JSON.stringify(req.query));
+    serviceHelper.log('trace', JSON.stringify(req.query));
 
     const { durationSpan, roomID } = req.query;
 
@@ -61,42 +61,42 @@ async function displayRoomCharts(req, res, next) {
       case '4': // Lottie bed room
       case '8': // Living room / Netatmo
       case '9': // Kitchen / Netatmo
-        serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for kids bed room');
+        serviceHelper.log('trace', 'Getting chart data for kids bed room');
         apiURL = `${process.env.AlfredNetatmoService}/display/displaynetatmodata?durationSpan=${durationSpan}&roomID=${roomID}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
-          serviceHelper.log('error', 'displayRoomCharts', returnData.message);
+          serviceHelper.log('error', returnData.message);
           serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
           next();
           return;
         }
-        serviceHelper.log('trace', 'displayRoomCharts', 'Sending data back to caller');
+        serviceHelper.log('trace', 'Sending data back to caller');
         serviceHelper.sendResponse(res, true, returnData.data);
         next();
         break;
       case '5': // Main bed room / Dyson
-        serviceHelper.log('trace', 'displayRoomCharts', 'Getting chart data for main bed room');
+        serviceHelper.log('trace', 'Getting chart data for main bed room');
         apiURL = `${process.env.AlfredDysonService}/display/displaydysonpurecooldata?durationSpan=${durationSpan}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
-          serviceHelper.log('error', 'displayRoomCharts', returnData.message);
+          serviceHelper.log('error', returnData.message);
           serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
           next();
           return;
         }
-        serviceHelper.log('trace', 'displayRoomCharts', 'Sending data back to caller');
+        serviceHelper.log('trace', 'Sending data back to caller');
         serviceHelper.sendResponse(res, true, returnData.data);
         next();
         break;
       default:
-        serviceHelper.log('trace', 'displayRoomCharts', 'Sending data back to caller');
+        serviceHelper.log('trace', 'Sending data back to caller');
         serviceHelper.sendResponse(res, false, 'No room selected');
         next();
         break;
     }
   } catch (err) {
-    serviceHelper.log('error', 'displayRoomCharts', err);
-    serviceHelper.sendResponse(res, false, err);
+    serviceHelper.log('error', err.message);
+    serviceHelper.sendResponse(res, false, err.message);
     next();
   }
 }

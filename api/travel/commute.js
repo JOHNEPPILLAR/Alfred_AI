@@ -34,14 +34,14 @@ const skill = new Skills();
  *
  */
 async function getCommuteStatus(req, res, next) {
-  serviceHelper.log('trace', 'getCommuteStatus', 'getCommuteStatus API called');
+  serviceHelper.log('trace', 'getCommuteStatus API called');
 
   const { user } = req.query;
   let anyDisruptions = false;
 
-  serviceHelper.log('trace', 'getCommuteStatus', 'Checking for params');
+  serviceHelper.log('trace', 'Checking for params');
   if (typeof user === 'undefined' || user === null || user === '') {
-    serviceHelper.log('info', 'getCommuteStatus', 'Missing param: user');
+    serviceHelper.log('info', 'Missing param: user');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: user');
       next();
@@ -52,9 +52,9 @@ async function getCommuteStatus(req, res, next) {
   let apiData;
   switch (user.toUpperCase()) {
     case 'FRAN':
-      serviceHelper.log('trace', 'getCommuteStatus', 'User is Fran');
+      serviceHelper.log('trace', 'User is Fran');
       try {
-        serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
+        serviceHelper.log('trace', 'Get train status');
         apiData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'CHX' } }, null, next);
         if (apiData.disruptions === 'true') anyDisruptions = true;
 
@@ -71,7 +71,7 @@ async function getCommuteStatus(req, res, next) {
         }
         return returnJSON;
       } catch (err) {
-        serviceHelper.log('error', 'getCommuteStatus', err.message);
+        serviceHelper.log('error', err.message);
         if (typeof res !== 'undefined' && res !== null) {
           serviceHelper.sendResponse(res, false, err);
           next();
@@ -79,9 +79,9 @@ async function getCommuteStatus(req, res, next) {
         return err;
       }
     case 'JP':
-      serviceHelper.log('trace', 'getCommuteStatus', 'User is JP');
+      serviceHelper.log('trace', 'User is JP');
       try {
-        serviceHelper.log('trace', 'getCommuteStatus', 'Get train status');
+        serviceHelper.log('trace', 'Get train status');
         apiData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
         if (apiData.disruptions === 'true') anyDisruptions = true;
         apiData = await travelHelper.trainStatus({ body: { fromStation: 'LBG', toStation: 'CTN' } }, null, next);
@@ -93,7 +93,7 @@ async function getCommuteStatus(req, res, next) {
         }
         return returnJSON;
       } catch (err) {
-        serviceHelper.log('error', 'getCommuteStatus', err.message);
+        serviceHelper.log('error', err.message);
         if (typeof res !== 'undefined' && res !== null) {
           serviceHelper.sendResponse(res, false, err);
           next();
@@ -141,7 +141,7 @@ function returnCommuteError(message, req, res, next) {
     disruptions: 'true',
     status: message,
   });
-  serviceHelper.log('trace', 'returnCommuteError', message);
+  serviceHelper.log('trace', message);
   journeys.push({ legs });
   const returnJSON = { journeys };
   if (typeof res !== 'undefined' && res !== null) {
@@ -151,7 +151,7 @@ function returnCommuteError(message, req, res, next) {
 }
 
 async function getCommute(req, res, next) {
-  serviceHelper.log('trace', 'getCommute', 'getCommute API called');
+  serviceHelper.log('trace', 'getCommute API called');
 
   const {
     user, lat, long,
@@ -166,9 +166,9 @@ async function getCommute(req, res, next) {
   const walkToUndergroundLeg = {};
   const tubeLeg = {};
 
-  serviceHelper.log('trace', 'getCommute', 'Checking for params');
+  serviceHelper.log('trace', 'Checking for params');
   if (typeof user === 'undefined' || user === null || user === '') {
-    serviceHelper.log('info', 'getCommute', 'Missing param: user');
+    serviceHelper.log('info', 'Missing param: user');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: user');
       next();
@@ -178,7 +178,7 @@ async function getCommute(req, res, next) {
 
   if ((typeof lat === 'undefined' && lat === null && lat === '')
         || (typeof long === 'undefined' && long === null && long === '')) {
-    serviceHelper.log('info', 'getCommute', 'Missing param: lat/long');
+    serviceHelper.log('info', 'Missing param: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: lat/long');
       next();
@@ -186,22 +186,22 @@ async function getCommute(req, res, next) {
     return false;
   }
 
-  serviceHelper.log('trace', 'getCommute', 'Find out if caller is at home location');
+  serviceHelper.log('trace', 'Find out if caller is at home location');
   atHome = serviceHelper.inHomeGeoFence(lat, long);
 
   switch (user.toUpperCase()) {
     case 'FRAN':
-      serviceHelper.log('trace', 'getCommute', 'User is Fran');
+      serviceHelper.log('trace', 'User is Fran');
       //
       // *** TO DO ***
       //
       break;
     case 'JP':
-      serviceHelper.log('trace', 'getCommute', 'User is JP');
+      serviceHelper.log('trace', 'User is JP');
       if (atHome) {
-        serviceHelper.log('trace', 'getCommute', 'Current location is close to home');
+        serviceHelper.log('trace', 'Current location is close to home');
 
-        serviceHelper.log('trace', 'getCommute', 'Checking train and tube status');
+        serviceHelper.log('trace', 'Checking train and tube status');
         const trainData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
 
         // trainData.disruptions = 'true' // Force to debug and see what tube would look like 
@@ -221,7 +221,7 @@ async function getCommute(req, res, next) {
 
           const legs = [];
           legs.push(apiData[0]);
-          serviceHelper.log('trace', 'getCommute', 'Add train leg');
+          serviceHelper.log('trace', 'Add train leg');
 
           // Add walking leg
           walkLeg.mode = 'walk';
@@ -232,7 +232,7 @@ async function getCommute(req, res, next) {
           walkLeg.departureStation = 'London Bridge';
           walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
           walkLeg.arrivalStation = 'WeWork';
-          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          serviceHelper.log('trace', 'Add walking leg');
           legs.push(walkLeg);
 
           journeys.push({ legs });
@@ -254,7 +254,7 @@ async function getCommute(req, res, next) {
           busLeg.departureStation = 'Home';
           busLeg.arrivalTime = serviceHelper.addTime(busLeg.departureTime, busLeg.duration);
           busLeg.arrivalStation = 'North Greenwich';
-          serviceHelper.log('trace', 'getCommute', 'Add bus leg');
+          serviceHelper.log('trace', 'Add bus leg');
           legs.push(busLeg);
 
           // Add walk to underground leg
@@ -266,7 +266,7 @@ async function getCommute(req, res, next) {
           walkToUndergroundLeg.departureStation = 'Change';
           walkToUndergroundLeg.arrivalTime = serviceHelper.addTime(walkToUndergroundLeg.departureTime, walkToUndergroundLeg.duration);
           walkToUndergroundLeg.arrivalStation = 'Underground';
-          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          serviceHelper.log('trace', 'Add walking leg');
           legs.push(walkToUndergroundLeg);
 
           // Add tube leg
@@ -295,7 +295,7 @@ async function getCommute(req, res, next) {
           walkLeg.departureStation = 'London Bridge';
           walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
           walkLeg.arrivalStation = 'WeWork';
-          serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+          serviceHelper.log('trace', 'Add walking leg');
           legs.push(walkLeg);
 
           journeys.push({ legs });
@@ -303,7 +303,7 @@ async function getCommute(req, res, next) {
       }
 
       if (atJPWork) {
-        serviceHelper.log('trace', 'getCommute', 'Current location is close to work');
+        serviceHelper.log('trace', 'Current location is close to work');
         const legs = [];
 
         // Add walking leg
@@ -315,11 +315,11 @@ async function getCommute(req, res, next) {
         walkLeg.departureStation = 'WeWork';
         walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
         walkLeg.arrivalStation = 'London Bridge';
-        serviceHelper.log('trace', 'getCommute', 'Add walking leg');
+        serviceHelper.log('trace', 'Add walking leg');
         legs.push(walkLeg);
 
         // Add train leg
-        serviceHelper.log('trace', 'getCommute', 'Check train status');
+        serviceHelper.log('trace', 'Check train status');
         const trainData = await travelHelper.trainStatus({ body: { fromStation: 'LBG', toStation: 'CTN' } }, null, next);
         if (trainData.disruptions === 'false') {
           const timeOffset = serviceHelper.timeDiff(null, walkLeg.arrivalTime, null, true);
@@ -335,10 +335,10 @@ async function getCommute(req, res, next) {
           }
 
           legs.push(apiData[0]);
-          serviceHelper.log('trace', 'getCommute', 'Add train leg');
+          serviceHelper.log('trace', 'Add train leg');
           journeys.push({ legs });
         } else {
-          serviceHelper.log('trace', 'getCommute', 'Calc backup journey, check train status');
+          serviceHelper.log('trace', 'Calc backup journey, check train status');
           const tubeData = await travelHelper.tubeStatus({ body: { line: 'Jubilee' } }, null, next);
 
           if (tubeData.disruptions === 'true') {
@@ -372,7 +372,7 @@ async function getCommute(req, res, next) {
           busLeg.departureStation = 'North Greenwich';
           busLeg.arrivalTime = serviceHelper.addTime(busLeg.departureTime, busLeg.duration);
           busLeg.arrivalStation = 'Home';
-          serviceHelper.log('trace', 'getCommute', 'Add bus leg');
+          serviceHelper.log('trace', 'Add bus leg');
           legs.push(busLeg);
 
           journeys.push({ legs });
@@ -380,7 +380,7 @@ async function getCommute(req, res, next) {
       }
 
       if (!atHome && !atJPWork) {
-        serviceHelper.log('trace', 'getCommute', 'Add not at home or work');
+        serviceHelper.log('trace', 'Add not at home or work');
         if (typeof res !== 'undefined' && res !== null) {
           returnCommuteError('Unable to calculate commute due to starting location', req, res, next);
         }
@@ -388,7 +388,7 @@ async function getCommute(req, res, next) {
       }
       break;
     default:
-      serviceHelper.log('error', 'getCommute', `User ${user} is not supported`);
+      serviceHelper.log('error', `User ${user} is not supported`);
       if (typeof res !== 'undefined' && res !== null) {
         serviceHelper.sendResponse(res, 400, `User ${user} is not supported`);
         next();
@@ -396,7 +396,7 @@ async function getCommute(req, res, next) {
       return false;
   }
 
-  serviceHelper.log('trace', 'getCommute', 'Send data back to caller');
+  serviceHelper.log('trace', 'Send data back to caller');
   const returnJSON = {
     journeys,
   };

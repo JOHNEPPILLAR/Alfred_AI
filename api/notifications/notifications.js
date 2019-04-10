@@ -29,20 +29,20 @@ const skill = new Skills();
  *
  */
 async function register(req, res, next) {
-  serviceHelper.log('trace', 'register', 'register API called');
+  serviceHelper.log('trace', 'register API called');
 
   const deviceToken = req.body.device;
   const deviceUser = req.body.user;
 
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
-    serviceHelper.log('trace', 'register', 'Missing param: deviceToken');
+    serviceHelper.log('trace', 'Missing param: deviceToken');
     serviceHelper.sendResponse(res, 400, 'Missing param: deviceToken');
     next();
     return;
   }
 
   if (typeof deviceUser === 'undefined' || deviceUser === null) {
-    serviceHelper.log('trace', 'register', 'Missing param: deviceUser');
+    serviceHelper.log('trace', 'Missing param: deviceUser');
     serviceHelper.sendResponse(res, 400, 'Missing param: deviceUser');
     next();
     return;
@@ -56,24 +56,24 @@ async function register(req, res, next) {
       deviceUser,
     ];
 
-    serviceHelper.log('trace', 'register', 'Connect to data store connection pool');
+    serviceHelper.log('trace', 'Connect to data store connection pool');
     const dbClient = await global.devicesDataClient.connect(); // Connect to data store
-    serviceHelper.log('trace', 'register', 'Save device data');
+    serviceHelper.log('trace', 'Save device data');
     const results = await dbClient.query(SQL, SQLValues);
-    serviceHelper.log('trace', 'register', 'Release the data store connection back to the pool');
+    serviceHelper.log('trace', 'Release the data store connection back to the pool');
     await dbClient.release(); // Return data store connection back to pool
 
     if (results.rowCount !== 1) {
-      serviceHelper.log('error', 'register', `Failed to insert/update data for device: ${deviceToken}`);
+      serviceHelper.log('error', `Failed to insert/update data for device: ${deviceToken}`);
       serviceHelper.sendResponse(res, false, `Failed to insert/update data for device: ${deviceToken}`);
       next();
       return;
     }
-    serviceHelper.log('info', 'register', `Registered/updated device : ${deviceToken}`);
+    serviceHelper.log('info', `Registered/updated device : ${deviceToken}`);
     serviceHelper.sendResponse(res, true, `Registered device : ${deviceToken}`);
     next();
   } catch (err) {
-    serviceHelper.log('error', 'register', err.message);
+    serviceHelper.log('error', err.message);
     serviceHelper.sendResponse(res, false, err);
     next();
   }

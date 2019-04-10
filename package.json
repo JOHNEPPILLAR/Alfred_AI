@@ -27,7 +27,8 @@
     "restify-router": "latest",
     "underscore": "latest",
     "pino": "latest",
-    "pino-pretty": "latest"
+    "pino-pretty": "latest",
+    "path": "latest"
   },
   "devDependencies": {
     "eslint": "latest",
