@@ -368,17 +368,29 @@ skill.get('/willitrain', willItRain);
  */
 async function houseWeather(req, res, next) {
   serviceHelper.log('trace', 'houseWeather API called');
+  let mainBedRoomData;
+  let restOfTheHouseData;
+  let apiURL;
+
   try {
     // Dyson purecool fan
     serviceHelper.log('trace', 'Getting latest Dyson data');
-    let apiURL = `${process.env.AlfredDysonService}/display/dysonpurecoollatest`;
-    const mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+    apiURL = `${process.env.AlfredDysonService}/display/dysonpurecoollatest`;
+    mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+  } catch (err) {
+    serviceHelper.log('error', err.message);
+  }
 
+  try {
     // Netatmo sensors
     serviceHelper.log('trace', 'Getting latest Netatmo data');
     apiURL = `${process.env.AlfredNetatmoService}/display/netatmolatest`;
-    const restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
+    restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
+  } catch (err) {
+    serviceHelper.log('error', err.message);
+  }
 
+  try {
     // Construct returning data
     serviceHelper.log('trace', 'Construct returning data');
     let jsonDataObj = [];
