@@ -10,11 +10,4 @@ services:
     ports:
       - "3981:3978"
     hostname: alfred_controller_service
-    networks:
-      - alfred
-
-networks:
-
-  alfred:
-    name: alfred
-    driver: bridge
+   
