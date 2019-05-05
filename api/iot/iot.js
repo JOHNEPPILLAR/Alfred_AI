@@ -58,7 +58,7 @@ async function displayRoomCharts(req, res, next) {
     let returnData;
 
     switch (roomID) {
-      case '4': // Lottie bed room
+      case '4': // Kids bedroom
       case '8': // Living room / Netatmo
       case '9': // Kitchen / Netatmo
         serviceHelper.log('trace', 'Getting chart data for kids bed room');
