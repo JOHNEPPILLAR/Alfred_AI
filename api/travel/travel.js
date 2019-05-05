@@ -483,7 +483,6 @@ async function trainStatus(req, res, next) {
   const { transportapiKey } = process.env;
   const { fromStation, toStation } = req.body;
   let disruptions = 'false';
-  let returnJSON;
 
   if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
     serviceHelper.log('info', 'Missing param: fromStation');
@@ -503,41 +502,14 @@ async function trainStatus(req, res, next) {
     return false;
   }
 
+  let line = '';
+  let apiData;
+
   try {
     serviceHelper.log('trace', 'Getting data from TFL');
     const url = `https://transportapi.com/v3/uk/train/station/${fromStation}/live.json?${transportapiKey}&train_status=passenger&calling_at=${toStation}`;
     serviceHelper.log('trace', url);
-    const apiData = await serviceHelper.callAPIService(url);
-    let line = '';
-    if (serviceHelper.isEmptyObject(apiData)) {
-      disruptions = 'true';
-    } else if (serviceHelper.isEmptyObject(apiData.departures.all)) {
-      disruptions = 'true';
-    } else {
-      const trainData = apiData.departures.all;
-      line = trainData[0].operator_name;
-      let maxJourneyCounter = 5;
-      if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
-      for (let index = 0; index < maxJourneyCounter; index += 1) {
-        serviceHelper.log('trace', 'Check for cancelled train');
-        if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
-          serviceHelper.log('trace', 'Found cancelled train');
-          disruptions = 'true';
-        }
-      }
-    }
-
-    returnJSON = {
-      mode: 'train',
-      line,
-      disruptions,
-    };
-
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, returnJSON);
-      next();
-    }
-    return returnJSON;
+    apiData = await serviceHelper.callAPIService(url);
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
@@ -546,6 +518,43 @@ async function trainStatus(req, res, next) {
     }
     return err;
   }
+
+  let trainData;
+  try {
+    trainData = apiData.departures.all;
+    if (trainData instanceof Error === false) {
+      if (typeof trainData !== 'undefined') {
+        if (serviceHelper.isEmptyObject(trainData)) disruptions = 'true';
+      } else disruptions = 'true';
+    } else disruptions = 'true';
+  } catch (err) {
+    disruptions = 'true';
+  }
+
+  if (disruptions === 'false') {
+    line = trainData[0].operator_name;
+    let maxJourneyCounter = 5;
+    if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
+    for (let index = 0; index < maxJourneyCounter; index += 1) {
+      serviceHelper.log('trace', 'Check for cancelled train');
+      if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+        serviceHelper.log('trace', 'Found cancelled train');
+        disruptions = 'true';
+      }
+    }
+  }
+  
+  const returnJSON = {
+    mode: 'train',
+    line,
+    disruptions,
+  };
+
+  if (typeof res !== 'undefined' && res !== null) {
+    serviceHelper.sendResponse(res, true, returnJSON);
+    next();
+  }
+  return returnJSON;
 }
 skill.put('/trainstatus', trainStatus);
 
