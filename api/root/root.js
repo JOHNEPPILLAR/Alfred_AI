@@ -2,6 +2,8 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
+const elasticsearch = require('elasticsearch');
+const os = require('os');
 
 /**
  * Import helper libraries
@@ -30,75 +32,42 @@ const skill = new Skills();
  */
 function ping(req, res, next) {
   serviceHelper.log('trace', 'Ping API called');
+
   const ackJSON = {
     service: process.env.ServiceName,
     reply: 'pong',
-    cpu: serviceHelper.getCpuInfo(),
-    mem: serviceHelper.getMemoryInfo(),
-    os: serviceHelper.getOsInfo(),
-    process: serviceHelper.getProcessInfo(),
   };
+
+  if (process.env.Environment === 'production') {
+    const client = new elasticsearch.Client({
+      hosts: [process.env.ElasticSearch],
+    });
+
+    const load = os.loadavg();
+    const currentDate = new Date();
+    const formatDate = currentDate.toISOString();
+
+    try {
+      client.index({
+        index: 'health',
+        type: 'health',
+        body: {
+          time: formatDate,
+          hostname: os.hostname(),
+          mem_free: os.freemem(),
+          mem_total: os.totalmem(),
+          mem_percent: ((os.freemem() * 100) / os.totalmem()),
+          cpu: Math.min(Math.floor((load[0] * 100) / os.cpus().length), 100),
+        },
+      });
+    } catch (err) {
+      serviceHelper.log('error', err.message);
+    }
+  }
+
   serviceHelper.sendResponse(res, true, ackJSON); // Send response back to caller
   next();
 }
 skill.get('/ping', ping);
-
-/**
- * @api {get} /display Display log file content
- * @apiName display
- * @apiGroup Root
- *
- * @apiParam {Number} page Page number to display
- *
- * @apiSuccessExample {json} Success-Response:
- *   HTTPS/1.1 200 OK
- *   {
- *     "data": [
- *       {
- *           "time": "2018-06-27T18:00:00.010Z",
- *           "type": "error",
- *           "service": "ALFRED - Scheduler Service",
- *           "function_name": "gardenWater - checkGardenWater",
- *           "message": "syntax error at or near \"not\""
- *       },
- *        ]
- *   }
- *
- * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 500 Internal server error
- *   {
- *     data: Error message
- *   }
- *
- */
-async function display(req, res, next) {
-  serviceHelper.log('trace', 'display', 'display log entry API called');
-  serviceHelper.log('trace', 'display', JSON.stringify(req.query));
-
-  try {
-    let page = 1;
-    if (typeof page !== 'undefined' && page !== null && page !== '') {
-      page = parseInt(req.query.page || 1, 10);
-    }
-
-    const apiURL = `${process.env.AlfredLogService}/display`;
-    serviceHelper.log('trace', `Calling: ${apiURL}`);
-    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
-
-    if (returnData instanceof Error) throw Error(returnData.message);
-
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, returnData.data);
-      next();
-    }
-  } catch (err) {
-    serviceHelper.log('error', err.message);
-    if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, false, err.message);
-      next();
-    }
-  }
-}
-skill.get('/display', display);
 
 module.exports = skill;
