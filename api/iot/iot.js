@@ -14,20 +14,15 @@ const skill = new Skills();
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *     "data": {
- *       "command": "SELECT",
- *       "rowCount": 240,
- *       "oid": null,
- *       "DurationTitle": "Last 4 Hours",
- *       "rows": [
- *           {
- *              "time": "2019-02-18T11:30:00.000Z",
-                "battery": "0.00000000000000000000",
-                "temperature": 21.58,
-                "humidity": 47.44
- *           },
- *           ...
- *         }
+ *     "data": [
+ *       {
+ *         "timeofday": "2019-05-16T20:26:00.000Z",
+ *          "battery": "100.0000000000000000",
+ *          "temperature": 20.8,
+ *          "humidity": 47,
+ *          "co2": 569
+ *       },
+ *       ...
  *     ]
  *   }
  *
