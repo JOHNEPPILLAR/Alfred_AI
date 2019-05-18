@@ -52,7 +52,6 @@ async function list(req, res, next) {
       next();
       return;
     }
-
     serviceHelper.log('trace', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data.rows);
     next();
@@ -101,7 +100,7 @@ async function get(req, res, next) {
   const { sensorID } = req.query;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/list?sensorID=${sensorID}`;
+    const apiURL = `${process.env.AlfredLightsService}/sensors/get?sensorID=${sensorID}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
@@ -110,9 +109,9 @@ async function get(req, res, next) {
       next();
       return;
     }
-
     serviceHelper.log('trace', 'Sending data back to caller');
-    serviceHelper.sendResponse(res, true, returnData.data);
+
+    serviceHelper.sendResponse(res, true, returnData.data.rows);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
