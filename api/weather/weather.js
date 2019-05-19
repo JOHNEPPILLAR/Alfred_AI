@@ -375,7 +375,7 @@ async function houseWeather(req, res, next) {
   try {
     // Dyson purecool fan
     serviceHelper.log('trace', 'Getting latest Dyson data');
-    apiURL = `${process.env.AlfredDysonService}/display/dysonpurecoollatest`;
+    apiURL = `${process.env.AlfredDysonService}/display/current`;
     mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
   } catch (err) {
     serviceHelper.log('error', err.message);
@@ -384,7 +384,7 @@ async function houseWeather(req, res, next) {
   try {
     // Netatmo sensors
     serviceHelper.log('trace', 'Getting latest Netatmo data');
-    apiURL = `${process.env.AlfredNetatmoService}/display/netatmolatest`;
+    apiURL = `${process.env.AlfredNetatmoService}/display/current`;
     restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
   } catch (err) {
     serviceHelper.log('error', err.message);
