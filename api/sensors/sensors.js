@@ -109,8 +109,10 @@ async function get(req, res, next) {
       next();
       return;
     }
-    serviceHelper.log('trace', 'Sending data back to caller');
 
+    console.log(returnData);
+
+    serviceHelper.log('trace', 'Sending data back to caller');
     serviceHelper.sendResponse(res, true, returnData.data.rows);
     next();
   } catch (err) {
