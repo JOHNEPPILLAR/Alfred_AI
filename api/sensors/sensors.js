@@ -110,11 +110,8 @@ async function get(req, res, next) {
       return;
     }
 
-    serviceHelper.log('info', JSON.stringify(returnData));
-  
-
     serviceHelper.log('trace', 'Sending data back to caller');
-    serviceHelper.sendResponse(res, true, returnData.data.rows);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
