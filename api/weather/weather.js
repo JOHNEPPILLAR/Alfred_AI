@@ -405,8 +405,15 @@ async function houseWeather(req, res, next) {
     // Construct returning data
     serviceHelper.log('trace', 'Construct returning data');
     let jsonDataObj = [];
-    if (mainBedRoomData instanceof Error === false) jsonDataObj = mainBedRoomData.data;
-    if (restOfTheHouseData instanceof Error === false) {
+
+    if (mainBedRoomData instanceof Error === false && typeof mainBedRoomData !== 'undefined') {
+      jsonDataObj = mainBedRoomData.data;
+    }
+
+    if (
+      restOfTheHouseData instanceof Error === false
+      && typeof restOfTheHouseData !== 'undefined'
+    ) {
       jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
     }
 

@@ -55,7 +55,11 @@ async function displayRoomCharts(req, res, next) {
       case '4': // Kids bedroom
       case '8': // Living room / Netatmo
       case '9': // Kitchen / Netatmo
-        serviceHelper.log('trace', 'Getting chart data for kids room/living room and kitchen');
+      case 'G': // Garden / Netatmo
+        serviceHelper.log(
+          'trace',
+          'Getting chart data for kids room/living room, kitchen and Garden',
+        );
         apiURL = `${
           process.env.AlfredNetatmoService
         }/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
