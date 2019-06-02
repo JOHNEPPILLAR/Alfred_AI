@@ -195,7 +195,16 @@ async function getCommute(req, res, next) {
   }
 
   serviceHelper.log('trace', 'Find out if caller is at home location');
-  atHome = serviceHelper.inHomeGeoFence(lat, long);
+  try {
+    atHome = serviceHelper.inHomeGeoFence(lat, long);
+  } catch (err) {
+    serviceHelper.log('error', err.message);
+
+    if (typeof res !== 'undefined' && res !== null) {
+      returnCommuteError('Unable to calculate commute due to starting location', req, res, next);
+    }
+    return false;
+  }
 
   switch (user.toUpperCase()) {
     case 'FRAN':
@@ -211,8 +220,6 @@ async function getCommute(req, res, next) {
 
         serviceHelper.log('trace', 'Checking train and tube status');
         const trainData = await travelHelper.trainStatus({ body: { fromStation: 'CTN', toStation: 'LBG' } }, null, next);
-
-        // trainData.disruptions = 'true' // Force to debug and see what tube would look like 
 
         // Work out main commute
         if (trainData.disruptions === 'false') {
@@ -272,7 +279,9 @@ async function getCommute(req, res, next) {
           walkToUndergroundLeg.duration = '10';
           walkToUndergroundLeg.departureTime = busLeg.arrivalTime;
           walkToUndergroundLeg.departureStation = 'Change';
-          walkToUndergroundLeg.arrivalTime = serviceHelper.addTime(walkToUndergroundLeg.departureTime, walkToUndergroundLeg.duration);
+          walkToUndergroundLeg.arrivalTime = serviceHelper.addTime(
+            walkToUndergroundLeg.departureTime, walkToUndergroundLeg.duration,
+          );
           walkToUndergroundLeg.arrivalStation = 'Underground';
           serviceHelper.log('trace', 'Add walking leg');
           legs.push(walkToUndergroundLeg);
@@ -290,7 +299,8 @@ async function getCommute(req, res, next) {
           tubeLeg.duration = apiData.duration;
           tubeLeg.departureTime = walkToUndergroundLeg.arrivalTime;
           tubeLeg.departureStation = busLeg.arrivalStation;
-          tubeLeg.arrivalTime = serviceHelper.addTime(walkToUndergroundLeg.arrivalTime, tubeLeg.duration);
+          tubeLeg.arrivalTime = serviceHelper.addTime(walkToUndergroundLeg.arrivalTime,
+            tubeLeg.duration);
           tubeLeg.arrivalStation = apiData.arrivalStation;
           legs.push(tubeLeg);
 
