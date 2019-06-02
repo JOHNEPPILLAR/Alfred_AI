@@ -56,7 +56,9 @@ async function displayRoomCharts(req, res, next) {
       case '8': // Living room / Netatmo
       case '9': // Kitchen / Netatmo
         serviceHelper.log('trace', 'Getting chart data for kids room/living room and kitchen');
-        apiURL = `${process.env.AlfredNetatmoService}/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
+        apiURL = `${
+          process.env.AlfredNetatmoService
+        }/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);

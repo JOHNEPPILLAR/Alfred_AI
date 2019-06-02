@@ -235,7 +235,11 @@ async function lightGroupOnOff(req, res, next) {
   const { lightGroupNumber, lightAction } = req.body;
 
   // Check key params are valid
-  if (typeof lightGroupNumber === 'undefined' || lightGroupNumber === null || lightGroupNumber === '') {
+  if (
+    typeof lightGroupNumber === 'undefined'
+    || lightGroupNumber === null
+    || lightGroupNumber === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightGroupNumber');
     next();
     return false;
@@ -359,7 +363,11 @@ async function lightGroupBrightness(req, res, next) {
   const { lightGroupNumber, brightness } = req.body;
 
   // Check key params are valid
-  if (typeof lightGroupNumber === 'undefined' || lightGroupNumber === null || lightGroupNumber === '') {
+  if (
+    typeof lightGroupNumber === 'undefined'
+    || lightGroupNumber === null
+    || lightGroupNumber === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightGroupNumber');
     next();
     return false;

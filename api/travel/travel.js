@@ -265,7 +265,7 @@ async function busStatus(req, res, next) {
     if (!serviceHelper.isEmptyObject(apiData)) {
       route = apiData[0].name;
       if (!serviceHelper.isEmptyObject(apiData[0].disruptions)) {
-        disruptions = apiData[0].disruptions;
+        ({ disruptions } = apiData[0].disruptions);
       }
     }
 
@@ -353,7 +353,9 @@ async function nextbus(req, res, next) {
     case '9':
       serviceHelper.log('trace', 'Using Bus no. 9');
       stopPoint = '490013766H'; // Default going to work stop point
-      if (!atHome) { stopPoint = '490013766H'; } // Override to coming home stop point - TODO
+      if (!atHome) {
+        stopPoint = '490013766H';
+      } // Override to coming home stop point - TODO
       url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=9&${TFLAPIKey}`;
       break;
     case '380':
@@ -363,7 +365,9 @@ async function nextbus(req, res, next) {
     case '486':
       serviceHelper.log('trace', 'Using Bus no. 486');
       stopPoint = '490001058H'; // Default going to work stop point
-      if (!atHome) { stopPoint = '490010374B'; } // Override to coming home stop point
+      if (!atHome) {
+        stopPoint = '490010374B';
+      } // Override to coming home stop point
       url = `https://api.tfl.gov.uk/StopPoint/${stopPoint}/Arrivals?mode=bus&line=486&${TFLAPIKey}`;
       break;
     case '161':
@@ -411,7 +415,9 @@ async function nextbus(req, res, next) {
       busData = busData.sort(serviceHelper.GetSortOrder('timeToStation'));
 
       let numberOfElements = busData.length;
-      if (numberOfElements > 2) { numberOfElements = 2; }
+      if (numberOfElements > 2) {
+        numberOfElements = 2;
+      }
 
       switch (numberOfElements) {
         case 2:
@@ -537,13 +543,16 @@ async function trainStatus(req, res, next) {
     if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
     for (let index = 0; index < maxJourneyCounter; index += 1) {
       serviceHelper.log('trace', 'Check for cancelled train');
-      if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+      if (
+        trainData[index].status.toLowerCase() === 'it is currently off route'
+        || trainData[index].status.toLowerCase() === 'cancelled'
+      ) {
         serviceHelper.log('trace', 'Found cancelled train');
         disruptions = 'true';
       }
     }
   }
-  
+
   const returnJSON = {
     mode: 'train',
     line,
@@ -598,9 +607,7 @@ async function nextTrain(req, res, next) {
   const { transportapiKey } = process.env;
   const { nextTrainOnly } = req.body;
 
-  let {
-    fromStation, toStation, departureTimeOffSet,
-  } = req.body;
+  let { fromStation, toStation, departureTimeOffSet } = req.body;
 
   if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
     serviceHelper.log('info', 'Missing param: fromStation');
@@ -622,7 +629,11 @@ async function nextTrain(req, res, next) {
   }
   toStation = toStation.toUpperCase();
 
-  if (typeof departureTimeOffSet !== 'undefined' && departureTimeOffSet !== null && departureTimeOffSet !== '') {
+  if (
+    typeof departureTimeOffSet !== 'undefined'
+    && departureTimeOffSet !== null
+    && departureTimeOffSet !== ''
+  ) {
     departureTimeOffSet = `PT${departureTimeOffSet}:00`;
   } else {
     departureTimeOffSet = '';
@@ -647,11 +658,13 @@ async function nextTrain(req, res, next) {
     let trainData = apiData.departures.all;
     if (serviceHelper.isEmptyObject(trainData)) {
       serviceHelper.log('info', 'No trains running');
-      const returnJSON = [{
-        mode: 'train',
-        disruptions: 'true',
-        status: 'No trains running',
-      }];
+      const returnJSON = [
+        {
+          mode: 'train',
+          disruptions: 'true',
+          status: 'No trains running',
+        },
+      ];
       if (typeof res !== 'undefined' && res !== null) {
         serviceHelper.sendResponse(res, true, returnJSON);
         next();
@@ -710,13 +723,17 @@ async function nextTrain(req, res, next) {
       status = trainData[index].status.toLowerCase();
 
       serviceHelper.log('trace', 'Check for cancelled train');
-      if (trainData[index].status.toLowerCase() === 'it is currently off route' || trainData[index].status.toLowerCase() === 'cancelled') {
+      if (
+        trainData[index].status.toLowerCase() === 'it is currently off route'
+        || trainData[index].status.toLowerCase() === 'cancelled'
+      ) {
         serviceHelper.log('trace', 'Found cancelled train');
         disruptions = 'true';
       }
 
       serviceHelper.log('trace', 'Get stops info');
       url = trainData[index].service_timetable.id;
+      // eslint-disable-next-line no-await-in-loop
       trainStations = await serviceHelper.callAPIService(url);
       trainStations = trainStations.stops;
       serviceHelper.log('trace', 'Get arrival time at destination station');
@@ -742,7 +759,7 @@ async function nextTrain(req, res, next) {
       };
       returnJSON.push(journey);
 
-      if ((index + 1) === maxJourneyCounter) {
+      if (index + 1 === maxJourneyCounter) {
         serviceHelper.log('trace', 'Send data back to caller');
         if (typeof res !== 'undefined' && res !== null) {
           serviceHelper.sendResponse(res, true, returnJSON);

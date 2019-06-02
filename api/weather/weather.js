@@ -181,8 +181,12 @@ async function currentWeather(req, res, next) {
   darkSky.units = 'uk2';
 
   const { lat, long } = req.query;
-  if ((typeof lat === 'undefined' || lat === null || lat === '')
-    || (typeof long === 'undefined' || long === null || long === '')) {
+  if (
+    typeof lat === 'undefined'
+    || lat === null
+    || lat === ''
+    || (typeof long === 'undefined' || long === null || long === '')
+  ) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
@@ -282,8 +286,12 @@ async function willItRain(req, res, next) {
   const { lat, long } = req.query;
   let { forcastDuration } = req.query;
 
-  if ((typeof lat === 'undefined' || lat === null || lat === '')
-    || (typeof long === 'undefined' || long === null || long === '')) {
+  if (
+    typeof lat === 'undefined'
+    || lat === null
+    || lat === ''
+    || (typeof long === 'undefined' || long === null || long === '')
+  ) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
@@ -309,7 +317,10 @@ async function willItRain(req, res, next) {
     serviceHelper.log('trace', 'Get forcast from DarkSky');
     const weatherData = await darkSky.loadItAll('currently,minutely,daily,alerts', position);
 
-    serviceHelper.log('trace', 'Filter data for only next x hours and only if chance of rain is greater than x%');
+    serviceHelper.log(
+      'trace',
+      'Filter data for only next x hours and only if chance of rain is greater than x%',
+    );
     const cleanWeatherData = weatherData.hourly.data.slice(0, forcastDuration);
 
     let { precipProbability, precipIntensity } = cleanWeatherData[0];
@@ -317,8 +328,8 @@ async function willItRain(req, res, next) {
     for (let i = 1, len = cleanWeatherData.length; i < len; i += 1) {
       const probability = cleanWeatherData[i].precipProbability;
       const intensity = cleanWeatherData[i].precipIntensity;
-      precipProbability = (probability > precipProbability) ? probability : precipProbability;
-      precipIntensity = (intensity > precipIntensity) ? intensity : precipIntensity;
+      precipProbability = probability > precipProbability ? probability : precipProbability;
+      precipIntensity = intensity > precipIntensity ? intensity : precipIntensity;
     }
 
     const jsonDataObj = {
@@ -395,7 +406,9 @@ async function houseWeather(req, res, next) {
     serviceHelper.log('trace', 'Construct returning data');
     let jsonDataObj = [];
     if (mainBedRoomData instanceof Error === false) jsonDataObj = mainBedRoomData.data;
-    if (restOfTheHouseData instanceof Error === false) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
+    if (restOfTheHouseData instanceof Error === false) {
+      jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
+    }
 
     if (jsonDataObj.length === 0) {
       serviceHelper.log('error', 'No results');

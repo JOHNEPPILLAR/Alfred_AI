@@ -50,11 +50,7 @@ async function register(req, res, next) {
 
   try {
     const SQL = 'INSERT INTO ios_devices("time", device_token, app_user) VALUES ($1, $2, $3)';
-    const SQLValues = [
-      new Date(),
-      deviceToken,
-      deviceUser,
-    ];
+    const SQLValues = [new Date(), deviceToken, deviceUser];
 
     serviceHelper.log('trace', 'Connect to data store connection pool');
     const dbClient = await global.devicesDataClient.connect(); // Connect to data store
@@ -65,7 +61,11 @@ async function register(req, res, next) {
 
     if (results.rowCount !== 1) {
       serviceHelper.log('error', `Failed to insert/update data for device: ${deviceToken}`);
-      serviceHelper.sendResponse(res, false, `Failed to insert/update data for device: ${deviceToken}`);
+      serviceHelper.sendResponse(
+        res,
+        false,
+        `Failed to insert/update data for device: ${deviceToken}`,
+      );
       next();
       return;
     }
