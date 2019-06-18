@@ -4,12 +4,12 @@
   "description": "Alfred Controller Service",
   "main": "lib/server.js",
   "scripts": {
-    "start": "node lib/server.js | pino-elasticsearch -i alfred -H 192.168.1.4 -l info",
-    "dev": "nodemon lib/server.js"
+    "prod": "node lib/server.js | pino-elasticsearch --node http://192.168.1.4:9200 -l info -i alfred",
+    "test": "nodemon lib/server.js"
   },
   "author": "JP",
   "dependencies": {
-    "elasticsearch": "^16.1.1",
+    "@elastic/elasticsearch": "^7.1.0",
     "dark-sky-api": "^0.6.32",
     "dateformat": "^3.0.3",
     "dotenv": "^8.0.0",
@@ -28,7 +28,7 @@
     "restify-router": "^0.5.1",
     "underscore": "^1.9.1",
     "pino": "^5.12.6",
-    "pino-pretty": "^3.1.0",
+    "pino-pretty": "^3.2.0",
     "path": "^0.12.7"
   },
   "devDependencies": {
