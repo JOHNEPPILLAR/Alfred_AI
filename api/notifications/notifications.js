@@ -32,7 +32,6 @@ async function register(req, res, next) {
   serviceHelper.log('trace', 'register API called');
 
   const deviceToken = req.body.device;
-  const deviceUser = req.body.user;
 
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     serviceHelper.log('trace', 'Missing param: deviceToken');
@@ -41,16 +40,9 @@ async function register(req, res, next) {
     return;
   }
 
-  if (typeof deviceUser === 'undefined' || deviceUser === null) {
-    serviceHelper.log('trace', 'Missing param: deviceUser');
-    serviceHelper.sendResponse(res, 400, 'Missing param: deviceUser');
-    next();
-    return;
-  }
-
   try {
-    const SQL = 'INSERT INTO ios_devices("time", device_token, app_user) VALUES ($1, $2, $3)';
-    const SQLValues = [new Date(), deviceToken, deviceUser];
+    const SQL = 'INSERT INTO ios_devices("time", device_token) VALUES ($1, $2)';
+    const SQLValues = [new Date(), deviceToken];
 
     serviceHelper.log('trace', 'Connect to data store connection pool');
     const dbClient = await global.devicesDataClient.connect(); // Connect to data store
