@@ -16,7 +16,7 @@ const skill = new Skills();
  *   {
  *     "data": [
  *       {
- *         "timeofday": "2019-05-16T20:26:00.000Z",
+ *          "timeofday": "2019-05-16T20:26:00.000Z",
  *          "battery": "100.0000000000000000",
  *          "temperature": 20.8,
  *          "humidity": 47,
@@ -131,7 +131,7 @@ skill.get('/displayroomcharts', displayRoomCharts);
  *   }
  *
  */
-async function displayCureentGardenData(req, res, next) {
+async function displayCurrentGardenData(req, res, next) {
   serviceHelper.log('trace', 'Display current garden sensor data API called');
 
   try {
@@ -153,6 +153,6 @@ async function displayCureentGardenData(req, res, next) {
     next();
   }
 }
-skill.get('/displaycureentgardendata', displayCureentGardenData);
+skill.get('/displaycureentgardendata', displayCurrentGardenData);
 
 module.exports = skill;

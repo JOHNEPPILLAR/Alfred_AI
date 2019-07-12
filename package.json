@@ -9,7 +9,7 @@
   },
   "author": "JP",
   "dependencies": {
-    "@elastic/elasticsearch": "^7.1.0",
+    "@elastic/elasticsearch": "^7.2.0",
     "dark-sky-api": "^0.6.32",
     "dateformat": "^3.0.3",
     "dotenv": "^8.0.0",
