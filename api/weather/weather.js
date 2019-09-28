@@ -5,11 +5,7 @@ const Skills = require('restify-router').Router;
 const dateFormat = require('dateformat');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
-
-/**
- * Import helper libraries
- */
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -49,7 +45,8 @@ async function sunSet(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '')
+    location = 'london';
 
   try {
     serviceHelper.log('trace', 'Calling geocoder');
@@ -63,7 +60,10 @@ async function sunSet(req, res, next) {
     serviceHelper.log('trace', 'Get forcast from DarkSky');
     apiData = await darkSky.loadForecast(position);
 
-    serviceHelper.log('trace', 'Setup the correct sunset time from the DarkSky API data');
+    serviceHelper.log(
+      'trace',
+      'Setup the correct sunset time from the DarkSky API data',
+    );
     const sunSetTime = new Date(apiData.daily.data[0].sunsetTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
@@ -110,7 +110,8 @@ async function sunRise(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '')
+    location = 'london';
 
   try {
     serviceHelper.log('trace', 'Calling geocoder');
@@ -124,7 +125,10 @@ async function sunRise(req, res, next) {
     serviceHelper.log('trace', 'Get forcast from DarkSky');
     apiData = await darkSky.loadForecast(position);
 
-    serviceHelper.log('trace', 'Setup the correct sunrise time from the DarkSky API data');
+    serviceHelper.log(
+      'trace',
+      'Setup the correct sunrise time from the DarkSky API data',
+    );
     const sunriseTime = new Date(apiData.daily.data[0].sunriseTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
@@ -182,10 +186,10 @@ async function currentWeather(req, res, next) {
 
   const { lat, long } = req.query;
   if (
-    typeof lat === 'undefined'
-    || lat === null
-    || lat === ''
-    || (typeof long === 'undefined' || long === null || long === '')
+    typeof lat === 'undefined' ||
+    lat === null ||
+    lat === '' ||
+    (typeof long === 'undefined' || long === null || long === '')
   ) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
@@ -287,10 +291,10 @@ async function willItRain(req, res, next) {
   let { forcastDuration } = req.query;
 
   if (
-    typeof lat === 'undefined'
-    || lat === null
-    || lat === ''
-    || (typeof long === 'undefined' || long === null || long === '')
+    typeof lat === 'undefined' ||
+    lat === null ||
+    lat === '' ||
+    (typeof long === 'undefined' || long === null || long === '')
   ) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
@@ -300,7 +304,12 @@ async function willItRain(req, res, next) {
     return false;
   }
 
-  if (typeof forcastDuration === 'undefined' || forcastDuration === null || forcastDuration === '') forcastDuration = 5;
+  if (
+    typeof forcastDuration === 'undefined' ||
+    forcastDuration === null ||
+    forcastDuration === ''
+  )
+    forcastDuration = 5;
 
   try {
     serviceHelper.log('trace', 'Calling geocoder to get location name');
@@ -315,7 +324,10 @@ async function willItRain(req, res, next) {
     const locationCountry = apiData[0].country;
 
     serviceHelper.log('trace', 'Get forcast from DarkSky');
-    const weatherData = await darkSky.loadItAll('currently,minutely,daily,alerts', position);
+    const weatherData = await darkSky.loadItAll(
+      'currently,minutely,daily,alerts',
+      position,
+    );
 
     serviceHelper.log(
       'trace',
@@ -328,8 +340,10 @@ async function willItRain(req, res, next) {
     for (let i = 1, len = cleanWeatherData.length; i < len; i += 1) {
       const probability = cleanWeatherData[i].precipProbability;
       const intensity = cleanWeatherData[i].precipIntensity;
-      precipProbability = probability > precipProbability ? probability : precipProbability;
-      precipIntensity = intensity > precipIntensity ? intensity : precipIntensity;
+      precipProbability =
+        probability > precipProbability ? probability : precipProbability;
+      precipIntensity =
+        intensity > precipIntensity ? intensity : precipIntensity;
     }
 
     const jsonDataObj = {
@@ -406,13 +420,16 @@ async function houseWeather(req, res, next) {
     serviceHelper.log('trace', 'Construct returning data');
     let jsonDataObj = [];
 
-    if (mainBedRoomData instanceof Error === false && typeof mainBedRoomData !== 'undefined') {
+    if (
+      mainBedRoomData instanceof Error === false &&
+      typeof mainBedRoomData !== 'undefined'
+    ) {
       jsonDataObj = mainBedRoomData.data;
     }
 
     if (
-      restOfTheHouseData instanceof Error === false
-      && typeof restOfTheHouseData !== 'undefined'
+      restOfTheHouseData instanceof Error === false &&
+      typeof restOfTheHouseData !== 'undefined'
     ) {
       jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
     }

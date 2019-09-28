@@ -2,11 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-
-/**
- * Import helper libraries
- */
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -48,11 +44,17 @@ async function register(req, res, next) {
     const dbClient = await global.devicesDataClient.connect(); // Connect to data store
     serviceHelper.log('trace', 'Save device data');
     const results = await dbClient.query(SQL, SQLValues);
-    serviceHelper.log('trace', 'Release the data store connection back to the pool');
+    serviceHelper.log(
+      'trace',
+      'Release the data store connection back to the pool',
+    );
     await dbClient.release(); // Return data store connection back to pool
 
     if (results.rowCount !== 1) {
-      serviceHelper.log('error', `Failed to insert/update data for device: ${deviceToken}`);
+      serviceHelper.log(
+        'error',
+        `Failed to insert/update data for device: ${deviceToken}`,
+      );
       serviceHelper.sendResponse(
         res,
         false,

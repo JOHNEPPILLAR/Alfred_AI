@@ -2,7 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -60,13 +60,15 @@ async function displayRoomCharts(req, res, next) {
           'trace',
           'Getting chart data for kids room/living room, kitchen and Garden',
         );
-        apiURL = `${
-          process.env.AlfredNetatmoService
-        }/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
+        apiURL = `${process.env.AlfredNetatmoService}/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
-          serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+          serviceHelper.sendResponse(
+            res,
+            false,
+            'Unable to return data from Alfred',
+          );
           next();
           return;
         }
@@ -80,7 +82,11 @@ async function displayRoomCharts(req, res, next) {
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
-          serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+          serviceHelper.sendResponse(
+            res,
+            false,
+            'Unable to return data from Alfred',
+          );
           next();
           return;
         }
@@ -140,7 +146,11 @@ async function displayCurrentGardenData(req, res, next) {
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }

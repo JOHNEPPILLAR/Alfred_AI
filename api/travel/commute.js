@@ -2,11 +2,11 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
+const serviceHelper = require('alfred_helper');
 
 /**
  * Import helper libraries
  */
-const serviceHelper = require('../../lib/helper.js');
 const travelHelper = require('./travel.js');
 
 const skill = new Skills();
@@ -137,8 +137,8 @@ async function getCommute(req, res, next) {
 
   serviceHelper.log('trace', 'Checking for params');
   if (
-    (typeof lat === 'undefined' && lat === null && lat === '')
-    || (typeof long === 'undefined' && long === null && long === '')
+    (typeof lat === 'undefined' && lat === null && lat === '') ||
+    (typeof long === 'undefined' && long === null && long === '')
   ) {
     serviceHelper.log('info', 'Missing param: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
@@ -155,7 +155,12 @@ async function getCommute(req, res, next) {
     serviceHelper.log('error', err.message);
 
     if (typeof res !== 'undefined' && res !== null) {
-      returnCommuteError('Unable to calculate commute due to starting location', req, res, next);
+      returnCommuteError(
+        'Unable to calculate commute due to starting location',
+        req,
+        res,
+        next,
+      );
     }
     return false;
   }
@@ -201,14 +206,21 @@ async function getCommute(req, res, next) {
       walkLeg.duration = '25';
       walkLeg.departureTime = apiData[0].arrivalTime;
       walkLeg.departureStation = 'London Bridge';
-      walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
+      walkLeg.arrivalTime = serviceHelper.addTime(
+        walkLeg.departureTime,
+        walkLeg.duration,
+      );
       walkLeg.arrivalStation = 'WeWork';
       serviceHelper.log('trace', 'Add walking leg');
       legs.push(walkLeg);
 
       journeys.push({ legs });
     } else {
-      const tubeData = await travelHelper.tubeStatus({ body: { line: 'Jubilee' } }, null, next);
+      const tubeData = await travelHelper.tubeStatus(
+        { body: { line: 'Jubilee' } },
+        null,
+        next,
+      );
 
       if (tubeData.disruptions === 'true') {
         returnCommuteError(
@@ -228,7 +240,10 @@ async function getCommute(req, res, next) {
       busLeg.duration = '30';
       busLeg.departureTime = serviceHelper.addTime(null, '00:10');
       busLeg.departureStation = 'Home';
-      busLeg.arrivalTime = serviceHelper.addTime(busLeg.departureTime, busLeg.duration);
+      busLeg.arrivalTime = serviceHelper.addTime(
+        busLeg.departureTime,
+        busLeg.duration,
+      );
       busLeg.arrivalStation = 'North Greenwich';
       serviceHelper.log('trace', 'Add bus leg');
       legs.push(busLeg);
@@ -281,7 +296,10 @@ async function getCommute(req, res, next) {
       walkLeg.duration = '25';
       walkLeg.departureTime = tubeLeg.arrivalTime;
       walkLeg.departureStation = 'London Bridge';
-      walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
+      walkLeg.arrivalTime = serviceHelper.addTime(
+        walkLeg.departureTime,
+        walkLeg.duration,
+      );
       walkLeg.arrivalStation = 'WeWork';
       serviceHelper.log('trace', 'Add walking leg');
       legs.push(walkLeg);
@@ -301,7 +319,10 @@ async function getCommute(req, res, next) {
     walkLeg.duration = '25';
     walkLeg.departureTime = serviceHelper.addTime(null, '00:05');
     walkLeg.departureStation = 'WeWork';
-    walkLeg.arrivalTime = serviceHelper.addTime(walkLeg.departureTime, walkLeg.duration);
+    walkLeg.arrivalTime = serviceHelper.addTime(
+      walkLeg.departureTime,
+      walkLeg.duration,
+    );
     walkLeg.arrivalStation = 'London Bridge';
     serviceHelper.log('trace', 'Add walking leg');
     legs.push(walkLeg);
@@ -314,7 +335,12 @@ async function getCommute(req, res, next) {
       next,
     );
     if (trainData.disruptions === 'false') {
-      const timeOffset = serviceHelper.timeDiff(null, walkLeg.arrivalTime, null, true);
+      const timeOffset = serviceHelper.timeDiff(
+        null,
+        walkLeg.arrivalTime,
+        null,
+        true,
+      );
       apiData = await travelHelper.nextTrain(
         {
           body: {
@@ -337,7 +363,11 @@ async function getCommute(req, res, next) {
       journeys.push({ legs });
     } else {
       serviceHelper.log('trace', 'Calc backup journey, check train status');
-      const tubeData = await travelHelper.tubeStatus({ body: { line: 'Jubilee' } }, null, next);
+      const tubeData = await travelHelper.tubeStatus(
+        { body: { line: 'Jubilee' } },
+        null,
+        next,
+      );
 
       if (tubeData.disruptions === 'true') {
         returnCommuteError(
@@ -368,7 +398,10 @@ async function getCommute(req, res, next) {
       tubeLeg.duration = apiData.duration;
       tubeLeg.departureTime = walkLeg.arrivalTime;
       tubeLeg.departureStation = walkLeg.arrivalStation;
-      tubeLeg.arrivalTime = serviceHelper.addTime(tubeLeg.departureTime, tubeLeg.duration);
+      tubeLeg.arrivalTime = serviceHelper.addTime(
+        tubeLeg.departureTime,
+        tubeLeg.duration,
+      );
       tubeLeg.arrivalStation = apiData.arrivalStation;
       legs.push(tubeLeg);
 
@@ -377,9 +410,15 @@ async function getCommute(req, res, next) {
       busLeg.line = '486';
       busLeg.disruptions = 'false';
       busLeg.duration = '30';
-      busLeg.departureTime = serviceHelper.addTime(tubeLeg.arrivalTime, '00:10');
+      busLeg.departureTime = serviceHelper.addTime(
+        tubeLeg.arrivalTime,
+        '00:10',
+      );
       busLeg.departureStation = 'North Greenwich';
-      busLeg.arrivalTime = serviceHelper.addTime(busLeg.departureTime, busLeg.duration);
+      busLeg.arrivalTime = serviceHelper.addTime(
+        busLeg.departureTime,
+        busLeg.duration,
+      );
       busLeg.arrivalStation = 'Home';
       serviceHelper.log('trace', 'Add bus leg');
       legs.push(busLeg);
@@ -391,7 +430,12 @@ async function getCommute(req, res, next) {
   if (!atHome && !atJPWork) {
     serviceHelper.log('trace', 'Add not at home or work');
     if (typeof res !== 'undefined' && res !== null) {
-      returnCommuteError('Unable to calculate commute due to starting location', req, res, next);
+      returnCommuteError(
+        'Unable to calculate commute due to starting location',
+        req,
+        res,
+        next,
+      );
     }
     return false;
   }

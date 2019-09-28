@@ -2,7 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -48,7 +48,11 @@ async function list(req, res, next) {
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }
@@ -105,7 +109,11 @@ async function get(req, res, next) {
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }
@@ -145,8 +153,14 @@ async function save(req, res, next) {
   serviceHelper.log('trace', 'save sensor API called');
   try {
     const apiURL = `${process.env.AlfredLightsService}/sensors/save`;
-    serviceHelper.log('trace', `Saving schedule data: ${JSON.stringify(req.body)}`);
-    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+    serviceHelper.log(
+      'trace',
+      `Saving schedule data: ${JSON.stringify(req.body)}`,
+    );
+    const returnData = await serviceHelper.callAlfredServicePut(
+      apiURL,
+      req.body,
+    );
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);

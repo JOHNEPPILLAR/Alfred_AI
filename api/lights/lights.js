@@ -2,11 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-
-/**
- * Import helper libraries
- */
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -37,7 +33,11 @@ async function listLights(req, res, next) {
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }
@@ -79,7 +79,11 @@ async function listLightGroups(req, res, next) {
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }
@@ -122,7 +126,11 @@ async function allOff(req, res, next) {
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return;
     }
@@ -170,12 +178,20 @@ async function lightOnOff(req, res, next) {
   const { lightNumber, lightAction } = req.body;
 
   // Check key params are valid
-  if (typeof lightNumber === 'undefined' || lightNumber === null || lightNumber === '') {
+  if (
+    typeof lightNumber === 'undefined' ||
+    lightNumber === null ||
+    lightNumber === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightNumber');
     next();
     return false;
   }
-  if (typeof lightAction === 'undefined' || lightAction === null || lightAction === '') {
+  if (
+    typeof lightAction === 'undefined' ||
+    lightAction === null ||
+    lightAction === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightAction');
     next();
     return false;
@@ -184,11 +200,18 @@ async function lightOnOff(req, res, next) {
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightonoff`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
-    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+    const returnData = await serviceHelper.callAlfredServicePut(
+      apiURL,
+      req.body,
+    );
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return false;
     }
@@ -236,15 +259,19 @@ async function lightGroupOnOff(req, res, next) {
 
   // Check key params are valid
   if (
-    typeof lightGroupNumber === 'undefined'
-    || lightGroupNumber === null
-    || lightGroupNumber === ''
+    typeof lightGroupNumber === 'undefined' ||
+    lightGroupNumber === null ||
+    lightGroupNumber === ''
   ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightGroupNumber');
     next();
     return false;
   }
-  if (typeof lightAction === 'undefined' || lightAction === null || lightAction === '') {
+  if (
+    typeof lightAction === 'undefined' ||
+    lightAction === null ||
+    lightAction === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightAction');
     next();
     return false;
@@ -253,11 +280,18 @@ async function lightGroupOnOff(req, res, next) {
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightgrouponoff`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
-    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+    const returnData = await serviceHelper.callAlfredServicePut(
+      apiURL,
+      req.body,
+    );
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return false;
     }
@@ -301,12 +335,20 @@ async function lightBrightness(req, res, next) {
   const { lightNumber, brightness } = req.body;
 
   // Check key params are valid
-  if (typeof lightNumber === 'undefined' || lightNumber === null || lightNumber === '') {
+  if (
+    typeof lightNumber === 'undefined' ||
+    lightNumber === null ||
+    lightNumber === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightNumber');
     next();
     return false;
   }
-  if (typeof brightness === 'undefined' || brightness === null || brightness === '') {
+  if (
+    typeof brightness === 'undefined' ||
+    brightness === null ||
+    brightness === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: brightness');
     next();
     return false;
@@ -315,11 +357,18 @@ async function lightBrightness(req, res, next) {
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightbrightness`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
-    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+    const returnData = await serviceHelper.callAlfredServicePut(
+      apiURL,
+      req.body,
+    );
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return false;
     }
@@ -364,15 +413,19 @@ async function lightGroupBrightness(req, res, next) {
 
   // Check key params are valid
   if (
-    typeof lightGroupNumber === 'undefined'
-    || lightGroupNumber === null
-    || lightGroupNumber === ''
+    typeof lightGroupNumber === 'undefined' ||
+    lightGroupNumber === null ||
+    lightGroupNumber === ''
   ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: lightGroupNumber');
     next();
     return false;
   }
-  if (typeof brightness === 'undefined' || brightness === null || brightness === '') {
+  if (
+    typeof brightness === 'undefined' ||
+    brightness === null ||
+    brightness === ''
+  ) {
     serviceHelper.sendResponse(res, 400, 'Missing param: brightness');
     next();
     return false;
@@ -381,11 +434,18 @@ async function lightGroupBrightness(req, res, next) {
   try {
     const apiURL = `${process.env.AlfredLightsService}/lights/lightgroupbrightness`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
-    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
+    const returnData = await serviceHelper.callAlfredServicePut(
+      apiURL,
+      req.body,
+    );
 
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to return data from Alfred');
+      serviceHelper.sendResponse(
+        res,
+        false,
+        'Unable to return data from Alfred',
+      );
       next();
       return false;
     }

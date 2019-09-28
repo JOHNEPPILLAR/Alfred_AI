@@ -2,13 +2,11 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const elasticsearch = require('@elastic/elasticsearch');
-const os = require('os');
 
 /**
  * Import helper libraries
  */
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -31,49 +29,7 @@ const skill = new Skills();
  *
  */
 async function ping(req, res, next) {
-  serviceHelper.log('trace', 'Ping API called');
-
-  const ackJSON = {
-    service: process.env.ServiceName,
-    reply: 'pong',
-  };
-  serviceHelper.sendResponse(res, true, ackJSON); // Send response back to caller
-
-  if (process.env.Environment !== 'dev') {
-    const client = new elasticsearch.Client({
-      node: process.env.ElasticSearch,
-    });
-
-    if (client instanceof Error) {
-      serviceHelper.log('error', 'Unable to connect to ELK');
-      return;
-    }
-
-    const load = os.loadavg();
-    const currentDate = new Date();
-    const formatDate = currentDate.toISOString();
-
-    const results = await client.index({
-      index: 'health',
-      type: 'health',
-      body: {
-        time: formatDate,
-        hostname: os.hostname(),
-        environment: process.env.Environment,
-        mem_free: os.freemem(),
-        mem_total: os.totalmem(),
-        mem_percent: (os.freemem() * 100) / os.totalmem(),
-        cpu: Math.min(Math.floor((load[0] * 100) / os.cpus().length), 100),
-      },
-    });
-
-    if (results instanceof Error) {
-      serviceHelper.log('error', results.message);
-    }
-
-    await client.close();
-  }
-  next();
+  serviceHelper.ping(res, next);
 }
 skill.get('/ping', ping);
 

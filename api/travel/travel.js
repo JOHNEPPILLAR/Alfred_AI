@@ -2,11 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-
-/**
- * Import helper libraries
- */
-const serviceHelper = require('../../lib/helper.js');
+const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
 
@@ -164,17 +160,17 @@ async function nextTube(req, res, next) {
     if (!serviceHelper.isEmptyObject(apiData)) {
       line = apiData.lineName;
       let tempRoute = apiData.timetable.routes[0].stationIntervals[0].intervals;
-      tempRoute = tempRoute.filter(a => a.stopId === endID);
+      tempRoute = tempRoute.filter((a) => a.stopId === endID);
       let { timeToArrival } = tempRoute[0];
       if (typeof timeToArrival === 'undefined') timeToArrival = 0;
       duration = `${timeToArrival}`;
       serviceHelper.log('trace', 'Get departure station');
       tempRoute = apiData.stops;
-      tempRoute = tempRoute.filter(a => a.stationId === startID);
+      tempRoute = tempRoute.filter((a) => a.stationId === startID);
       departureStation = tempRoute[0].name.replace(' Underground Station', '');
       serviceHelper.log('trace', 'Get arrival station');
       tempRoute = apiData.stops;
-      tempRoute = tempRoute.filter(a => a.stationId === endID);
+      tempRoute = tempRoute.filter((a) => a.stationId === endID);
       arrivalStation = tempRoute[0].name.replace(' Underground Station', '');
     }
 
@@ -378,7 +374,11 @@ async function nextbus(req, res, next) {
     default:
       serviceHelper.log('trace', `Bus no.${busroute} is not supported`);
       if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, false, `Bus route ${busroute} is not currently supported`);
+        serviceHelper.sendResponse(
+          res,
+          false,
+          `Bus route ${busroute} is not currently supported`,
+        );
         next();
       }
       return false;
@@ -403,14 +403,20 @@ async function nextbus(req, res, next) {
         disruptions: 'N/A',
         error: 'No data was returned from the call to the TFL API',
       };
-      serviceHelper.log('error', 'No data was returned from the call to the TFL API');
+      serviceHelper.log(
+        'error',
+        'No data was returned from the call to the TFL API',
+      );
       if (typeof res !== 'undefined' && res !== null) {
         serviceHelper.sendResponse(res, false, returnJSON);
         next();
       }
     } else {
-      serviceHelper.log('trace', 'Filter bus stop for only desired route and direction');
-      let busData = apiData.filter(a => a.lineId === busroute);
+      serviceHelper.log(
+        'trace',
+        'Filter bus stop for only desired route and direction',
+      );
+      let busData = apiData.filter((a) => a.lineId === busroute);
       serviceHelper.log('trace', 'Sort by time to arrive at staton');
       busData = busData.sort(serviceHelper.GetSortOrder('timeToStation'));
 
@@ -490,7 +496,11 @@ async function trainStatus(req, res, next) {
   const { fromStation, toStation } = req.body;
   let disruptions = 'false';
 
-  if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
+  if (
+    typeof fromStation === 'undefined' ||
+    fromStation === null ||
+    fromStation === ''
+  ) {
     serviceHelper.log('info', 'Missing param: fromStation');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: fromStation');
@@ -499,7 +509,11 @@ async function trainStatus(req, res, next) {
     return false;
   }
 
-  if (typeof toStation === 'undefined' || toStation === null || toStation === '') {
+  if (
+    typeof toStation === 'undefined' ||
+    toStation === null ||
+    toStation === ''
+  ) {
     serviceHelper.log('info', 'Missing param: toStation');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: toStation');
@@ -540,12 +554,13 @@ async function trainStatus(req, res, next) {
   if (disruptions === 'false') {
     line = trainData[0].operator_name;
     let maxJourneyCounter = 5;
-    if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
+    if (maxJourneyCounter > trainData.length)
+      maxJourneyCounter = trainData.length;
     for (let index = 0; index < maxJourneyCounter; index += 1) {
       serviceHelper.log('trace', 'Check for cancelled train');
       if (
-        trainData[index].status.toLowerCase() === 'it is currently off route'
-        || trainData[index].status.toLowerCase() === 'cancelled'
+        trainData[index].status.toLowerCase() === 'it is currently off route' ||
+        trainData[index].status.toLowerCase() === 'cancelled'
       ) {
         serviceHelper.log('trace', 'Found cancelled train');
         disruptions = 'true';
@@ -609,7 +624,11 @@ async function nextTrain(req, res, next) {
 
   let { fromStation, toStation, departureTimeOffSet } = req.body;
 
-  if (typeof fromStation === 'undefined' || fromStation === null || fromStation === '') {
+  if (
+    typeof fromStation === 'undefined' ||
+    fromStation === null ||
+    fromStation === ''
+  ) {
     serviceHelper.log('info', 'Missing param: fromStation');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: fromStation');
@@ -619,7 +638,11 @@ async function nextTrain(req, res, next) {
   }
   fromStation = fromStation.toUpperCase();
 
-  if (typeof toStation === 'undefined' || toStation === null || toStation === '') {
+  if (
+    typeof toStation === 'undefined' ||
+    toStation === null ||
+    toStation === ''
+  ) {
     serviceHelper.log('info', 'Missing param: toStation');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing param: toStation');
@@ -630,9 +653,9 @@ async function nextTrain(req, res, next) {
   toStation = toStation.toUpperCase();
 
   if (
-    typeof departureTimeOffSet !== 'undefined'
-    && departureTimeOffSet !== null
-    && departureTimeOffSet !== ''
+    typeof departureTimeOffSet !== 'undefined' &&
+    departureTimeOffSet !== null &&
+    departureTimeOffSet !== ''
   ) {
     departureTimeOffSet = `PT${departureTimeOffSet}:00`;
   } else {
@@ -647,9 +670,16 @@ async function nextTrain(req, res, next) {
     const apiData = await serviceHelper.callAPIService(url);
 
     if (serviceHelper.isEmptyObject(apiData)) {
-      serviceHelper.log('error', 'No data was returned from the call to the API');
+      serviceHelper.log(
+        'error',
+        'No data was returned from the call to the API',
+      );
       if (typeof res !== 'undefined' && res !== null) {
-        serviceHelper.sendResponse(res, false, 'No data was returned from the call to the API');
+        serviceHelper.sendResponse(
+          res,
+          false,
+          'No data was returned from the call to the API',
+        );
         next();
       }
       return false;
@@ -672,11 +702,18 @@ async function nextTrain(req, res, next) {
       return returnJSON;
     }
 
-    serviceHelper.log('trace', 'Remove results that start and end at same station');
-    const cleanData = trainData.filter(a => a.origin_name !== a.destination_name);
+    serviceHelper.log(
+      'trace',
+      'Remove results that start and end at same station',
+    );
+    const cleanData = trainData.filter(
+      (a) => a.origin_name !== a.destination_name,
+    );
 
     serviceHelper.log('trace', 'Sort by departure time');
-    trainData = cleanData.sort(serviceHelper.GetSortOrder('aimed_departure_time'));
+    trainData = cleanData.sort(
+      serviceHelper.GetSortOrder('aimed_departure_time'),
+    );
 
     serviceHelper.log('trace', 'Construct JSON');
     const returnJSON = [];
@@ -694,7 +731,8 @@ async function nextTrain(req, res, next) {
     let status;
 
     let maxJourneyCounter = 3;
-    if (maxJourneyCounter > trainData.length) maxJourneyCounter = trainData.length;
+    if (maxJourneyCounter > trainData.length)
+      maxJourneyCounter = trainData.length;
     if (nextTrainOnly === true) maxJourneyCounter = 1;
 
     for (let index = 0; index < maxJourneyCounter; index += 1) {
@@ -719,13 +757,14 @@ async function nextTrain(req, res, next) {
           departureStation = 'Charlton';
       }
       departurePlatform = 'N/A';
-      if (trainData[index].platform != null) departurePlatform = trainData[index].platform;
+      if (trainData[index].platform != null)
+        departurePlatform = trainData[index].platform;
       status = trainData[index].status.toLowerCase();
 
       serviceHelper.log('trace', 'Check for cancelled train');
       if (
-        trainData[index].status.toLowerCase() === 'it is currently off route'
-        || trainData[index].status.toLowerCase() === 'cancelled'
+        trainData[index].status.toLowerCase() === 'it is currently off route' ||
+        trainData[index].status.toLowerCase() === 'cancelled'
       ) {
         serviceHelper.log('trace', 'Found cancelled train');
         disruptions = 'true';
@@ -737,7 +776,7 @@ async function nextTrain(req, res, next) {
       trainStations = await serviceHelper.callAPIService(url);
       trainStations = trainStations.stops;
       serviceHelper.log('trace', 'Get arrival time at destination station');
-      trainStations = trainStations.filter(a => a.station_code === toStation);
+      trainStations = trainStations.filter((a) => a.station_code === toStation);
       arrivalTime = trainStations[0].aimed_arrival_time;
       arrivalStation = trainStations[0].station_name;
 
