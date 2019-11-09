@@ -2,14 +2,14 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
 
 const skill = new Skills();
 
 /**
  * @api {get} /list
  * @apiName list
- * @apiGroup Sensors
+ * @apiGroup Schedules
  *
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
@@ -17,15 +17,16 @@ const skill = new Skills();
  *      "data": [
  *       {
  *           "id": 1,
- *           "sensor_id": 1,
- *           "start_time": "00:00",
- *           "end_time": "08:30",
- *           "light_group_number": 7,
- *           "light_action": "on",
- *           "brightness": 40,
+ *           "type": 0,
+ *           "name": "Morning all lights off",
+ *           "hour": 8,
+ *           "minute": 30,
+ *           "ai_override": false,
  *           "active": true,
- *           "turn_off": "TRUE",
- *           "scene": 3
+ *           "light_group_number": 0,
+ *           "brightness": null,
+ *           "scene": null,
+ *           "color_loop": false
  *       },
  *       ...
  *     ]
@@ -44,7 +45,7 @@ async function list(req, res, next) {
   const { roomNumber } = req.query;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/list?roomNumber=${roomNumber}`;
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/list?roomNumber=${roomNumber}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
@@ -56,8 +57,9 @@ async function list(req, res, next) {
       next();
       return;
     }
+
     serviceHelper.log('trace', 'Sending data back to caller');
-    serviceHelper.sendResponse(res, true, returnData.data.rows);
+    serviceHelper.sendResponse(res, true, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
@@ -75,18 +77,19 @@ skill.get('/list', list);
  * @apiSuccessExample {json} Success-Response:
  *   HTTPS/1.1 200 OK
  *   {
- *       "data": [
+ *      "data": [
  *       {
  *           "id": 1,
- *           "sensor_id": 1,
- *           "start_time": "00:00",
- *           "end_time": "08:30",
- *           "light_group_number": 7,
- *           "light_action": "on",
- *           "brightness": 40,
+ *           "type": 0,
+ *           "name": "Morning all lights off",
+ *           "hour": 8,
+ *           "minute": 30,
+ *           "ai_override": false,
  *           "active": true,
- *           "turn_off": "TRUE",
- *           "scene": 3
+ *           "light_group_number": 0,
+ *           "brightness": null,
+ *           "scene": null,
+ *           "color_loop": false
  *       }
  *     ]
  *   }
@@ -99,12 +102,12 @@ skill.get('/list', list);
  *
  */
 async function get(req, res, next) {
-  serviceHelper.log('trace', 'get sensor API called');
+  serviceHelper.log('trace', 'get Schedule API called');
 
-  const { sensorID } = req.query;
+  const { scheduleID } = req.query;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/get?sensorID=${sensorID}`;
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/get?scheduleID=${scheduleID}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
     if (returnData instanceof Error) {
@@ -130,8 +133,8 @@ async function get(req, res, next) {
 skill.get('/get', get);
 
 /**
- * @api {put} /saveSchedule
- * @apiName saveSchedule
+ * @api {put} /save
+ * @apiName save
  * @apiGroup Schedules
  *
  * @apiSuccessExample {json} Success-Response:
@@ -150,11 +153,12 @@ skill.get('/get', get);
  *
  */
 async function save(req, res, next) {
-  serviceHelper.log('trace', 'save sensor API called');
+  serviceHelper.log('trace', 'save Schedule API called');
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/save`;
+    const apiURL = `${process.env.AlfredScheduleService}/schedule/save`;
     serviceHelper.log(
       'trace',
+      'save',
       `Saving schedule data: ${JSON.stringify(req.body)}`,
     );
     const returnData = await serviceHelper.callAlfredServicePut(

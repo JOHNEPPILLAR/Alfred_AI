@@ -7,7 +7,8 @@ const restify = require('restify');
 const fs = require('fs');
 const UUID = require('pure-uuid');
 const { Pool } = require('pg');
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
+const { version } = require('../../package.json');
 
 global.lightsDataClient = new Pool({
   host: process.env.DataStore,
@@ -33,15 +34,14 @@ global.devicesDataClient = new Pool({
   port: 5432,
 });
 
-global.instanceTraceID = new UUID(4);
-global.callTraceID = null;
+global.APITraceID = '';
 
 /**
  * Restify server Init
  */
 const server = restify.createServer({
   name: process.env.ServiceName,
-  version: process.env.Version,
+  version,
   key: fs.readFileSync('./certs/server.key'),
   certificate: fs.readFileSync('./certs/server.crt'),
 });
@@ -70,10 +70,12 @@ server.use((req, res, next) => {
   next();
 });
 server.use((req, res, next) => {
-  // Check for a® trace id
-  if (typeof req.headers['trace-id'] === 'undefined') {
-    global.callTraceID = new UUID(4);
-  } // Generate new trace id
+  // Check for a trace id
+  if (typeof req.headers['api-trace-id'] === 'undefined') {
+    global.APITraceID = new UUID(4);
+  } else {
+    global.APITraceID = req.headers['api-trace-id'];
+  }
 
   // Check for valid auth key
   if (req.headers['client-access-key'] !== process.env.ClientAccessKey) {
@@ -116,17 +118,14 @@ server.on('uncaughtException', (req, res, route, err) => {
  * Configure API end points
  */
 require('../api/root/root.js').applyRoutes(server);
-require('../api/notifications/notifications.js').applyRoutes(
-  server,
-  '/notifications',
-);
-require('../api/travel/travel.js').skill.applyRoutes(server, '/travel');
-require('../api/travel/commute.js').skill.applyRoutes(server, '/commute');
-require('../api/lights/lights.js').applyRoutes(server, '/lights');
+require('../api/iosDevices/iosDevices.js').applyRoutes(server);
+require('../api/travel/travel.js').skill.applyRoutes(server);
+require('../api/travel/commute.js').skill.applyRoutes(server);
+require('../api/lights/lights.js').applyRoutes(server);
 require('../api/weather/weather.js').skill.applyRoutes(server, '/weather');
-require('../api/schedules/schedules.js').applyRoutes(server, '/schedules');
-require('../api/sensors/sensors.js').applyRoutes(server, '/sensors');
-require('../api/iot/iot.js').applyRoutes(server, '/iot');
+require('../api/sensors/sensors.js').applyRoutes(server);
+require('../api/iot/iot.js').applyRoutes(server);
+// require('../api/schedules/schedules.js').applyRoutes(server, '/schedules');
 
 /**
  * Stop server if process close event is issued
@@ -135,9 +134,12 @@ async function cleanExit() {
   serviceHelper.log('warn', 'Service stopping');
   serviceHelper.log('warn', 'Closing the data store pools');
   try {
-    await global.devicesDataClient.end();
-    await global.lightsDataClient.end();
-    await global.schedulesDataClient.end();
+    // await global.devicesDataClient
+    //  .end()
+    //  .then(() => serviceHelper.log('trace', 'client has disconnected'))
+    //  .catch((err) => serviceHelper.log('error', err.stack));
+    // await global.lightsDataClient.end();
+    // await global.schedulesDataClient.end();
   } catch (err) {
     serviceHelper.log('warn', 'Failed to close a data store connection');
   }

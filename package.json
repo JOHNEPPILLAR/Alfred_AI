@@ -1,40 +1,41 @@
 {
   "name": "alfred_controller_service",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Alfred Controller Service",
-  "main": "lib/server.js",
+  "author": "JP",
+  "license": "MIT",
+  "snyk": true,
+  "main": "app/server/server.js",
   "scripts": {
-    "prod": "node lib/server.js",
-    "test": "nodemon lib/server.js",
+    "prod": "node app/server/server.js",
+    "test": "snyk test && nodemon app/server/server.js",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
   },
-  "author": "JP",
   "dependencies": {
-    "alfred_helper": "git://github.com/johneppillar/alfred_helper_lib",
+    "alfred-helper": "git://github.com/johneppillar/alfred_helper_lib",
     "dark-sky-api": "^0.6.32",
     "dateformat": "^3.0.3",
-    "dotenv": "^8.1.0",
+    "dotenv": "^8.2.0",
     "fs": "^0.0.2",
-    "geolib": "^3.0.4",
+    "geolib": "^3.1.0",
     "harmonyhubjs-client": "^1.1.11",
     "moment": "^2.24.0",
-    "node-geocoder": "^3.24.0",
+    "node-geocoder": "^3.25.0",
     "pg": "^7.12.1",
     "pure-uuid": "^1.5.7",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4",
+    "request-promise": "^4.2.5",
     "restify": "^8.4.0",
     "restify-router": "^0.5.1",
     "underscore": "^1.9.1",
-    "pino": "^5.13.4",
-    "pino-pretty": "^3.2.1",
+    "pino": "^5.13.6",
+    "pino-pretty": "^3.3.0",
     "path": "^0.12.7"
   },
   "devDependencies": {
-    "eslint": "^6.5.1",
+    "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2"
-  },
-  "snyk": true
+  }
 }

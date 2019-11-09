@@ -2,13 +2,13 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
 
 const skill = new Skills();
 
 /**
- * @api {put} /register Register for push notifications
- * @apiName register
+ * @api {put} /iosDevices/:{device} Log iOS device for push notifications
+ * @apiName iosDevices
  * @apiGroup Notifications
  *
  * @apiSuccessExample {json} Success-Response:
@@ -18,16 +18,16 @@ const skill = new Skills();
  *   }
  *
  * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
+ *   HTTPS/1.1 500 Internal error
  *   {
  *     data: Error message
  *   }
  *
  */
-async function register(req, res, next) {
-  serviceHelper.log('trace', 'register API called');
+async function iosDevices(req, res, next) {
+  serviceHelper.log('trace', 'iosDevices API called');
 
-  const deviceToken = req.body.device;
+  const { deviceToken } = req.params;
 
   if (typeof deviceToken === 'undefined' || deviceToken === null) {
     serviceHelper.log('trace', 'Missing param: deviceToken');
@@ -63,15 +63,15 @@ async function register(req, res, next) {
       next();
       return;
     }
-    serviceHelper.log('info', `Registered/updated device : ${deviceToken}`);
-    serviceHelper.sendResponse(res, true, `Registered device : ${deviceToken}`);
+    serviceHelper.log('info', `Logged device : ${deviceToken}`);
+    serviceHelper.sendResponse(res, 200, `Logged device : ${deviceToken}`);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
-    serviceHelper.sendResponse(res, false, err);
+    serviceHelper.sendResponse(res, 500, err);
     next();
   }
 }
-skill.put('/register', register);
+skill.put('/iosDevices/:deviceToken', iosDevices);
 
 module.exports = skill;

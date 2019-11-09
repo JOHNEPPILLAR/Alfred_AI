@@ -5,7 +5,7 @@ const Skills = require('restify-router').Router;
 const dateFormat = require('dateformat');
 const darkSky = require('dark-sky-api');
 const NodeGeocoder = require('node-geocoder');
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
 
 const skill = new Skills();
 
@@ -45,8 +45,7 @@ async function sunSet(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location === null || location === '')
-    location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
 
   try {
     serviceHelper.log('trace', 'Calling geocoder');
@@ -67,14 +66,14 @@ async function sunSet(req, res, next) {
     const sunSetTime = new Date(apiData.daily.data[0].sunsetTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, dateFormat(sunSetTime, 'HH:MM'));
+      serviceHelper.sendResponse(res, 200, dateFormat(sunSetTime, 'HH:MM'));
       next();
     }
     return dateFormat(sunSetTime, 'HH:MM');
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, 500, err);
       next();
     }
     return err;
@@ -110,8 +109,7 @@ async function sunRise(req, res, next) {
 
   // Get the location and if blank set to London, UK
   let { location } = req.query;
-  if (typeof location === 'undefined' || location === null || location === '')
-    location = 'london';
+  if (typeof location === 'undefined' || location === null || location === '') location = 'london';
 
   try {
     serviceHelper.log('trace', 'Calling geocoder');
@@ -132,14 +130,14 @@ async function sunRise(req, res, next) {
     const sunriseTime = new Date(apiData.daily.data[0].sunriseTime * 1000);
 
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, dateFormat(sunriseTime, 'HH:MM'));
+      serviceHelper.sendResponse(res, 200, dateFormat(sunriseTime, 'HH:MM'));
       next();
     }
     return dateFormat(sunriseTime, 'HH:MM');
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, 500, err);
       next();
     }
     return err;
@@ -176,7 +174,7 @@ skill.get('/sunrise', sunRise);
  *   }
  *
  */
-async function currentWeather(req, res, next) {
+async function current(req, res, next) {
   serviceHelper.log('trace', 'CurrentWeather API called');
 
   // Configure darksky
@@ -184,13 +182,10 @@ async function currentWeather(req, res, next) {
   darkSky.proxy = true;
   darkSky.units = 'uk2';
 
-  const { lat, long } = req.query;
-  if (
-    typeof lat === 'undefined' ||
-    lat === null ||
-    lat === '' ||
-    (typeof long === 'undefined' || long === null || long === '')
-  ) {
+  const { lat, long } = req.params;
+
+  if ((typeof lat === 'undefined' || lat === null || lat === '')
+    || (typeof long === 'undefined' || long === null || long === '')) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 400, 'Missing params: lat/long');
@@ -241,20 +236,20 @@ async function currentWeather(req, res, next) {
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, jsonDataObj);
+      serviceHelper.sendResponse(res, 200, jsonDataObj);
       next();
     }
     return jsonDataObj;
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, 500, err);
       next();
     }
     return err;
   }
 }
-skill.get('/today', currentWeather);
+skill.get('/today/:lat/:long', current);
 
 /**
  * @api {get} /weather/willitrain4h Will it rain in the next 4 hrs
@@ -291,10 +286,10 @@ async function willItRain(req, res, next) {
   let { forcastDuration } = req.query;
 
   if (
-    typeof lat === 'undefined' ||
-    lat === null ||
-    lat === '' ||
-    (typeof long === 'undefined' || long === null || long === '')
+    typeof lat === 'undefined'
+    || lat === null
+    || lat === ''
+    || (typeof long === 'undefined' || long === null || long === '')
   ) {
     serviceHelper.log('info', 'Missing params: lat/long');
     if (typeof res !== 'undefined' && res !== null) {
@@ -305,11 +300,10 @@ async function willItRain(req, res, next) {
   }
 
   if (
-    typeof forcastDuration === 'undefined' ||
-    forcastDuration === null ||
-    forcastDuration === ''
-  )
-    forcastDuration = 5;
+    typeof forcastDuration === 'undefined'
+    || forcastDuration === null
+    || forcastDuration === ''
+  ) forcastDuration = 5;
 
   try {
     serviceHelper.log('trace', 'Calling geocoder to get location name');
@@ -340,10 +334,8 @@ async function willItRain(req, res, next) {
     for (let i = 1, len = cleanWeatherData.length; i < len; i += 1) {
       const probability = cleanWeatherData[i].precipProbability;
       const intensity = cleanWeatherData[i].precipIntensity;
-      precipProbability =
-        probability > precipProbability ? probability : precipProbability;
-      precipIntensity =
-        intensity > precipIntensity ? intensity : precipIntensity;
+      precipProbability = probability > precipProbability ? probability : precipProbability;
+      precipIntensity = intensity > precipIntensity ? intensity : precipIntensity;
     }
 
     const jsonDataObj = {
@@ -355,14 +347,14 @@ async function willItRain(req, res, next) {
     };
 
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, jsonDataObj);
+      serviceHelper.sendResponse(res, 200, jsonDataObj);
       next();
     }
     return jsonDataObj;
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, 500, err);
       next();
     }
     return err;
@@ -371,8 +363,8 @@ async function willItRain(req, res, next) {
 skill.get('/willitrain', willItRain);
 
 /**
- * @api {get} /weather/houseWeather Get the temp and other weather information from inside the house
- * @apiName houseWeather
+ * @api {get} /weather/house Get the temp and other weather information from inside the house
+ * @apiName house
  * @apiGroup Weather
  *
  * @apiSuccessExample {json} Success-Response:
@@ -391,8 +383,8 @@ skill.get('/willitrain', willItRain);
  *   }
  *
  */
-async function houseWeather(req, res, next) {
-  serviceHelper.log('trace', 'houseWeather API called');
+async function house(req, res, next) {
+  serviceHelper.log('trace', 'house weather API called');
   let mainBedRoomData;
   let restOfTheHouseData;
   let apiURL;
@@ -400,8 +392,12 @@ async function houseWeather(req, res, next) {
   try {
     // Dyson purecool fan
     serviceHelper.log('trace', 'Getting latest Dyson data');
-    apiURL = `${process.env.AlfredDysonService}/display/current`;
+    apiURL = `${process.env.AlfredDysonService}/sensors/current`;
     mainBedRoomData = await serviceHelper.callAlfredServiceGet(apiURL);
+
+    if (mainBedRoomData instanceof Error) {
+      throw new Error(mainBedRoomData.message);
+    }
   } catch (err) {
     serviceHelper.log('error', err.message);
   }
@@ -409,8 +405,11 @@ async function houseWeather(req, res, next) {
   try {
     // Netatmo sensors
     serviceHelper.log('trace', 'Getting latest Netatmo data');
-    apiURL = `${process.env.AlfredNetatmoService}/display/current`;
+    apiURL = `${process.env.AlfredNetatmoService}/sensors/current`;
     restOfTheHouseData = await serviceHelper.callAlfredServiceGet(apiURL);
+    if (restOfTheHouseData instanceof Error) {
+      throw new Error(mainBedRoomData.message);
+    }
   } catch (err) {
     serviceHelper.log('error', err.message);
   }
@@ -421,43 +420,45 @@ async function houseWeather(req, res, next) {
     let jsonDataObj = [];
 
     if (
-      mainBedRoomData instanceof Error === false &&
-      typeof mainBedRoomData !== 'undefined'
+      mainBedRoomData instanceof Error === false
+      && typeof mainBedRoomData.data !== 'undefined'
+      && mainBedRoomData.data !== 'No data to return'
     ) {
       jsonDataObj = mainBedRoomData.data;
     }
 
     if (
-      restOfTheHouseData instanceof Error === false &&
-      typeof restOfTheHouseData !== 'undefined'
+      restOfTheHouseData instanceof Error === false
+      && typeof restOfTheHouseData.data !== 'undefined'
+      && restOfTheHouseData.data !== 'No data to return'
     ) {
       jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
     }
 
     if (jsonDataObj.length === 0) {
-      serviceHelper.log('error', 'No results');
-      serviceHelper.sendResponse(res, null, 'No results');
+      serviceHelper.log('warn', 'No house weather results');
+      serviceHelper.sendResponse(res, 200, 'No house weather results');
       next();
       return;
     }
 
     serviceHelper.log('trace', 'Send data back to user');
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, true, jsonDataObj);
+      serviceHelper.sendResponse(res, 200, jsonDataObj);
       next();
     }
   } catch (err) {
     serviceHelper.log('error', err.message);
     if (typeof res !== 'undefined' && res !== null) {
-      serviceHelper.sendResponse(res, null, err);
+      serviceHelper.sendResponse(res, 500, err);
       next();
     }
   }
 }
-skill.get('/houseWeather', houseWeather);
+skill.get('/house', house);
 
 module.exports = {
   skill,
-  currentWeather,
-  houseWeather,
+  current,
+  house,
 };

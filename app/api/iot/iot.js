@@ -2,7 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
 
 const skill = new Skills();
 
@@ -27,7 +27,7 @@ const skill = new Skills();
  *   }
  *
  * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
+ *   HTTPS/1.1 500 Internal error
  *   {
  *     data: Error message
  *   }
@@ -35,12 +35,13 @@ const skill = new Skills();
  */
 async function displayRoomCharts(req, res, next) {
   serviceHelper.log('trace', 'Display room temp data API called');
+  serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
+  serviceHelper.log('trace', `Body: ${JSON.stringify(req.body)}`);
+
+  const { roomID } = req.params;
+  const { durationSpan } = req.query;
 
   try {
-    serviceHelper.log('trace', JSON.stringify(req.query));
-
-    const { durationSpan, roomID } = req.query;
-
     // Check key params are valid
     if (typeof roomID === 'undefined' || roomID === null || roomID === '') {
       serviceHelper.sendResponse(res, 400, 'Missing param: roomID');
@@ -60,53 +61,45 @@ async function displayRoomCharts(req, res, next) {
           'trace',
           'Getting chart data for kids room/living room, kitchen and Garden',
         );
-        apiURL = `${process.env.AlfredNetatmoService}/display/all?durationSpan=${durationSpan}&roomID=${roomID}`;
+        apiURL = `${process.env.AlfredNetatmoService}/sensors/${roomID}?durationSpan=${durationSpan}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
-          serviceHelper.sendResponse(
-            res,
-            false,
-            'Unable to return data from Alfred',
-          );
+          serviceHelper.sendResponse(res, 500, returnData);
           next();
           return;
         }
         serviceHelper.log('trace', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, true, returnData.data);
+        serviceHelper.sendResponse(res, 200, returnData.data);
         next();
         break;
       case '5': // Main bed room / Dyson
         serviceHelper.log('trace', 'Getting chart data for main bed room');
-        apiURL = `${process.env.AlfredDysonService}/display/all?durationSpan=${durationSpan}`;
+        apiURL = `${process.env.AlfredDysonService}/sensors?durationSpan=${durationSpan}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
-          serviceHelper.sendResponse(
-            res,
-            false,
-            'Unable to return data from Alfred',
-          );
+          serviceHelper.sendResponse(res, 500, returnData);
           next();
           return;
         }
         serviceHelper.log('trace', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, true, returnData.data);
+        serviceHelper.sendResponse(res, 200, returnData.data);
         next();
         break;
       default:
         serviceHelper.log('trace', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, false, 'No room selected');
+        serviceHelper.sendResponse(res, 400, 'No room selected');
         next();
         break;
     }
   } catch (err) {
     serviceHelper.log('error', err.message);
-    serviceHelper.sendResponse(res, false, err.message);
+    serviceHelper.sendResponse(res, 500, err);
     next();
   }
 }
-skill.get('/displayroomcharts', displayRoomCharts);
+skill.get('/displayroomcharts/:roomID', displayRoomCharts);
 
 /**
  * @api {get} /displaycureentgardendata
@@ -131,7 +124,7 @@ skill.get('/displayroomcharts', displayRoomCharts);
  *   }
  *
  * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
+ *   HTTPS/1.1 500 Internal error
  *   {
  *     data: Error message
  *   }
@@ -142,24 +135,20 @@ async function displayCurrentGardenData(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'Getting current chart data');
-    const apiURL = `${process.env.AlfredFlowerCareService}/display/current`;
+    const apiURL = `${process.env.AlfredFlowerCareService}/sensors/current`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(
-        res,
-        false,
-        'Unable to return data from Alfred',
-      );
+      serviceHelper.sendResponse(res, 500, returnData);
       next();
       return;
     }
     serviceHelper.log('trace', 'Sending data back to caller');
-    serviceHelper.sendResponse(res, true, returnData.data);
+    serviceHelper.sendResponse(res, 200, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
-    serviceHelper.sendResponse(res, false, err.message);
+    serviceHelper.sendResponse(res, 500, err);
     next();
   }
 }

@@ -6,7 +6,7 @@ const Skills = require('restify-router').Router;
 /**
  * Import helper libraries
  */
-const serviceHelper = require('alfred_helper');
+const serviceHelper = require('alfred-helper');
 
 const skill = new Skills();
 
@@ -22,7 +22,7 @@ const skill = new Skills();
  *   }
  *
  * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
+ *   HTTPS/1.1 500 Internal error
  *   {
  *     data: Error message
  *   }
