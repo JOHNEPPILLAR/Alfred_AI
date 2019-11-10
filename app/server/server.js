@@ -119,8 +119,7 @@ server.on('uncaughtException', (req, res, route, err) => {
  */
 require('../api/root/root.js').applyRoutes(server);
 require('../api/iosDevices/iosDevices.js').applyRoutes(server);
-require('../api/travel/travel.js').skill.applyRoutes(server);
-require('../api/travel/commute.js').skill.applyRoutes(server);
+require('../api/commute/commute.js').skill.applyRoutes(server);
 require('../api/lights/lights.js').applyRoutes(server);
 require('../api/weather/weather.js').skill.applyRoutes(server, '/weather');
 require('../api/sensors/sensors.js').applyRoutes(server);
