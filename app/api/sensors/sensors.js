@@ -121,7 +121,7 @@ async function getSensor(req, res, next) {
     next();
   }
 }
-skill.get('/sensors/timers/:sensorID', getSensor);
+skill.get('/sensors/schedules/:sensorID', getSensor);
 
 /**
  * @api {put} /sensors/timers/:sensorID
