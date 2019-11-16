@@ -7,7 +7,7 @@ const serviceHelper = require('alfred-helper');
 const skill = new Skills();
 
 /**
- * @api {get} /sensors/timers/rooms
+ * @api {get} /sensors/schedules/rooms
  * @apiName sensors
  * @apiGroup Sensors
  *
@@ -39,13 +39,13 @@ const skill = new Skills();
  *
  */
 async function listSensorTimersRoom(req, res, next) {
-  serviceHelper.log('trace', 'list sensors API called');
+  serviceHelper.log('trace', 'list sensors schedules API called');
   serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
 
   const { roomNumber } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/timers/rooms/${roomNumber}`;
+    const apiURL = `${process.env.AlfredLightsService}/sensors/schedules/rooms/${roomNumber}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
@@ -63,10 +63,10 @@ async function listSensorTimersRoom(req, res, next) {
     next();
   }
 }
-skill.get('/sensors/timers/rooms/:roomNumber', listSensorTimersRoom);
+skill.get('/sensors/schedules/rooms/:roomNumber', listSensorTimersRoom);
 
 /**
- * @api {get} /sensors/timers/:sensorID
+ * @api {get} /sensors/schedules/:sensorID
  * @apiName getSensor
  * @apiGroup sensors
  *
@@ -97,13 +97,13 @@ skill.get('/sensors/timers/rooms/:roomNumber', listSensorTimersRoom);
  *
  */
 async function getSensor(req, res, next) {
-  serviceHelper.log('trace', 'get sensor timer API called');
+  serviceHelper.log('trace', 'get sensor schedule API called');
   serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
 
   const { sensorID } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/timers/${sensorID}`;
+    const apiURL = `${process.env.AlfredLightsService}/sensors/schedules/${sensorID}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
