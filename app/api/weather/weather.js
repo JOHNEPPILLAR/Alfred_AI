@@ -56,8 +56,19 @@ async function sunSet(req, res, next) {
       longitude: apiData[0].longitude,
     };
 
-    serviceHelper.log('trace', 'Get forcast from DarkSky');
+    serviceHelper.log('trace', 'Get sunset from DarkSky');
     apiData = await darkSky.loadForecast(position);
+    if (apiData instanceof Error) {
+      serviceHelper.log(
+        'error',
+        apiData.message,
+      );
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, 500, apiData);
+        next();
+      }
+      return apiData;
+    }
 
     serviceHelper.log(
       'trace',
@@ -120,8 +131,19 @@ async function sunRise(req, res, next) {
       longitude: apiData[0].longitude,
     };
 
-    serviceHelper.log('trace', 'Get forcast from DarkSky');
+    serviceHelper.log('trace', 'Get sunrise from DarkSky');
     apiData = await darkSky.loadForecast(position);
+    if (apiData instanceof Error) {
+      serviceHelper.log(
+        'error',
+        apiData.message,
+      );
+      if (typeof res !== 'undefined' && res !== null) {
+        serviceHelper.sendResponse(res, 500, apiData);
+        next();
+      }
+      return apiData;
+    }
 
     serviceHelper.log(
       'trace',
