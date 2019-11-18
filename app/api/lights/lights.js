@@ -110,7 +110,7 @@ skill.get('/lightgroups', listLightGroups);
  *
  */
 async function allOff(req, res, next) {
-  serviceHelper.log('trace', 'allOff API called');
+  serviceHelper.log('trace', 'all lights off API called');
   try {
     const apiURL = `${process.env.AlfredLightsService}/lightgroups/0`;
     const body = { lightAction: 'off' };
@@ -133,7 +133,7 @@ async function allOff(req, res, next) {
     next();
   }
 }
-skill.get('/alloff', allOff);
+skill.get('/alllightsoff', allOff);
 
 /**
  * @api {put} /lights Update light
