@@ -112,8 +112,67 @@ async function list(req, res, next) {
 skill.get('/schedules/rooms/:roomNumber', list);
 
 /**
- * @api {put} /save
- * @apiName save
+ * @api {get} /schedules/:scheduleID
+ * @apiName getSchedule
+ * @apiGroup Schedules
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *       "data": [
+ *       {
+ *           "id": 8,
+ *           "type": 1,
+ *           "name": "Living room evening light",
+ *           "hour": 20,
+ *           "minute": 0,
+ *           "ai_override": true,
+ *           "active": true,
+ *           "light_group_number": 8,
+ *           "brightness": 120,
+ *           "scene": 4,
+ *           "color_loop": false
+ *       },
+ *     ]
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function getSchedule(req, res, next) {
+  serviceHelper.log('trace', 'get schedule API called');
+  serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
+
+  const { ScheduleID } = req.params;
+
+  try {
+    const apiURL = `${process.env.AlfredLightsService}/schedules/${ScheduleID}`;
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
+      serviceHelper.sendResponse(res, 500, returnData);
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, 200, returnData.data);
+    next();
+  } catch (err) {
+    serviceHelper.log('error', err.message);
+    serviceHelper.sendResponse(res, 500, err);
+    next();
+  }
+}
+skill.get('/schedules/:ScheduleID', getSchedule);
+
+/**
+ * @api {put} /schedules/:scheduleID
+ * @apiName saveSchedule
  * @apiGroup Schedules
  *
  * @apiSuccessExample {json} Success-Response:
@@ -125,42 +184,39 @@ skill.get('/schedules/rooms/:roomNumber', list);
  *   }
  *
  * @apiErrorExample {json} Error-Response:
- *   HTTPS/1.1 400 Bad Request
+ *   HTTPS/1.1 500 Internal error
  *   {
  *     data: Error message
  *   }
  *
  */
-async function save(req, res, next) {
-  serviceHelper.log('trace', 'save Schedule API called');
-  try {
-    const apiURL = `${process.env.AlfredScheduleService}/schedule/save`;
-    serviceHelper.log(
-      'trace',
-      'save',
-      `Saving schedule data: ${JSON.stringify(req.body)}`,
-    );
-    const returnData = await serviceHelper.callAlfredServicePut(
-      apiURL,
-      req.body,
-    );
+async function saveSchedule(req, res, next) {
+  serviceHelper.log('trace', 'save schedule API called');
+  serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
+  serviceHelper.log('trace', `Body: ${JSON.stringify(req.body)}`);
 
+  const { ScheduleID } = req.params;
+
+  try {
+    const apiURL = `${process.env.AlfredLightsService}/schedules/${ScheduleID}`;
+    serviceHelper.log('trace', 'Saving schedule data');
+    const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
-      serviceHelper.sendResponse(res, false, 'Unable to save data to Alfred');
+      serviceHelper.sendResponse(res, 500, returnData);
       next();
       return;
     }
 
     serviceHelper.log('trace', 'Sending data back to caller');
-    serviceHelper.sendResponse(res, true, returnData.data);
+    serviceHelper.sendResponse(res, 200, returnData.data);
     next();
   } catch (err) {
     serviceHelper.log('error', err.message);
-    serviceHelper.sendResponse(res, false, err);
+    serviceHelper.sendResponse(res, 500, err);
     next();
   }
 }
-skill.put('/save', save);
+skill.put('/schedules/:ScheduleID', saveSchedule);
 
 module.exports = skill;
