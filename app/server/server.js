@@ -124,7 +124,7 @@ require('../api/lights/lights.js').applyRoutes(server);
 require('../api/weather/weather.js').skill.applyRoutes(server, '/weather');
 require('../api/sensors/sensors.js').applyRoutes(server);
 require('../api/iot/iot.js').applyRoutes(server);
-// require('../api/schedules/schedules.js').applyRoutes(server, '/schedules');
+require('../api/schedules/schedules.js').applyRoutes(server);
 
 /**
  * Stop server if process close event is issued

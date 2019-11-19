@@ -8,6 +8,7 @@
   "main": "app/server/server.js",
   "scripts": {
     "prod": "node app/server/server.js",
+    "local": "nodemon app/server/server.js",
     "test": "snyk test && nodemon app/server/server.js",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
@@ -22,7 +23,7 @@
     "harmonyhubjs-client": "^1.1.11",
     "moment": "^2.24.0",
     "node-geocoder": "^3.25.0",
-    "pg": "^7.12.1",
+    "pg": "^7.13.0",
     "pure-uuid": "^1.5.7",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
@@ -37,6 +38,6 @@
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "snyk": "^1.248.0"
+    "snyk": "^1.249.1"
   }
 }
