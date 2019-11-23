@@ -83,9 +83,16 @@ async function list(req, res, next) {
         }
         break;
       case '9': // Kitchen
-        serviceHelper.sendResponse(res, false, []);
-        next();
-        return;
+        apiURL = `${process.env.AlfredLightsService}/schedules/rooms/${roomNumber}`;
+        serviceHelper.log('trace', `Calling: ${apiURL}`);
+        returnData = await serviceHelper.callAlfredServiceGet(apiURL);
+        if (returnData instanceof Error) {
+          serviceHelper.log('error', returnData.message);
+          serviceHelper.sendResponse(res, false, returnData.message);
+          next();
+          return;
+        }
+        break;
       case 'G': // Garden / Flowercare
         apiURL = `${process.env.AlfredFlowerCareService}/schedules`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
