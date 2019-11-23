@@ -82,7 +82,10 @@ async function list(req, res, next) {
           return;
         }
         break;
-      // case '9': // Kitchen
+      case '9': // Kitchen
+        serviceHelper.sendResponse(res, false, []);
+        next();
+        return;
       case 'G': // Garden / Flowercare
         apiURL = `${process.env.AlfredFlowerCareService}/schedules`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
