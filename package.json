@@ -16,7 +16,6 @@
     "alfred-helper": "git://github.com/johneppillar/alfred_helper_lib",
     "dark-sky-api": "^0.6.32",
     "dateformat": "^3.0.3",
-    "dotenv": "^8.2.0",
     "fs": "^0.0.2",
     "harmonyhubjs-client": "^1.1.11",
     "moment": "^2.24.0",
