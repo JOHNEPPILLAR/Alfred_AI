@@ -136,9 +136,7 @@ async function setupAndRun() {
   });
 
   // Start service and listen to requests
-  server.listen(process.env.PORT, async () => {
-    serviceHelper.log('info', `${serviceName} has started`);
-  });
+  server.listen(process.env.PORT, async () => serviceHelper.log('info', `${serviceName} has started`));
 }
 
 setupAndRun();
