@@ -1,16 +1,28 @@
 FROM node:13-alpine
 
 RUN ln -snf /usr/share/zoneinfo/Europe/London /etc/localtime && echo Europe/London > /etc/timezone \
-	&& apk update && apk upgrade \
-	&& apk add --no-cache git \
-	&& mkdir -p /home/nodejs/app
+	&& mkdir -p /home/nodejs/app \
+	&& apk --no-cache --virtual build-dependencies add \
+	git \ 
+	g++ \
+	gcc \
+	libgcc \
+	libstdc++ \
+	linux-headers \
+	make \
+	python \
+	&& npm install --quiet node-gyp -g \
+	&& rm -rf /var/cache/apk/*
 
 WORKDIR /home/nodejs/app
 
-COPY . /home/nodejs/app
+COPY package*.json ./
 
-RUN npm update \
-	&& npm install --production
+RUN npm install
+
+COPY --chown=node:node . .
+
+USER node
 
 HEALTHCHECK --start-period=60s --interval=10s --timeout=10s --retries=6 CMD ["./healthcheck.sh"]
 

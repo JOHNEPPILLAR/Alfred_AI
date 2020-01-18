@@ -30,7 +30,7 @@ async function getCommuteStatus(req, res, next) {
   serviceHelper.log('trace', 'getCommuteStatus API called');
   try {
     serviceHelper.log('trace', 'Call commute service');
-    const apiURL = `${process.env.AlfredCommuteService}/getcommutestatus`;
+    const apiURL = `${process.env.ALFRED_COMMUTE_SERVICE}/getcommutestatus`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const apiData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (apiData instanceof Error) {
@@ -101,7 +101,7 @@ async function getCommute(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'Call commute service');
-    const apiURL = `${process.env.AlfredCommuteService}/commute/${lat}/${long}`;
+    const apiURL = `${process.env.ALFRED_COMMUTE_SERVICE}/commute/${lat}/${long}`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const apiData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (apiData instanceof Error) {

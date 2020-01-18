@@ -50,7 +50,7 @@ async function list(req, res, next) {
   try {
     switch (roomNumber) {
       case '8': // Living room / lights
-        apiURL = `${process.env.AlfredLightsService}/schedules/rooms/${roomNumber}`;
+        apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/rooms/${roomNumber}`;
         serviceHelper.log('trace', `Calling: ${apiURL}`);
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
@@ -61,7 +61,7 @@ async function list(req, res, next) {
         }
         break;
       case '4': // Kids bedroom / lights
-        apiURL = `${process.env.AlfredLightsService}/schedules/rooms/${roomNumber}`;
+        apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/rooms/${roomNumber}`;
         serviceHelper.log('trace', `Calling: ${apiURL}`);
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
@@ -72,7 +72,7 @@ async function list(req, res, next) {
         }
         break;
       case '5': // Main bed room / lights
-        apiURL = `${process.env.AlfredLightsService}/schedules/rooms/${roomNumber}`;
+        apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/rooms/${roomNumber}`;
         serviceHelper.log('trace', `Calling: ${apiURL}`);
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
@@ -83,7 +83,7 @@ async function list(req, res, next) {
         }
         break;
       case '9': // Kitchen
-        apiURL = `${process.env.AlfredLightsService}/schedules/rooms/${roomNumber}`;
+        apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/rooms/${roomNumber}`;
         serviceHelper.log('trace', `Calling: ${apiURL}`);
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
@@ -94,7 +94,7 @@ async function list(req, res, next) {
         }
         break;
       case 'G': // Garden / Flowercare
-        apiURL = `${process.env.AlfredFlowerCareService}/schedules`;
+        apiURL = `${process.env.ALFRED_FLOWERCARE_SERVICE}/schedules`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
@@ -160,7 +160,7 @@ async function getSchedule(req, res, next) {
   const { ScheduleID } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/schedules/${ScheduleID}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/${ScheduleID}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
@@ -208,7 +208,7 @@ async function saveSchedule(req, res, next) {
   const { ScheduleID } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/schedules/${ScheduleID}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/schedules/${ScheduleID}`;
     serviceHelper.log('trace', 'Saving schedule data');
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
     if (returnData instanceof Error) {

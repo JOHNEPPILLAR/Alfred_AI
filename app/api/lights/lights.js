@@ -27,7 +27,7 @@ const skill = new Skills();
 async function listLights(req, res, next) {
   serviceHelper.log('trace', 'list lights API called');
   try {
-    const apiURL = `${process.env.AlfredLightsService}/lights`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/lights`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
 
@@ -70,7 +70,7 @@ skill.get('/listlights', listLights);
 async function listLightGroups(req, res, next) {
   serviceHelper.log('trace', 'listLightGroups API called');
   try {
-    const apiURL = `${process.env.AlfredLightsService}/lightgroups`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/lightgroups`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
@@ -112,7 +112,7 @@ skill.get('/lightgroups', listLightGroups);
 async function allOff(req, res, next) {
   serviceHelper.log('trace', 'all lights off API called');
   try {
-    const apiURL = `${process.env.AlfredLightsService}/lightgroups/0`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/lightgroups/0`;
     const body = { lightAction: 'off' };
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, body);
@@ -181,7 +181,7 @@ async function updateLight(req, res, next) {
   }
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/lights/${lightNumber}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/lights/${lightNumber}`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(
       apiURL,
@@ -251,7 +251,7 @@ async function updateLightGroup(req, res, next) {
   }
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/lightgroups/${lightGroupNumber}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/lightgroups/${lightGroupNumber}`;
     serviceHelper.log('trace', `Calling: ${apiURL}`);
     const returnData = await serviceHelper.callAlfredServicePut(
       apiURL,

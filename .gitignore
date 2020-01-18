@@ -1,7 +1,4 @@
 node_modules/
-.env
-localDevDocker.sh
-certs/
 geoHome.json
 geoJPWork.json
 

@@ -40,6 +40,7 @@ async function displayRoomCharts(req, res, next) {
 
   const { roomID } = req.params;
   const { durationSpan } = req.query;
+  let durationSpanVaule;
 
   try {
     // Check key params are valid
@@ -47,6 +48,10 @@ async function displayRoomCharts(req, res, next) {
       serviceHelper.sendResponse(res, 400, 'Missing param: roomID');
       next();
       return;
+    }
+
+    if (typeof durationSpan === 'undefined' || durationSpan === null) {
+      durationSpanVaule = '';
     }
 
     let apiURL;
@@ -61,7 +66,7 @@ async function displayRoomCharts(req, res, next) {
           'trace',
           'Getting chart data for kids room/living room, kitchen and Garden',
         );
-        apiURL = `${process.env.AlfredNetatmoService}/sensors/${roomID}?durationSpan=${durationSpan}`;
+        apiURL = `${process.env.ALFRED_NETATMO_SERVICE}/sensors/${roomID}?durationSpan=${durationSpanVaule}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
@@ -75,7 +80,7 @@ async function displayRoomCharts(req, res, next) {
         break;
       case '5': // Main bed room / Dyson
         serviceHelper.log('trace', 'Getting chart data for main bed room');
-        apiURL = `${process.env.AlfredDysonService}/sensors?durationSpan=${durationSpan}`;
+        apiURL = `${process.env.ALFRED_DYSON_SERVICE}/sensors?durationSpan=${durationSpanVaule}`;
         returnData = await serviceHelper.callAlfredServiceGet(apiURL);
         if (returnData instanceof Error) {
           serviceHelper.log('error', returnData.message);
@@ -135,7 +140,7 @@ async function displayCurrentGardenData(req, res, next) {
 
   try {
     serviceHelper.log('trace', 'Getting current chart data');
-    const apiURL = `${process.env.AlfredFlowerCareService}/sensors/current`;
+    const apiURL = `${process.env.ALFRED_FLOWERCARE_SERVICE}/sensors/current`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);

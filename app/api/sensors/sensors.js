@@ -45,7 +45,7 @@ async function listSensorTimersRoom(req, res, next) {
   const { roomNumber } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/schedules/rooms/${roomNumber}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/sensors/schedules/rooms/${roomNumber}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
@@ -103,7 +103,7 @@ async function getSensor(req, res, next) {
   const { sensorID } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/schedules/${sensorID}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/sensors/schedules/${sensorID}`;
     const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
     if (returnData instanceof Error) {
       serviceHelper.log('error', returnData.message);
@@ -151,7 +151,7 @@ async function saveSensor(req, res, next) {
   const { sensorID } = req.params;
 
   try {
-    const apiURL = `${process.env.AlfredLightsService}/sensors/schedules/${sensorID}`;
+    const apiURL = `${process.env.ALFRED_LIGHTS_SERVICE}/sensors/schedules/${sensorID}`;
     serviceHelper.log('trace', 'Saving schedule data');
     const returnData = await serviceHelper.callAlfredServicePut(apiURL, req.body);
     if (returnData instanceof Error) {
