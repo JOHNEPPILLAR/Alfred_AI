@@ -42,14 +42,13 @@ async function iosDevices(req, res, next) {
 
     serviceHelper.log('trace', 'Connect to data store connection pool');
     const dbConnection = await serviceHelper.connectToDB('devices');
-    const dbClient = await dbConnection.connect(); // Connect to data store
     serviceHelper.log('trace', 'Save device data');
-    const results = await dbClient.query(SQL, SQLValues);
+    const results = await dbConnection.query(SQL, SQLValues);
     serviceHelper.log(
       'trace',
       'Release the data store connection back to the pool',
     );
-    await dbClient.end(); // Close data store connection
+    await dbConnection.end(); // Close data store connection
 
     if (results.rowCount !== 1) {
       serviceHelper.log(
