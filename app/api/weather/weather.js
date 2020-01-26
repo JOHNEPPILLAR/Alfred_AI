@@ -383,28 +383,16 @@ async function house(req, res, next) {
     let jsonDataObj = [];
 
     if (
-      mainBedRoomData instanceof Error === false
-      && typeof mainBedRoomData.data !== 'undefined'
-      && mainBedRoomData.data !== 'No data to return'
-    ) {
-      jsonDataObj = mainBedRoomData.data;
-    }
+      typeof mainBedRoomData.data !== 'undefined'
+      && !serviceHelper.isEmptyObject(mainBedRoomData.data)
+    ) jsonDataObj = mainBedRoomData.data;
 
     if (
-      restOfTheHouseData instanceof Error === false
-      && typeof restOfTheHouseData.data !== 'undefined'
-      && !restOfTheHouseData.data
-    ) {
-      jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
-    }
+      typeof restOfTheHouseData.data !== 'undefined'
+      && !serviceHelper.isEmptyObject(restOfTheHouseData.data)
+    ) jsonDataObj = restOfTheHouseData.data.concat(jsonDataObj);
 
-    if (jsonDataObj.length === 0) {
-      serviceHelper.log('warn', 'No house weather results');
-      serviceHelper.sendResponse(res, 200, 'No house weather results');
-      next();
-      return;
-    }
-
+    if (jsonDataObj.length === 0) serviceHelper.log('warn', 'No house weather results found');
     serviceHelper.log('trace', 'Send data back to user');
     if (typeof res !== 'undefined' && res !== null) {
       serviceHelper.sendResponse(res, 200, jsonDataObj);
