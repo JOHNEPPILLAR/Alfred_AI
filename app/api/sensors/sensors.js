@@ -7,7 +7,7 @@ const serviceHelper = require('alfred-helper');
 const skill = new Skills();
 
 /**
- * @api {get} /sensors/schedules/rooms
+ * @api {get} /sensors/schedules/rooms/:roomNumber
  * @apiName sensors
  * @apiGroup Sensors
  *
@@ -124,7 +124,7 @@ async function getSensor(req, res, next) {
 skill.get('/sensors/schedules/:sensorID', getSensor);
 
 /**
- * @api {put} /sensors/timers/:sensorID
+ * @api {put} /sensors/schedules/:sensorID
  * @apiName saveSensor
  * @apiGroup Sensors
  *
@@ -174,8 +174,8 @@ skill.put('/sensors/schedules/:sensorID', saveSensor);
 
 
 /**
- * @api {put} /sensors/timers/:sensorID
- * @apiName saveSensor
+ * @api {get} /sensors/garden
+ * @apiName list garden sensors
  * @apiGroup Sensors
  *
  * @apiSuccessExample {json} Success-Response:
@@ -216,7 +216,7 @@ async function gardenSensors(req, res, next) {
     next();
   }
 }
-skill.put('/sensors/garden', gardenSensors);
+skill.get('/sensors/garden', gardenSensors);
 
 
 module.exports = skill;
