@@ -172,4 +172,51 @@ async function saveSensor(req, res, next) {
 }
 skill.put('/sensors/schedules/:sensorID', saveSensor);
 
+
+/**
+ * @api {put} /sensors/timers/:sensorID
+ * @apiName saveSensor
+ * @apiGroup Sensors
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *   HTTPS/1.1 200 OK
+ *   {
+ *     "data": {
+ *       "saved": "true"
+ *     }
+ *   }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *   HTTPS/1.1 500 Internal error
+ *   {
+ *     data: Error message
+ *   }
+ *
+ */
+async function gardenSensors(req, res, next) {
+  serviceHelper.log('trace', 'Garden sensor API called');
+
+  try {
+    const apiURL = `${process.env.ALFRED_FLOWERCARE_SERVICE}/sensors/current`;
+    serviceHelper.log('trace', `Calling: ${apiURL}`);
+    const returnData = await serviceHelper.callAlfredServiceGet(apiURL);
+    if (returnData instanceof Error) {
+      serviceHelper.log('error', returnData.message);
+      serviceHelper.sendResponse(res, 500, returnData);
+      next();
+      return;
+    }
+
+    serviceHelper.log('trace', 'Sending data back to caller');
+    serviceHelper.sendResponse(res, 200, returnData.data);
+    next();
+  } catch (err) {
+    serviceHelper.log('error', err.message);
+    serviceHelper.sendResponse(res, 500, err);
+    next();
+  }
+}
+skill.put('/sensors/garden', gardenSensors);
+
+
 module.exports = skill;
