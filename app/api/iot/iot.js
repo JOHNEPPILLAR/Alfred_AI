@@ -36,7 +36,6 @@ const skill = new Skills();
 async function displayRoomCharts(req, res, next) {
   serviceHelper.log('trace', 'Display room temp data API called');
   serviceHelper.log('trace', `Params: ${JSON.stringify(req.params)}`);
-  serviceHelper.log('trace', `Body: ${JSON.stringify(req.body)}`);
 
   const { roomID } = req.params;
   const { durationSpan } = req.query;
@@ -50,9 +49,8 @@ async function displayRoomCharts(req, res, next) {
       return;
     }
 
-    if (typeof durationSpan === 'undefined' || durationSpan === null) {
-      durationSpanVaule = '';
-    }
+    if (typeof durationSpan === 'undefined' || durationSpan === null) durationSpanVaule = '';
+    else durationSpanVaule = durationSpan;
 
     let apiURL;
     let returnData;
