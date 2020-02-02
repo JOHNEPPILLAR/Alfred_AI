@@ -75,7 +75,7 @@ async function displayRoomCharts(req, res, next) {
           return;
         }
         serviceHelper.log('trace', 'Sending data back to caller');
-        serviceHelper.sendResponse(res, 200, returnData.data);
+        serviceHelper.sendResponse(res, 200, returnData.data.rows);
         next();
         break;
       case '5': // Main bed room / Dyson
