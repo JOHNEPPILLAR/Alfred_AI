@@ -21,6 +21,7 @@ const APISensors = require('../api/sensors/sensors.js');
 const APIWeather = require('../api/weather/weather.js');
 
 global.APITraceID = '';
+
 let ClientAccessKey;
 
 async function setupAndRun() {
