@@ -10,14 +10,14 @@
     "start": "node app/server/server.js",
     "local": "nodemon app/server/server.js",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "test": "snyk test"
   },
   "dependencies": {
     "alfred-helper": "git://github.com/johneppillar/alfred_helper_lib",
     "dark-sky-api": "^0.6.32",
     "dateformat": "^3.0.3",
     "fs": "^0.0.2",
-    "harmonyhubjs-client": "^1.1.11",
     "moment": "^2.24.0",
     "pure-uuid": "^1.6.0",
     "request": "^2.88.2",

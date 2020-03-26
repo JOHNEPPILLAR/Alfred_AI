@@ -2,7 +2,7 @@
  * Import external libraries
  */
 const Skills = require('restify-router').Router;
-const harmony = require('harmonyhubjs-client');
+const harmony = null; // require('harmonyhubjs-client');
 const serviceHelper = require('alfred_helper');
 
 const skill = new Skills();
