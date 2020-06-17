@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.14.1
+version: v1.15.0
 ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
@@ -27,3 +27,9 @@ patch:
         patched: '2020-05-01T04:48:48.475Z'
     - alfred_helper_lib > node-vault > request-promise-native > request-promise-core > lodash:
         patched: '2020-05-01T04:48:48.475Z'
+    - alfred_helper_lib > restify > lodash:
+        patched: '2020-06-17T04:49:06.598Z'
+    - alfred_helper_lib > restify > restify-errors > lodash:
+        patched: '2020-06-17T04:49:06.598Z'
+    - alfred_helper_lib > restify > restify-errors > @netflix/nerror > lodash:
+        patched: '2020-06-17T04:49:06.598Z'
